@@ -1,0 +1,2 @@
+pymongo>=3.10.0
+pytest>=5.3.2
