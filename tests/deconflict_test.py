@@ -1,5 +1,5 @@
 import pytest
-from dcctools.deconflict import average_link_strength, link_count
+from dcctools.deconflict import average_link_strength, link_count, deconflict
 
 example_result = {
     "a" : [
@@ -113,3 +113,9 @@ def test_average_link_strength():
 def test_link_count():
   count = link_count(example_result, 'b', 142)
   assert count == 8
+
+def test_deconflict():
+  deconflicted_record = deconflict(example_result, ['a', 'b', 'c'])
+  assert deconflicted_record['a'] == 142
+  assert deconflicted_record['b'] == 142
+  assert deconflicted_record['c'] == 142
