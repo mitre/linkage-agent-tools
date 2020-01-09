@@ -4,7 +4,7 @@ import json
 
 root_path = '/Users/andrewg/projects/anonlink-multiparty/data/mulit-round/siblings'
 systems = ['a', 'b', 'c']
-projects = ['name-sex-dob-zip', 'name-sex-dob-phone', 'name-sex-dob-addr', 'name-sex-dob-parents']
+projects = ['name-sex-dob-zip', 'name-sex-dob-phone', 'name-sex-dob-addr']
 
 info = generate_results_information(root_path, systems, projects)
 

@@ -10,7 +10,7 @@ def deconflict(result_document, systems):
     conflicting_ids = result_document[sc]
     id_to_average_strength = {}
     for cid in conflicting_ids:
-      id_to_average_strength[cid] = average_link_strength(result_document, sc, cid)
+      id_to_average_strength[cid] = max_link_strength(result_document, sc, cid)
     final_record[sc] = max(id_to_average_strength, key=lambda key: id_to_average_strength[key])
 
   return final_record
@@ -28,3 +28,10 @@ def link_count(result_document, system, id):
     if l.get(system, None) == id:
       count += 1
   return count
+
+def max_link_strength(result_document, system, id):
+  scores = []
+  for l in result_document['links']:
+    if l.get(system, None) == id:
+      scores.append(l['score'])
+  return max(scores)
