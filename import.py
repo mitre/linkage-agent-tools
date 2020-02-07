@@ -1,3 +1,7 @@
+# This script imports all matching results from all systems and all projects
+# It is assumed that all matching through the anonlink-entity-service has taken
+# place before this script is run.
+
 from pymongo import MongoClient
 from dcctools.anonlink import generate_results_information, insert_results
 import json
