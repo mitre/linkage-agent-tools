@@ -13,3 +13,7 @@ This project is a set of python scripts driven by a central configuration file. 
 1. Then execute networkids.py to query the database and build a set of network IDs.
 1. exportall.py will then create a CSV file containing a mapping of the entire network
 1. TODO create a script to generate a file that can be sent back to individual data owners
+
+## Running Tests
+
+`python3 -m pytest`

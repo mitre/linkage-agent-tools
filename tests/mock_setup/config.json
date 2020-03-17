@@ -1,0 +1,7 @@
+{
+  "systems": ["a", "b"],
+  "projects": ["name-dob", "name-phone"],
+  "inbox_folder": "inbox",
+  "matching_results_folder": "results",
+  "output_folder": "output"
+}
