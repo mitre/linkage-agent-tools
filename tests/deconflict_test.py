@@ -1,5 +1,5 @@
 import pytest
-from dcctools.deconflict import average_link_strength, link_count, deconflict
+from dcctools.deconflict import link_count, deconflict
 
 example_result = {
     "a" : [
@@ -9,106 +9,87 @@ example_result = {
         142,
         280
     ],
-    "links" : [
+    "run_results" : [
         {
             "a" : 142,
             "b" : 142,
-            "run_name" : "name-sex-dob-zip",
-            "score" : 0.971112999150382
+            "project" : "name-sex-dob-zip"
         },
         {
             "a" : 142,
             "b" : 280,
-            "run_name" : "name-sex-dob-zip",
-            "score" : 0.777118644067797
+            "project" : "name-sex-dob-zip"
         },
         {
             "a" : 142,
             "b" : 142,
-            "run_name" : "name-sex-dob-phone",
-            "score" : 0.939367311072056
+            "project" : "name-sex-dob-phone"
         },
         {
             "a" : 142,
             "b" : 280,
-            "run_name" : "name-sex-dob-phone",
-            "score" : 0.768828907270353
+            "project" : "name-sex-dob-phone"
         },
         {
             "a" : 142,
             "b" : 142,
-            "run_name" : "name-sex-dob-addr",
-            "score" : 0.916524701873935
+            "project" : "name-sex-dob-addr"
         },
         {
             "a" : 142,
             "b" : 280,
-            "run_name" : "name-sex-dob-addr",
-            "score" : 0.775752437473506
+            "project" : "name-sex-dob-addr"
         },
         {
             "a" : 142,
             "b" : 142,
-            "run_name" : "name-sex-dob-parents",
-            "score" : 0.897427754842807
+            "project" : "name-sex-dob-parents"
         },
         {
             "a" : 142,
             "b" : 280,
-            "run_name" : "name-sex-dob-parents",
-            "score" : 0.852218321097989
+            "project" : "name-sex-dob-parents"
         },
         {
             "a" : 142,
             "c" : 142,
-            "run_name" : "name-sex-dob-zip",
-            "score" : 0.813863928112965
+            "project" : "name-sex-dob-zip"
         },
         {
             "a" : 142,
             "c" : 142,
-            "run_name" : "name-sex-dob-phone",
-            "score" : 0.771681415929204
+            "project" : "name-sex-dob-phone"
         },
         {
             "a" : 142,
             "c" : 142,
-            "run_name" : "name-sex-dob-addr",
-            "score" : 0.793965517241379
+            "project" : "name-sex-dob-addr"
         },
         {
             "b" : 142,
             "c" : 142,
-            "run_name" : "name-sex-dob-zip",
-            "score" : 0.841113490364026
+            "project" : "name-sex-dob-zip"
         },
         {
             "b" : 142,
             "c" : 142,
-            "run_name" : "name-sex-dob-phone",
-            "score" : 0.82963620230701
+            "project" : "name-sex-dob-phone"
         },
         {
             "b" : 142,
             "c" : 142,
-            "run_name" : "name-sex-dob-addr",
-            "score" : 0.805172413793103
+            "project" : "name-sex-dob-addr"
         },
         {
             "b" : 142,
             "c" : 142,
-            "run_name" : "name-sex-dob-parents",
-            "score" : 0.772885650934431
+            "project" : "name-sex-dob-parents"
         }
     ],
     "c" : [
         142
     ]
 }
-
-def test_average_link_strength():
-  average = average_link_strength(example_result, 'b', 142)
-  assert average == pytest.approx(0.871655066)
 
 def test_link_count():
   count = link_count(example_result, 'b', 142)

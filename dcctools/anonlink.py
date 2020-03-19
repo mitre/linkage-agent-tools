@@ -1,12 +1,13 @@
 import itertools as it
 import requests
+import json
 from tinydb import Query
 from tinydb.operations import set, add
 
 class Project:
   def __init__(self, name, schema, parties, entity_service_url):
     self.name = name
-    self.schema = schema
+    self.schema = json.loads(schema)
     self.parties = parties
     self.entity_service_url = entity_service_url
     self.runs = []
@@ -23,7 +24,7 @@ class Project:
     self.result_token = response_body['result_token']
 
   def upload_clks(self, party, clks):
-    headers = {'Authorization': self.update_token_map[party]}
+    headers = {'Authorization': self.update_token_map[party], 'Content-Type': 'application/json'}
     response = requests.post("{}/projects/{}/clks".format(self.entity_service_url, self.project_id),
       headers=headers, data=clks)
     response.raise_for_status()
@@ -42,7 +43,7 @@ class Project:
     if run_to_check is None:
       run_to_check = self.runs[-1]
     headers = {'Authorization': self.result_token}
-    response = requests.get("{}/projects/{}/runs/{}".format(self.entity_service_url, self.project_id, run_to_check),
+    response = requests.get("{}/projects/{}/runs/{}/status".format(self.entity_service_url, self.project_id, run_to_check),
       headers=headers)
     return response.json()
 
@@ -51,7 +52,7 @@ class Project:
     if run_to_check is None:
       run_to_check = self.runs[-1]
     headers = {'Authorization': self.result_token}
-    response = requests.get("{}/projects/{}/runs/{}/results".format(self.entity_service_url, self.project_id, run_to_check),
+    response = requests.get("{}/projects/{}/runs/{}/result".format(self.entity_service_url, self.project_id, run_to_check),
       headers=headers)
     return response.json()
 
@@ -62,7 +63,7 @@ class Results:
     self.project = project
 
   def insert_results(self, table):
-    for result_group in self.results:
+    for result_group in self.results['groups']:
       record = {}
       for result_record in result_group:
         record[self.systems[result_record[0]]] = result_record[1]
@@ -94,6 +95,34 @@ class Results:
         run_result['project'] = self.project
         table.update(add('run_results', run_result), query)
       if len(query_result) > 1:
-        raise ValueError("There should only be a single query result.")
+        # This identifies a link between clusters that weren't
+        # linked before. We will need to merge the results
+        merged_document = {'run_results': []}
+        for qr in query_result:
+          for system, id_list in qr.items():
+            if system != 'run_results':
+              existing_id_list = qr.get(system)
+              if existing_id_list is None:
+                merged_document['system'] = id_list
+              else:
+                for id in id_list:
+                  if id not in existing_id_list:
+                    existing_id_list.append(id)
+          merged_document['run_results'].extend(qr['run_results'])
+        for system, id in record.items():
+          system_ids = merged_document.get(system)
+          if system_ids is None:
+            merged_document[system] = [id]
+          elif id not in system_ids:
+            system_ids.append(id)
+        run_result = record
+        run_result['project'] = self.project
+        merged_document['run_results'].append(run_result)
+        table.remove(query)
+        table.insert(merged_document)
+
+
+
+
 
 
