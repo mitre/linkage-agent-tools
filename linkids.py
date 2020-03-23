@@ -13,7 +13,7 @@ systems = c.systems()
 header = ['LINK_ID']
 header.extend(systems)
 
-result_csv_path = Path(c.output_folder()) / "link_ids.csv"
+result_csv_path = Path(c.matching_results_folder()) / "link_ids.csv"
 
 with open(result_csv_path, 'w', newline='') as csvfile:
   writer = csv.DictWriter(csvfile, fieldnames=header)

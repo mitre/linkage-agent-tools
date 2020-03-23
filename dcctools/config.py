@@ -48,3 +48,6 @@ class Configuration:
 
   def output_folder(self):
     return self.config_json['output_folder']
+
+  def matching_results_folder(self):
+    return self.config_json['matching_results_folder']

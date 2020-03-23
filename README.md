@@ -75,11 +75,11 @@ This project is a set of python scripts driven by a central configuration file, 
 1. Run `validate.py` which will ensure all of the necessary files are present.
 1. When all data is present, run `match.py`, which will perform pairwise matching of the garbled information sent by the data owners. The matching information will be stored in a JSON file created by TinyDB.
 1. After matching, run `linkids.py`, which will take all of the resulting matching information and use it to generate LINK_IDs, which are written to a CSV file in the configured results folder.
-1. TODO create a script to generate a file that can be sent back to individual data owners
+1. Once all LINK_IDs have been created, run `dataownerids.py` which will create a file per data owner that can be sent with only information on their LINK_IDs.
 
 ## Running Tests
 
-Tests can be run with the following command:
+DCC Tools contains a unit test suite. Tests can be run with the following command:
 
 `python -m pytest`
 
