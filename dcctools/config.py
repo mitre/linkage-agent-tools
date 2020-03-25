@@ -51,3 +51,6 @@ class Configuration:
 
   def matching_results_folder(self):
     return self.config_json['matching_results_folder']
+
+  def inbox_folder(self):
+    return self.config_json['inbox_folder']
