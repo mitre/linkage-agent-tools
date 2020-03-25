@@ -1,6 +1,8 @@
 # DCC Tools
 
-Tools for a Data Coordinating Center (DCC) to use to accept garbled input from data owners / partners, perform matching and generate network IDs. This can also be thought of as Semi-Trusted Third Party (STTP) tools.
+Tools for the Childhood Obesity Data Initative (CODI) Data Coordinating Center (DCC) to use to accept garbled input from data owners / partners, perform matching and generate network IDs. This can also be thought of as Semi-Trusted Third Party (STTP) tools.
+
+These tool facilitate a Privacy Preserving Record Linkage (PPRL) process. They build on the open source [anonlink](https://github.com/data61/anonlink) software package.
 
 ## Installation
 
