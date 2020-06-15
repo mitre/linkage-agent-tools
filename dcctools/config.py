@@ -54,3 +54,6 @@ class Configuration:
 
   def inbox_folder(self):
     return self.config_json['inbox_folder']
+
+  def projects(self):
+    return self.config_json['projects']
