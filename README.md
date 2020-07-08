@@ -1,6 +1,6 @@
-# DCC Tools
+# Linkage Agent Tools
 
-Tools for the Childhood Obesity Data Initative (CODI) Data Coordinating Center (DCC) to use to accept garbled input from data owners / partners, perform matching and generate network IDs. This can also be thought of as Semi-Trusted Third Party (STTP) tools.
+Tools for the Childhood Obesity Data Initative (CODI) Linkage Agent to use to accept garbled input from data owners / partners, perform matching and generate network IDs. This can also be thought of as Semi-Trusted Third Party (STTP) tools.
 
 These tool facilitate a Privacy Preserving Record Linkage (PPRL) process. They build on the open source [anonlink](https://github.com/data61/anonlink) software package.
 
@@ -8,17 +8,17 @@ These tool facilitate a Privacy Preserving Record Linkage (PPRL) process. They b
 
 ### anonlink-entity-service
 
-The primary dependency of these tools is on the [anonlink-entity-service](https://anonlink-entity-service.readthedocs.io/en/stable/). This software package provides a web service for accessing [anonlink](https://github.com/data61/anonlink)'s matching capabilites. This software must be installed for the DCC Tools to work. Install instructions can be found on the [anonlink-entity-service Deployment page](https://anonlink-entity-service.readthedocs.io/en/stable/deployment.html)
+The primary dependency of these tools is on the [anonlink-entity-service](https://anonlink-entity-service.readthedocs.io/en/stable/). This software package provides a web service for accessing [anonlink](https://github.com/data61/anonlink)'s matching capabilites. This software must be installed for the Linkage Agent Tools to work. Install instructions can be found on the [anonlink-entity-service Deployment page](https://anonlink-entity-service.readthedocs.io/en/stable/deployment.html)
 
 ### Dependency Overview
 
-DCC Tools is a set of scripts designed to interact with the previously mentioned anonlink-entity-service. They were created and tested on Python 3.7.4. The tools rely on two libraries: [Requests](https://requests.readthedocs.io/en/master/) and [TinyDB](https://tinydb.readthedocs.io/en/latest/intro.html).
+Linkage Agent Tools is a set of scripts designed to interact with the previously mentioned anonlink-entity-service. They were created and tested on Python 3.7.4. The tools rely on two libraries: [Requests](https://requests.readthedocs.io/en/master/) and [TinyDB](https://tinydb.readthedocs.io/en/latest/intro.html).
 
 Requests is a library that makes HTTP requests. This is used for the tools to communicate with the web service offered by the anonlink-entity-service.
 
 TinyDB is a Python-based implementation of a document database. It runs inside of the Python interpreter and stores it's information in a JSON file. TinyDB is used to keep track of matches across anonlink projects. It is then queries to deconflict results between projects and construct a full set of LINK_IDs for all individuals.
 
-DCC Tools contains a test suite, which was created using [pytest](https://docs.pytest.org/en/latest/).
+Linkage Agent Tools contains a test suite, which was created using [pytest](https://docs.pytest.org/en/latest/).
 
 ### Installing with an existing Python install
 
@@ -44,7 +44,7 @@ DCC Tools contains a test suite, which was created using [pytest](https://docs.p
 
 ## Configuration
 
-DCC Tools is driven by a central configuration file, which is a JSON document. An example is shown below:
+Linkage Agent Tools is driven by a central configuration file, which is a JSON document. An example is shown below:
 
 ```
 {
@@ -56,7 +56,7 @@ DCC Tools is driven by a central configuration file, which is a JSON document. A
   "matching_results_folder": "/path/to/results",
   "output_folder": "/path/to/output",
   "entity_service_url": "http://localhost:8851/api/v1",
-  "matching_threshold": 0.75
+  "matching_threshold": 0.8
 }
 ```
 A description of the properties in the file:
@@ -73,7 +73,7 @@ A description of the properties in the file:
 
 This project is a set of python scripts driven by a central configuration file, `config.json`. It is expected to operate in the following order:
 
-1. Data owners transmit their garbled zip files to the DCC. These zip files should be placed into the configured inbox folder.
+1. Data owners transmit their garbled zip files to the Linkage Agent. These zip files should be placed into the configured inbox folder.
 1. Run `validate.py` which will ensure all of the necessary files are present.
 1. When all data is present, run `match.py`, which will perform pairwise matching of the garbled information sent by the data owners. The matching information will be stored in a JSON file created by TinyDB.
 1. After matching, run `linkids.py`, which will take all of the resulting matching information and use it to generate LINK_IDs, which are written to a CSV file in the configured results folder.
@@ -81,7 +81,7 @@ This project is a set of python scripts driven by a central configuration file, 
 
 ## Running Tests
 
-DCC Tools contains a unit test suite. Tests can be run with the following command:
+Linkage Agent Tools contains a unit test suite. Tests can be run with the following command:
 
 `python -m pytest`
 
