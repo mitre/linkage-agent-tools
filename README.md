@@ -79,6 +79,10 @@ This project is a set of python scripts driven by a central configuration file, 
 1. After matching, run `linkids.py`, which will take all of the resulting matching information and use it to generate LINK_IDs, which are written to a CSV file in the configured results folder.
 1. Once all LINK_IDs have been created, run `dataownerids.py` which will create a file per data owner that can be sent with only information on their LINK_IDs.
 
+## Clean Up
+
+Running `match.py` creates a file called `results.json` that is storage for TinyDB. This file should be removed between matching runs, otherwise the matching runs will be combined. Running `python linkids.py --remove` will remove this file once the LINKIDs have been generated.
+
 ## Running Tests
 
 Linkage Agent Tools contains a unit test suite. Tests can be run with the following command:
