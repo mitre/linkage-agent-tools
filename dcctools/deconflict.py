@@ -5,7 +5,8 @@ def deconflict(result_document, systems):
     if len(result_document.get(s, [])) > 1:
       system_conflicts.append(s)
     else:
-      final_record[s] = result_document[s][0]
+      if result_document.get(s) is not None:
+        final_record[s] = result_document[s][0]
   for sc in system_conflicts:
     conflicting_ids = result_document[sc]
     id_to_link_count = {}
