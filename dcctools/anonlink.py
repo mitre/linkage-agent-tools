@@ -63,7 +63,12 @@ class Results:
     self.project = project
 
   def insert_results(self, table):
+    matches_to_insert = len(self.results['groups'])
+    print("Inserting {} records into the local database.".format(matches_to_insert))
+    insert_count = 0
     for result_group in self.results['groups']:
+      if (insert_count != 0) & (insert_count % 100 == 0):
+        print("Inserted {} of {} records.".format(insert_count, matches_to_insert))
       record = {}
       for result_record in result_group:
         record[self.systems[result_record[0]]] = result_record[1]
@@ -93,7 +98,9 @@ class Results:
             table.update(add(system, [id]), query)
         run_result = record
         run_result['project'] = self.project
-        table.update(add('run_results', run_result), query)
+        old_results = result_doc['run_results']
+        old_results.append(run_result)
+        table.update(set('run_results', old_results), query)
       if len(query_result) > 1:
         # This identifies a link between clusters that weren't
         # linked before. We will need to merge the results
@@ -120,6 +127,7 @@ class Results:
         merged_document['run_results'].append(run_result)
         table.remove(query)
         table.insert(merged_document)
+      insert_count += 1
 
 
 
