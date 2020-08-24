@@ -108,9 +108,9 @@ class Results:
         for qr in query_result:
           for system, id_list in qr.items():
             if system != 'run_results':
-              existing_id_list = qr.get(system)
+              existing_id_list = merged_document.get(system)
               if existing_id_list is None:
-                merged_document['system'] = id_list
+                merged_document[system] = id_list
               else:
                 for id in id_list:
                   if id not in existing_id_list:
