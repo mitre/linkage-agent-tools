@@ -7,5 +7,6 @@
   "matching_results_folder": "/Users/andrewg/Desktop/dcc/results",
   "output_folder": "/Users/andrewg/Desktop/dcc/output",
   "entity_service_url": "http://localhost:8851/api/v1",
-  "matching_threshold": 0.75
+  "matching_threshold": 0.8,
+  "mongo_uri": "localhost:27017"
 }

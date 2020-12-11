@@ -14,7 +14,7 @@ parser.add_argument('--remove', action="store_true", help='Delete the results.js
 args = parser.parse_args()
 
 c = Configuration("config.json")
-client = MongoClient(port=27017)
+client = MongoClient(c.mongo_uri())
 database = client.linkage_agent
 
 systems = c.systems()

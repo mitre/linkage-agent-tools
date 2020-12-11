@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from dcctools.anonlink import Results, Project
 
 c = Configuration("config.json")
-client = MongoClient(port=27017)
+client = MongoClient(c.mongo_uri())
 database = client.linkage_agent
 for project_name, schema in c.load_schema().items():
   project = Project(project_name, schema, c.systems(), c.entity_service_url())

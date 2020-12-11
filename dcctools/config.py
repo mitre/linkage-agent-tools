@@ -57,3 +57,6 @@ class Configuration:
 
   def projects(self):
     return self.config_json['projects']
+
+  def mongo_uri(self):
+    return self.config_json['mongo_uri']
