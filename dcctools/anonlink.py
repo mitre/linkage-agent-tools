@@ -1,8 +1,6 @@
 import itertools as it
 import requests
 import json
-from tinydb import Query
-from tinydb.operations import set, add
 
 class Project:
   def __init__(self, name, schema, parties, entity_service_url):
@@ -62,7 +60,7 @@ class Results:
     self.results = results
     self.project = project
 
-  def insert_results(self, table):
+  def insert_results(self, collection):
     matches_to_insert = len(self.results['groups'])
     print("Inserting {} records into the local database.".format(matches_to_insert))
     insert_count = 0
@@ -72,42 +70,38 @@ class Results:
       record = {}
       for result_record in result_group:
         record[self.systems[result_record[0]]] = result_record[1]
-      query = None
-      RecordGroup = Query()
+      query = []
       for system, id in record.items():
-        if query is None:
-          query = RecordGroup[system].any([id])
-        else:
-          query = query | RecordGroup[system].any([id])
-      query_result = table.search(query)
-      if len(query_result) == 0:
+        query.append({system: id})
+      query_result = collection.find({"$or": query})
+      query_result_count = collection.count_documents({"$or": query})
+      if query_result_count == 0:
         document_to_insert = {}
         for system, id in record.items():
           document_to_insert[system] = [id]
         run_result = record
         run_result['project'] = self.project
         document_to_insert['run_results'] = [run_result]
-        table.insert(document_to_insert)
-      if len(query_result) == 1:
+        collection.insert_one(document_to_insert)
+      if query_result_count == 1:
         result_doc = query_result[0]
+        doc_id = result_doc["_id"]
+        updates = {"$addToSet": {}}
         for system, id in record.items():
-          system_ids = result_doc.get(system)
-          if system_ids is None:
-            table.update(set(system, [id]), query)
-          elif id not in system_ids:
-            table.update(add(system, [id]), query)
+          updates["$addToSet"][system] = id
         run_result = record
         run_result['project'] = self.project
-        old_results = result_doc['run_results']
-        old_results.append(run_result)
-        table.update(set('run_results', old_results), query)
-      if len(query_result) > 1:
+        updates["$addToSet"]['run_results'] = run_result
+        collection.update_one({'_id': doc_id}, updates)
+      if query_result_count > 1:
         # This identifies a link between clusters that weren't
         # linked before. We will need to merge the results
         merged_document = {'run_results': []}
+        docs_to_delete = []
         for qr in query_result:
+          docs_to_delete.append(qr['_id'])
           for system, id_list in qr.items():
-            if system != 'run_results':
+            if system != 'run_results' and system != '_id':
               existing_id_list = merged_document.get(system)
               if existing_id_list is None:
                 merged_document[system] = id_list
@@ -125,8 +119,8 @@ class Results:
         run_result = record
         run_result['project'] = self.project
         merged_document['run_results'].append(run_result)
-        table.remove(query)
-        table.insert(merged_document)
+        collection.delete_many({'_id': {'$in': docs_to_delete}})
+        collection.insert_one(merged_document)
       insert_count += 1
 
 
