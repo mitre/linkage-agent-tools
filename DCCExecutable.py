@@ -10,7 +10,7 @@ import atexit
 import time
 import sys
 
-#pyinstaller DCCExecutable.py  --add-data anonlink-entity-service;anonlink-entity-service --add-data config.json;config.json
+#pyinstaller DCCExecutable.py  --add-data anonlink-entity-service;anonlink-entity-service --add-data config.json;.
 
 
 if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
@@ -33,7 +33,6 @@ class CSVManager(wx.Frame):
         self.schemaDir = ""
         self.inboxDir = ""
         self.outputDir = ""
-        self.saltPath = ""
         self.txt1 = None
         self.txt2 = None
         self.txt3 = None
