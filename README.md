@@ -15,10 +15,10 @@ Fork of https://github.com/mitre/linkage-agent-tools. All python files should co
 - Function returns messages instead of printing
 
 ## Additions
-### GarbleExecutable.py
-- WxPython GUI wrapper for functions inside garble.py
-- Able to be built into a folder with an executable using pyinstaller
-- Currently includes Schema files inside the built folder
+### DCCExecutable.py
+- WxPython GUI wrapper for functions listed above
+- Able to be built into a one-folder executable using pyinstaller
+- Currently does not include Schema files inside the built folder
 - Runs multiprocessing.freeze_support() to enable multiprocessing in the built executable.
 
 
@@ -26,3 +26,5 @@ Fork of https://github.com/mitre/linkage-agent-tools. All python files should co
 Clone the repository. From the cloned directory run the following commands:  
 `pip install -r requirements.txt`  
 `pyinstaller DCCExecutable.py  --add-data anonlink-entity-service;anonlink-entity-service --add-data config.json;.`
+
+The built executable will appear in /dist.
