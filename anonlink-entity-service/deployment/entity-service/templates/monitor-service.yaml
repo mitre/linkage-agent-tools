@@ -1,0 +1,17 @@
+{{- if .Values.workers.monitor.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "api.fullname" . }}-monitor
+  labels:
+    {{- include "es.release_labels" . | indent 4 }}
+spec:
+  ports:
+    - port: 80
+      name: http
+      targetPort: "celery-monitor"
+  selector:
+    app: {{ template "es.appname" . }}
+    tier: aux
+    run: celery-monitor
+{{- end }}

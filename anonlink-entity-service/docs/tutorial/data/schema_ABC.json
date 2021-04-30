@@ -1,0 +1,91 @@
+{
+  "version": 3,
+  "clkConfig": {
+    "l": 1024,
+    "kdf": {
+      "type": "HKDF",
+      "hash": "SHA256",
+      "salt": "SCbL2zHNnmsckfzchsNkZY9XoHk96P/G5nUBrM7ybymlEFsMV6PAeDZCNp3rfNUPCtLDMOGQHG4pCQpfhiHCyA==",
+      "info": "c2NoZW1hX2V4YW1wbGU=",
+      "keySize": 64
+    }
+  },
+  "features": [
+    {
+      "identifier": "id",
+      "ignored": true
+    },
+    {
+      "identifier": "givenname",
+      "format": {
+        "type": "string",
+        "encoding": "utf-8"
+      },
+      "hashing": {
+        "strategy": {
+          "bitsPerToken": 15
+        },
+        "comparison": {
+          "type": "ngram",
+          "n": 2,
+          "positional": false
+        }
+      }
+    },
+    {
+      "identifier": "surname",
+      "format": {
+        "type": "string",
+        "encoding": "utf-8"
+      },
+      "hashing": {
+        "strategy": {
+          "bitsPerToken": 15
+        },
+        "comparison": {
+          "type": "ngram",
+          "n": 2,
+          "positional": false
+        }
+      }
+    },
+    {
+      "identifier": "dob",
+      "format": {
+        "type": "string",
+        "encoding": "utf-8"
+      },
+      "hashing": {
+        "strategy": {
+          "bitsPerToken": 15
+        },
+        "comparison": {
+          "type": "ngram",
+          "n": 2,
+          "positional": true
+        }
+      }
+    },
+    {
+      "identifier": "phone number",
+      "format": {
+        "type": "string",
+        "encoding": "utf-8"
+      },
+      "hashing": {
+        "strategy": {
+          "bitsPerToken": 8
+        },
+        "comparison": {
+          "type": "ngram",
+          "n": 1,
+          "positional": true
+        }
+      }
+    },
+    {
+      "identifier": "ignoredForLinkage",
+      "ignored": true
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: anonlinkintegrationtest
+  labels:
+    jobgroup: integration-test
+spec:
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      labels:
+        jobgroup: integration-test
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: entitytester
+        image: data61/anonlink-app:v1.13.0-beta
+        imagePullPolicy: Always
+        env:
+          - name: SERVER
+            value: https://anonlink.easd.data61.xyz
+          - name: LOGGING_LEVEL
+            value: "INFO"
+        command:
+          - "python"
+          - "-m"
+          - "pytest"
+          - "entityservice/tests"
+          - "-x"

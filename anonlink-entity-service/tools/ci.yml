@@ -1,0 +1,64 @@
+version: '3.4'
+services:
+
+  tests:
+    image: data61/anonlink-test:${TAG:-latest}
+    environment:
+      - SERVER=http://nginx:8851
+      - JAEGER_AGENT_HOST=jaeger
+      - INITIAL_DELAY=5
+    depends_on:
+      - backend
+      - worker
+      - nginx
+
+  integrationtests:
+    image: data61/anonlink-app:${TAG:-latest}
+    environment:
+      - SERVER=http://nginx:8851
+      - DATABASE_PASSWORD=rX%QpV7Xgyrz
+      - MINIO_ACCESS_KEY=AKIAIOSFODNN7EXAMPLE
+      - MINIO_SECRET_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+      - UPLOAD_OBJECT_STORE_ACCESS_KEY=EXAMPLE_UPLOAD_ACCESS_KEY
+      - UPLOAD_OBJECT_STORE_SECRET_KEY=EXAMPLE_UPLOAD_SECRET_ACCESS_KEY
+      - UPLOAD_OBJECT_STORE_SECURE=false
+      - INITIAL_DELAY=5
+    command: dockerize -wait tcp://db:5432 -wait tcp://nginx:8851/api/v1/status -timeout 5m
+             /bin/sh -c "sleep 5 && python -m pytest -n 1 entityservice/integrationtests --junitxml=testResults.xml -x"
+    depends_on:
+      - db
+      - backend
+      - worker
+      - nginx
+      - objectstore_init
+
+  benchmark:
+    image: data61/anonlink-benchmark:${TAG:-latest}
+    environment:
+      - SERVER=http://nginx:8851
+      - DATA_PATH=/cache
+      - EXPERIMENT=/app/linkage-bench-cache-experiments.json
+      - RESULTS_PATH=/app/results.json
+    depends_on:
+      - db
+      - redis
+      - worker
+      - nginx
+    entrypoint: /bin/sh -c "dockerize -wait tcp://db:5432 -wait tcp://nginx:8851/api/v1/status -timeout 1m python benchmark.py"
+    volumes:
+      - benchmarkdata:/cache
+
+  tutorials:
+    image: data61/anonlink-docs-tutorials:${TAG:-latest}
+    environment:
+      - SERVER=http://nginx:8851
+    depends_on:
+      - db
+      - redis
+      - worker
+      - backend
+      - nginx
+    command: dockerize -wait tcp://db:5432 -wait http://nginx:8851/api/v1/status -timeout 1m python -m pytest --junitxml=testResults.xml -x --nbval-lax /src
+
+volumes:
+  benchmarkdata:

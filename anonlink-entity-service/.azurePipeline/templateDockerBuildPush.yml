@@ -1,0 +1,73 @@
+# Template to login into Dockerhub, build a docker image and push it.
+
+# Parameters:
+#
+# - `dockerFilePath` is optional. If provided, will add the parameter: `-f ${{ parameters.dockerFile }}`
+#   to the docker build command.
+# - `folder` folder in which to build the Dockerfile
+# - `imageName` is the built docker image name (not the tag)
+# - `imageTag` is optional - if not provided the templateSetVariableDockerTag will be used to determine the tag.
+# - `jobName` - should only include alphanumeric values and '_'.
+# - `skip` - don't bother building if set to anything other than 'false'
+# - `dockerBuildVersion` - VERSION argument passed to docker build.
+# - `extraJobs` can contain a list of jobs to do in the same stage which are dependent on the built and pushed docker image.
+
+parameters:
+  dockerFilePath: ''
+  folder: ''
+  imageName: ''
+  imageTag: ''
+  jobName: ''
+  skip: 'False'
+  dockerBuildVersion: ''
+  extraJobs: []
+  dependsOn: ''
+
+jobs:
+- job: ${{ parameters.jobName }}
+  displayName: ${{ parameters.jobName }}
+  pool:
+    vmImage: "ubuntu-latest"
+  condition: and(succeeded(), eq(variables['SKIP'], 'False'))
+  dependsOn: ${{ parameters.dependsOn }}
+  variables:
+    DOCKER_TAG: ${{ parameters.imageTag }}
+    SKIP: ${{ parameters.skip }}
+    DOCKER_BUILD_VERSION: ${{ parameters.dockerBuildVersion }}
+  steps:
+    - ${{ if eq(parameters.imageTag, '') }}:
+      - template: templateSetVariableDockerTag.yml   # Set DOCKER_TAG if it wasn't provided in parameters as imageTag
+    - script: |
+        docker login -u $(dockerHubId) -p $(dockerHubPassword)
+      displayName: 'Dockerhub login'
+    - script: |
+        if [[ -z "$DOCKER_BUILD_VERSION" ]]; then
+          DOCKER_BUILD_ARGS=""
+        else
+          DOCKER_BUILD_ARGS="--build-arg VERSION=$DOCKER_BUILD_VERSION"
+        fi
+
+        if [[ -z "${{ parameters.dockerFilePath }}" ]]; then
+          DOCKER_PATH=""
+        else
+          DOCKER_PATH="-f ${{ parameters.dockerFilePath }}"
+        fi
+
+        if [[ "$SKIP" == "False" ]]; then
+          docker build -t ${{ parameters.imageName }}:$(DOCKER_TAG) $DOCKER_PATH $DOCKER_BUILD_ARGS ${{ parameters.folder }}
+          docker push ${{ parameters.imageName }}:$(DOCKER_TAG)
+        else
+          echo "Skipping build"
+        fi
+      displayName: 'Build and push docker image'
+
+# Updated from the documentation https://docs.microsoft.com/en-us/azure/devops/pipelines/process/templates?view=azure-devops
+# The idea being able to define jobs depending on the creation of the previous image.
+- ${{ each job in parameters.jobs }}: # Then do each job
+  - ${{ each pair in job }}:          # Insert all properties other than "dependsOn"
+      ${{ if ne(pair.key, 'dependsOn') }}:
+        ${{ pair.key }}: ${{ pair.value }}
+    dependsOn:                        # Inject dependency
+    - ${{ parameters.jobName }}
+    - ${{ if job.dependsOn }}:
+      - ${{ job.dependsOn }}

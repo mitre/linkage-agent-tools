@@ -1,11 +1,1 @@
-{
-  "systems": ["ch", "dh", "kp", "hfc", "gotr"],
-  "projects": ["name-sex-dob-phone", "name-sex-dob-zip",
-    "name-sex-dob-parents", "name-sex-dob-addr"],
-  "schema_folder": "/Users/andrewg/projects/data-owner-tools/example-schema",
-  "inbox_folder": "/Users/andrewg/Desktop/dcc/inbox",
-  "matching_results_folder": "/Users/andrewg/Desktop/dcc/results",
-  "output_folder": "/Users/andrewg/Desktop/dcc/output",
-  "entity_service_url": "http://localhost:8851/api/v1",
-  "matching_threshold": 0.75
-}
+{"systems": ["ch", "dh"], "projects": ["name-sex-dob-phone", "name-sex-dob-zip", "name-sex-dob-parents", "name-sex-dob-addr"], "schema_folder": "C:\\_WORKSPACES\\PPRL_Fork\\linkage-agent-tools\\example-schema", "inbox_folder": "C:\\_WORKSPACES\\PPRL_Fork\\linkage-agent-tools\\tests\\exe_test\\inbox", "matching_results_folder": "C:\\_WORKSPACES\\PPRL_Fork\\linkage-agent-tools\\tests\\exe_test\\output", "output_folder": "C:\\_WORKSPACES\\PPRL_Fork\\linkage-agent-tools\\tests\\exe_test\\output", "entity_service_url": "http://localhost:8851/api/v1", "matching_threshold": 0.75}
