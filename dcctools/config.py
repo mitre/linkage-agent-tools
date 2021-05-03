@@ -35,13 +35,37 @@ class Configuration:
   def entity_service_url(self):
     return self.config_json['entity_service_url']
 
-  def get_clks(self, system, project):
+  def extract_clks(self, system):
+    clk_zip_path = Path(self.config_json['inbox_folder']) / "{}.zip".format(system)
+    extract_path = Path(self.config_json['inbox_folder']) / system
+    if not os.path.exists(extract_path):
+        os.mkdir(extract_path)
+    with ZipFile(clk_zip_path, mode='r') as clk_zip:
+      clk_zip.extractall(Path(self.config_json['inbox_folder']) / system)
+
+  def extract_blocks(self, system):
+    block_zip_path = Path(self.config_json['inbox_folder']) / "{}-block.zip".format(system)
+    extract_path = Path(self.config_json['inbox_folder']) / system
+    if not os.path.exists(extract_path):
+        os.mkdir(extract_path)
+    with ZipFile(block_zip_path, mode='r') as block_zip:
+      block_zip.extractall(Path(self.config_json['inbox_folder']) / system)
+
+  def get_clk(self, system, project):
+    clk_path = Path(self.config_json['inbox_folder']) / system / "output/{}.json".format(project)
+    return clk_path
+
+  def get_clks_raw(self, system, project):
     clks = None
     clk_zip_path = Path(self.config_json['inbox_folder']) / "{}.zip".format(system)
     with ZipFile(clk_zip_path, mode='r') as clk_zip:
       with clk_zip.open("output/{}.json".format(project)) as clk_file:
         clks = clk_file.read()
     return clks
+
+  def get_block(self, system, project):
+    block_path = Path(self.config_json['inbox_folder']) / system / "blocking-output/{}.json".format(project)
+    return block_path
 
   def matching_threshold(self):
     return self.config_json['matching_threshold']
@@ -60,3 +84,9 @@ class Configuration:
 
   def mongo_uri(self):
     return self.config_json['mongo_uri']
+
+  def blocked(self):
+    return self.config_json['blocked']
+
+  def blocking_schema(self):
+    return self.config_json['blocking_schema']

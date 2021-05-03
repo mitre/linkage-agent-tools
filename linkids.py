@@ -10,7 +10,7 @@ import argparse
 import os
 
 parser = argparse.ArgumentParser(description='Tool for generating LINK_IDs in the CODI PPRL process')
-parser.add_argument('--remove', action="store_true", help='Delete the results.json file when finished')
+parser.add_argument('--remove', action="store_true", help='Drop match_groups collection from database when finished')
 args = parser.parse_args()
 
 c = Configuration("config.json")
@@ -24,7 +24,7 @@ header.extend(systems)
 all_ids_for_systems = {}
 first_project = c.projects()[0]
 for system in systems:
-  clk_json = c.get_clks(system, first_project)
+  clk_json = c.get_clks_raw(system, first_project)
   clks = json.loads(clk_json)
   system_size = len(clks['clks'])
   all_ids_for_systems[system] = list(range(system_size))
@@ -55,5 +55,7 @@ with open(result_csv_path, 'w', newline='') as csvfile:
       final_record['LINK_ID'] = uuid.uuid1()
       writer.writerow(final_record)
 
+print('results/link_ids.csv created')
+
 if args.remove:
-  os.remove('results.json')
+    database.match_groups.drop()

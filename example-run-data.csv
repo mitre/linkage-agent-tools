@@ -1,0 +1,4 @@
+Run Description,Blocking,Precision,Recall,F-Score,Answer Key Size,Proposed Pairs,Garble & Block Time (s),Match Time (s),Blocking Config
+Lambda-fold run 1 (Synthetic Denver),True,0.9417249417249417,0.8329896907216495,0.8840262582056893,970,858,22.998018820999278,81.66292191299999,/Users/apellitieri/Desktop/CDC/CODI/data-owner-tools/example-blocking-schema/lambda.json
+No Blocking Run 1 (Synthetic Denver),False,0.9422632794457275,0.8412371134020619,0.8888888888888888,970,866,13.90327224900102,76.4273948509981,None
+No Blocking Run 1 (New Data Set),False,0.9967556775642625,0.5639649816436035,0.7203535034719092,7082,4007,15.183643799999118,89.88265730900093,None

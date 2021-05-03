@@ -1,18 +1,20 @@
 import itertools as it
 import requests
 import json
+import subprocess
 
 class Project:
-  def __init__(self, name, schema, parties, entity_service_url):
+  def __init__(self, name, schema, parties, entity_service_url, blocked):
     self.name = name
     self.schema = json.loads(schema)
     self.parties = parties
+    self.blocked = blocked
     self.entity_service_url = entity_service_url
     self.runs = []
 
   def start_project(self):
     post_body = {'name': self.name, 'schema': self.schema,
-      'number_parties': len(self.parties), 'result_type': 'groups'}
+      'number_parties': len(self.parties), 'result_type': 'groups', 'uses_blocking': self.blocked}
     response = requests.post("{}/projects".format(self.entity_service_url), json=post_body)
     response.raise_for_status()
     response_body = response.json()
@@ -20,6 +22,13 @@ class Project:
     update_tokens = response_body['update_tokens']
     self.update_token_map = dict(zip(self.parties, update_tokens))
     self.result_token = response_body['result_token']
+
+  def upload_clks_blocked(self, party, clk, block):
+    subprocess.run([
+      'anonlink', 'upload', '--project', self.project_id, '--to_entityservice',
+      '--server', self.entity_service_url.replace('/api/v1',''), '--apikey', self.update_token_map[party],
+      '--blocks', block, clk
+     ])
 
   def upload_clks(self, party, clks):
     headers = {'Authorization': self.update_token_map[party], 'Content-Type': 'application/json'}
@@ -122,9 +131,3 @@ class Results:
         collection.delete_many({'_id': {'$in': docs_to_delete}})
         collection.insert_one(merged_document)
       insert_count += 1
-
-
-
-
-
-

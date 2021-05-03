@@ -74,6 +74,8 @@ A description of the properties in the file:
 * **entity_service_url** - The RESTful service endpoint for the anonlink-entity-service.
 * **matching_threshold** - The threshold for considering a potential set of records a match when comparing in anonlink.
 * **mongo_uri** - The URI to use when connecting to MongoDB to store or access results. For details on the URI structure, consult the [Connection String URI Format documentation](https://docs.mongodb.com/manual/reference/connection-string/)
+* **blocked** - A boolean value for if the CLK's from the data owner in the inbox folder were generated via [blocking](https://anonlink-client.readthedocs.io/en/latest/tutorial/Blocking%20with%20Anonlink%20Entity%20Service.html) 
+* **blocking_schema** - The optional path to the file used by data owner tools for blocking
 
 ## Structure
 
