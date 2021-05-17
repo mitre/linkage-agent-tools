@@ -33,16 +33,16 @@ class CSVManager(wx.Frame):
         self.schemaDir = ""
         self.inboxDir = ""
         self.outputDir = ""
-        self.txt1 = None
-        self.txt2 = None
-        self.txt3 = None
-        self.txt4 = None
-        self.txt5 = None
-        self.txt6 = None
-        self.txt7 = None
-        self.txt8 = None
-        self.txt9 = None
-        self.txt10 = None
+        self.enter_owner_names_text = None
+        self.owner_names_input = None
+        self.open_schema_text = None
+        self.open_inbox_text = None
+        self.open_output_text = None
+        self.threshold_text = None
+        self.threshold_input = None
+        self.inbox_text = None
+        self.port_text = None
+        self.match_text = None
         self.InitUI()
         self.PingService(True)
 
@@ -59,18 +59,18 @@ class CSVManager(wx.Frame):
         btn5 = wx.Button(panel, label='Start Service')
         btn6 = wx.Button(panel, label='Match Records')
 
-        self.txt1 = wx.StaticText(panel, label="Enter Data Owner Names (comma seperated)")
-        self.txt2 = wx.TextCtrl(panel, value=str(ownerNames).replace("[", "").replace("]", "").replace("'", ""))
-        self.txt3 = wx.StaticText(panel, label=config['schema_folder'])
-        self.txt4 = wx.StaticText(panel, label=config['inbox_folder'])
-        self.txt5 = wx.StaticText(panel, label=config['output_folder'])
-        self.txt6 = wx.StaticText(panel, label="Enter matching threshold")
-        self.txt7 = wx.TextCtrl(panel, value=str(config["matching_threshold"]))
-        self.txt8 = wx.StaticText(panel, label="")
-        self.txt9 = wx.StaticText(panel, label="")
-        self.txt10 = wx.StaticText(panel, label="Make Sure Docker is Running!")
+        self.enter_owner_names_text = wx.StaticText(panel, label="Enter Data Owner Names (comma seperated)")
+        self.owner_names_input = wx.TextCtrl(panel, value=str(ownerNames).replace("[", "").replace("]", "").replace("'", ""))
+        self.open_schema_text = wx.StaticText(panel, label=config['schema_folder'])
+        self.open_inbox_text = wx.StaticText(panel, label=config['inbox_folder'])
+        self.open_output_text = wx.StaticText(panel, label=config['output_folder'])
+        self.threshold_text = wx.StaticText(panel, label="Enter matching threshold")
+        self.threshold_input = wx.TextCtrl(panel, value=str(config["matching_threshold"]))
+        self.inbox_text = wx.StaticText(panel, label="")
+        self.port_text = wx.StaticText(panel, label="")
+        self.match_text = wx.StaticText(panel, label="")
 
-        sizer.AddMany([self.txt1, self.txt2, self.txt3, btn1, self.txt4, btn2, self.txt5, btn3, self.txt6, self.txt7, self.txt8, btn4, self.txt9, btn5, self.txt10, btn6])
+        sizer.AddMany([self.enter_owner_names_text, self.owner_names_input, self.open_schema_text, btn1, self.open_inbox_text, btn2, self.open_output_text, btn3, self.threshold_text, self.threshold_input, self.inbox_text, btn4, self.port_text, btn5, self.match_text, btn6])
 
         hbox.Add(sizer, 0, wx.ALL, 15)
         panel.SetSizer(hbox)
@@ -82,8 +82,8 @@ class CSVManager(wx.Frame):
         btn5.Bind(wx.EVT_BUTTON, self.StartService)
         btn6.Bind(wx.EVT_BUTTON, self.StartMatch)
 
-        self.txt2.Bind(wx.EVT_TEXT, self.UpdateOwners)
-        self.txt7.Bind(wx.EVT_TEXT, self.UpdateThreshold)
+        self.owner_names_input.Bind(wx.EVT_TEXT, self.UpdateOwners)
+        self.threshold_input.Bind(wx.EVT_TEXT, self.UpdateThreshold)
 
         self.SetSize((850, 300))
         self.SetTitle('Messages')
@@ -93,16 +93,16 @@ class CSVManager(wx.Frame):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         result = sock.connect_ex(('127.0.0.1', 8851))
         if result == 0:
-            self.txt9.SetLabel("Port is open")
-            self.txt9.SetForegroundColour((0, 150, 0))
+            self.port_text.SetLabel("Port is open")
+            self.port_text.SetForegroundColour((0, 150, 0))
             sock.close()
             return True
         else:
-            self.txt9.SetLabel("Port is not open")
+            self.port_text.SetLabel("Port is not open")
             if init:
-                self.txt9.SetForegroundColour((150, 0, 0))
+                self.port_text.SetForegroundColour((150, 0, 0))
             else:
-                self.txt9.SetForegroundColour((150, 150, 0))
+                self.port_text.SetForegroundColour((150, 150, 0))
             sock.close()
             return False
 
@@ -114,22 +114,22 @@ class CSVManager(wx.Frame):
 
     def StartValidate(self, event):
         msg = validate.validate()
-        self.txt8.SetLabel(msg)
+        self.inbox_text.SetLabel(msg)
         if msg == "All necessary input is present":
-            self.txt8.SetForegroundColour((0, 150, 0))
+            self.inbox_text.SetForegroundColour((0, 150, 0))
         else:
-            self.txt8.SetForegroundColour((150, 0, 0))
+            self.inbox_text.SetForegroundColour((150, 0, 0))
 
     def StartMatch(self, event):
-        self.txt10.SetLabel("Matching Entries...")
-        self.txt10.SetForegroundColour((150, 150, 0))
+        self.match_text.SetLabel("Matching Entries...")
+        self.match_text.SetForegroundColour((150, 150, 0))
         self.Update()
         time.sleep(5)
         match.match()
         linkids.linkids()
         dataownerids.data_owner_ids()
-        self.txt10.SetLabel(f"Linkids written to {config['output_folder']}")
-        self.txt10.SetForegroundColour((0, 150, 0))
+        self.match_text.SetLabel(f"Linkids written to {config['output_folder']}")
+        self.match_text.SetForegroundColour((0, 150, 0))
         self.Update()
         try:
             os.remove("results.json")
@@ -145,12 +145,12 @@ class CSVManager(wx.Frame):
             ownerNames = [owner + ", " for owner in config['systems']]
 
     def UpdateOwners(self, event):
-        config['systems'] = [owner.strip(" ") for owner in self.txt2.GetLineText(0).split(",")]
+        config['systems'] = [owner.strip(" ") for owner in self.owner_names_input.GetLineText(0).split(",")]
         self.UpdateJson()
 
 
     def UpdateThreshold(self, event):
-        config['matching_threshold'] = float(self.txt7.GetLineText(0))
+        config['matching_threshold'] = float(self.threshold_input.GetLineText(0))
         self.UpdateJson()
 
 
@@ -161,7 +161,7 @@ class CSVManager(wx.Frame):
 
             # Proceed loading the file chosen by the user
             self.schemaDir = dirDialog.GetPath()
-            self.txt3.SetLabel(self.schemaDir)
+            self.open_schema_text.SetLabel(self.schemaDir)
             config['schema_folder'] = self.schemaDir
             self.UpdateJson()
 
@@ -173,7 +173,7 @@ class CSVManager(wx.Frame):
 
             # Proceed loading the file chosen by the user
             self.inboxDir = dirDialog.GetPath()
-            self.txt4.SetLabel(self.inboxDir)
+            self.open_inbox_text.SetLabel(self.inboxDir)
             config['inbox_folder'] = self.inboxDir
             self.UpdateJson()
 
@@ -184,7 +184,7 @@ class CSVManager(wx.Frame):
 
             # Proceed loading the file chosen by the user
             self.outputDir = dirDialog.GetPath()
-            self.txt5.SetLabel(self.outputDir)
+            self.open_output_text.SetLabel(self.outputDir)
             config['output_folder'] = self.outputDir
             config['matching_results_folder'] = self.outputDir
             self.UpdateJson()
