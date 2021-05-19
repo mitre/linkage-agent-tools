@@ -1,0 +1,61 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: entityservice-testing-bench
+spec:
+  completions: 1
+  parallelism: 1
+  template:
+    metadata:
+      labels:
+        app: entityservice
+        tier: aux
+    spec:
+      restartPolicy: Never
+      initContainers:
+      - name: volume-mount-hack
+        image: busybox
+        command: ["sh", "-c", "chown -R 1000:1000 /cache"]
+        volumeMounts:
+        - name: data-volume
+          mountPath: /cache
+      containers:
+      - name: entitytester
+        image: data61/anonlink-benchmark:v0.3.3
+        env:
+          - name: SERVER
+            value: "https://anonlink.easd.data61.xyz"
+          - name: TIMEOUT
+            value: "2400"
+          - name: EXPERIMENT
+            value: "/config/experiments.json"
+          - name: DATA_PATH
+            value: "/cache"
+          - name: SCHEMA
+            value: "/cache/schema.json"
+          - name: RESULTS_PATH
+            value: "/tmp/results.json"
+          - name: OBJECT_STORE_BUCKET
+            value: "anonlink-benchmark-results"
+#          - name: OBJECT_STORE_ACCESS_KEY
+#            valueFrom:
+#              secretKeyRef:
+#                name: anonlink-benchmark-aws-credentials
+#                key: OBJECT_STORE_ACCESS_KEY
+#          - name: OBJECT_STORE_SECRET_KEY
+#            valueFrom:
+#              secretKeyRef:
+#                name: anonlink-benchmark-aws-credentials
+#                key: OBJECT_STORE_SECRET_KEY
+        volumeMounts:
+          - name: experiments-volume
+            mountPath: /config
+          - name: data-volume
+            mountPath: /cache
+      volumes:
+        - name: experiments-volume
+          configMap:
+            name: entityservice-benchmark-experiments
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: entityservice-benchmark-data

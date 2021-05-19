@@ -1,0 +1,496 @@
+rbac:
+  ## TODO still needs work to fully lock down scope etc
+  ## See issue #88
+  create: false
+
+anonlink:
+
+  ## Set arbitrary environment variables for the API and Workers.
+  config: {}
+
+  objectstore:
+    ## Toggle the feature providing client's with restricted upload access to the object store.
+    ## By default we don't expose the Minio object store, which is required for clients to upload
+    ## via the object store. See section `minio.ingress` to create an ingress for minio.
+    uploadEnabled: true
+
+    ## Server used as the external object store URL - provided to clients so should be externally
+    ## accessible. If not provided, the minio.ingress is used (if enabled).
+    #uploadServer: "s3.amazonaws.com"
+
+    ## Tell clients to make secure connections to the upload object store.
+    uploadSecure: true
+
+    ## Object store credentials used to grant temporary upload access to clients
+    ## Will be created with an "upload only" policy for a upload bucket if using the default
+    ## MINIO provisioning.
+    uploadAccessKey: "EXAMPLE_UPLOAD_KEY"
+    uploadSecretKey: "EXAMPLE_UPLOAD_SECRET"
+
+    ## The bucket for client uploads.
+    uploadBucket:
+      name: "uploads"
+
+
+api:
+
+  ## Deployment component name
+  name: server
+  ## Defines the serviceAccountName to use when `rbac.create=false`
+  serviceAccountName: default
+
+  replicaCount: 1
+
+  ## api Deployment Strategy type
+  strategy:
+    type: RollingUpdate
+  #   type: Recreate
+
+  ## Annotations to be added to api pods
+  ##
+  podAnnotations: {}
+    # iam.amazonaws.com/role: linkage
+
+  ## Annotations added to the api Deployment
+  deploymentAnnotations: # {}
+    # This annotation enables jaeger injection for open tracing
+    "sidecar.jaegertracing.io/inject": "true"
+
+  ## Settings for the nginx proxy
+  www:
+
+    image:
+      repository: data61/anonlink-nginx
+      tag: "v1.4.6"
+      # pullPolicy: Always
+      pullPolicy: IfNotPresent
+
+    ## Nginx proxy server resource requests and limits
+    ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    resources:
+      limits:
+        cpu: 200m
+        memory: 256Mi
+      requests:
+        cpu: 200m
+        memory: 256Mi
+
+  app:
+    image:
+      repository: data61/anonlink-app
+      tag: "v1.13.0"
+      pullPolicy: IfNotPresent
+
+
+    ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    resources:
+      limits:
+        cpu: 1
+        memory: 8Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+
+  dbinit:
+    enabled: "true"
+
+    ## Database init can only run during chart install
+    ## It cannot be updated! So we have a separate image + tag
+    image:
+      repository: data61/anonlink-app
+      tag: "v1.13.0"
+
+    ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+
+  ## A job that creates an upload only object store user.
+  objectstoreinit:
+    enabled: true
+
+    image:
+      repository: minio/mc
+      tag: RELEASE.2020-01-13T22-49-03Z
+
+  ingress:
+    ## By default, we do not want the service to be accessible outside of the cluster.
+    enabled: false
+
+    ## Ingress annotations
+    annotations: # {}
+     kubernetes.io/ingress.class: nginx
+
+     ## To handle large uploads we increase the proxy buffer size
+     ingress.kubernetes.io/proxy-body-size: 4096m
+     nginx.ingress.kubernetes.io/proxy-body-size: 4096m
+
+     nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+     nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+     nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+     ## Example ingress annotations for certmanager
+     certmanager.k8s.io/cluster-issuer: letsencrypt-cluster-issuer
+     ## Redirect to ssl
+     ingress.kubernetes.io/force-ssl-redirect: "true"
+
+    ## Entity Service API Ingress hostnames
+    ## Must be provided if Ingress is enabled
+    hosts:
+     - beta.anonlink.data61.xyz
+
+    ## Entity Service API Ingress TLS configuration
+    ## This example setup is for nginx-ingress. We use certificate manager.
+    ## to create the TLS secret in the namespace with the name
+    ## below.
+    tls: # []
+    ## secretName is the kubernetes secret which will contain the TLS secret and certificates
+    ## for the provided host url. It is automatically generated from the deployed certmanager.
+    - secretName: beta-anonlink-data61-tls
+      hosts:
+      - beta.anonlink.data61.xyz
+
+  service:
+    annotations: []
+    labels:
+      tier: frontend
+    clusterIp: ""
+
+    ## Expose the service to be accessed from outside the cluster (LoadBalancer service).
+    ## or access it from within the cluster (ClusterIP service).
+    ## Set the service type and the port to serve it.
+    ## Ref: http://kubernetes.io/docs/user-guide/services/
+    ## Most likely ingress is enabled so this should be ClusterIP,
+    ## Otherwise "LoadBalancer".
+    type: ClusterIP
+    servicePort: 80
+
+    ## If using a load balancer on AWS you can optionally lock down access
+    ## to a given IP range. Provide a list of IPs that are allowed via a
+    ## security group.
+    loadBalancerSourceRanges: []
+
+workers:
+  name: "matcher"
+
+  image:
+    repository: "data61/anonlink-app"
+    tag: "v1.13.0"
+    pullPolicy: Always
+
+  ## The initial number of workers for this deployment
+  ## Note the workers.highmemory.replicaCount are in addition
+  replicaCount: 1
+
+  ## Enable a horizontal pod autoscaler
+  ## Note: The cluster must have metrics-server installed.
+  ## https://kubernetes.io/docs/tasks/debug-application-cluster/resource-metrics-pipeline/
+  autoscaler:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 20
+
+  podAnnotations: {}
+
+  deploymentAnnotations: # {}
+    # This annotation enables jaeger injection for open tracing
+    "sidecar.jaegertracing.io/inject": "true"
+
+  #strategy: ""
+
+  ## Additional Entity Service Worker container arguments
+  ##
+  extraArgs: {}
+
+  ## Worker configuration
+  ## These settings populate the deployment's configmap.
+
+  ## Desired task size in "number of comparisons"
+  ## Note there is some overhead creating a task and a single dedicated cpu core can do between 50M and 100M
+  ## comparisons per second, so much lower that 100M isn't generally worth splitting across celery workers.
+  CHUNK_SIZE_AIM: "300_000_000"
+
+  ## More than this many entities and we skip caching in redis
+  MAX_CACHE_SIZE: "1_000_000"
+
+  ## How many seconds do we keep cache ephemeral data such as run progress
+  ## Default is 30 days:
+  CACHE_EXPIRY_SECONDS: "2592000"
+
+  ## Specific configuration for celery
+  ## Note that these configurations are the same for a "normal" worker, and a "highmemeroy" one,
+  ## except for the requested resources and replicaCount which can differ.
+  celery:
+    ## Number of fork worker celery node will have. It is recommended to use the same concurrency
+    ## as workers.resources.limits.cpu
+    CONCURRENCY: "2"
+    ## How many messages to prefetch at a time multiplied by the number of concurrent processes. Set to 1 because
+    ## our tasks are usually quite "long".
+    PREFETCH_MULTIPLIER: "1"
+    ## Maximum number of tasks a pool worker process can execute before it’s replaced with a new one
+    MAX_TASKS_PER_CHILD: "2048"
+    ## Late ack means the task messages will be acknowledged after the task has been executed, not just before.
+    ACKS_LATE: "true"
+
+  ## Currently, enable only the monitoring of celery.
+  monitor:
+    enabled: false
+
+  ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  resources:
+    requests:
+      memory: 500Mi
+      cpu: 500m
+    ## It is recommended to set limits. celery does not like to share resources.
+    limits:
+      memory: 1Gi
+      cpu: 2
+
+  ## At least one "high memory" worker is also required.
+  highmemory:
+    replicaCount: 1
+    ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    resources:
+      requests:
+        memory: 2Gi
+        cpu: 1
+      ## It is recommended to set limits. celery does not like to share resources.
+      limits:
+        memory: 2Gi
+        cpu: 2
+
+postgresql:
+  ## See available settings and defaults at:
+  ## https://github.com/kubernetes/charts/tree/master/stable/postgresql
+  nameOverride: "db"
+
+  persistence:
+    enabled: false
+    size: 8Gi
+
+  metrics:
+    enabled: true
+    #serviceMonitor:
+      #enabled: true
+      #namespace:
+
+  ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  resources:
+    #limits:
+    #  memory: 8Gi
+    requests:
+      #memory: 1Gi
+      cpu: 200m
+
+
+global:
+
+  postgresql:
+    postgresqlDatabase: postgres
+    postgresqlUsername: postgres
+    postgresqlPassword: "examplePostgresPassword"
+
+
+## In this section, we are not installing Redis. The main goal is to define configuration values for
+## other services that need to access Redis.
+redis:
+  ## Note the `server` options are ignored if provisioning redis
+  ## using this chart.
+
+  ## External redis server url/ip
+  server: ""
+
+  ## Does the redis server support the sentinel protocol
+  useSentinel: true
+  sentinelName: "mymaster"
+
+  ## Note if deploying redis-ha you MUST have the same password below!
+  password: "exampleRedisPassword"
+
+
+redis-ha:
+  ## Settings for configuration of a provisioned redis ha cluster.
+  ## https://github.com/DandyDeveloper/charts/tree/master/charts/redis-ha#configuration
+  ## Provisioning is controlled in the `provision` section
+  auth: true
+  redisPassword: "exampleRedisPassword"
+  #replicas: 3
+  redis:
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 100m
+      limits:
+        memory: 10Gi
+  sentinel:
+    ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
+  persistentVolume:
+    enabled: false
+    size: 10Gi
+  nameOverride: "memstore"
+
+  # Enable transparent hugepages
+  # https://github.com/helm/charts/tree/master/stable/redis-ha#host-kernel-settings
+  sysctlImage:
+    enabled: true
+    mountHostSys: true
+    command:
+      - /bin/sh
+      - -xc
+      - |-
+        sysctl -w net.core.somaxconn=10000
+        echo never > /host-sys/kernel/mm/transparent_hugepage/enabled
+  # Enable prometheus exporter sidecar
+  exporter:
+    enabled: true
+
+minio:
+  ## Configure the object storage
+  ## https://github.com/helm/charts/blob/master/stable/minio/values.yaml
+
+  ## Root access credentials for the object store
+  ## Note no defaults are provided to help prevent data breaches where
+  ## the object store is exposed to the internet
+  #accessKey: "exampleMinioAccessKey"
+  #secretKey: "exampleMinioSecretKet"
+
+  defaultBucket:
+    enabled: true
+    name: "anonlink"
+
+  ## Settings for deploying standalone object store
+  ## Can distribute the object store across multiple nodes.
+  mode: "standalone"
+  service.type: "ClusterIP"
+  persistence:
+    enabled: false
+    size: 50Gi
+    storageClass: "default"
+
+  metrics:
+    serviceMonitor:
+      enabled: false
+      #additionalLabels: {}
+      #namespace: nil
+
+  # If you'd like to expose the MinIO object store
+  ingress:
+    enabled: false
+    #labels: {}
+    #annotations: {}
+    #hosts: []
+    #tls: []
+
+  nameOverride: "minio"
+  
+  ## Ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 100m
+    limits:
+      memory: 5Gi
+
+
+provision:
+  # enable to deploy a standalone version of each service as part of the helm deployment
+  minio: true
+  postgresql: true
+  redis: true
+
+
+## Tracing config used by jaeger-client-python
+## https://github.com/jaegertracing/jaeger-client-python/blob/master/jaeger_client/config.py
+tracingConfig: |-
+  logging: true
+  metrics: true
+  sampler:
+    type: const
+    param: 1
+
+## Custom logging file used to override the default settings. Will be used by the workers and the api container.
+## Example of logging configuration:
+loggingCfg: |-
+  version: 1
+  disable_existing_loggers: False
+  formatters:
+    simple:
+      format: "%(message)s"
+    file:
+      format: "%(asctime)-15s %(name)-12s %(levelname)-8s: %(message)s"
+  filters:
+    stderr_filter:
+      (): entityservice.logger_setup.StdErrFilter
+    stdout_filter:
+      (): entityservice.logger_setup.StdOutFilter
+
+  handlers:
+    stdout:
+      class: logging.StreamHandler
+      level: DEBUG
+      formatter: simple
+      filters: [stdout_filter]
+      stream: ext://sys.stdout
+
+    stderr:
+      class: logging.StreamHandler
+      level: ERROR
+      formatter: simple
+      filters: [stderr_filter]
+      stream: ext://sys.stderr
+
+    info_file_handler:
+      class: logging.handlers.RotatingFileHandler
+      level: INFO
+      formatter: file
+      filename: info.log
+      maxBytes: 10485760 # 10MB
+      backupCount: 20
+      encoding: utf8
+
+    error_file_handler:
+      class: logging.handlers.RotatingFileHandler
+      level: ERROR
+      formatter: file
+      filename: errors.log
+      maxBytes: 10485760 # 10MB
+      backupCount: 20
+      encoding: utf8
+
+  loggers:
+    entityservice:
+      level: INFO
+
+    entityservice.database.util:
+      level: WARNING
+
+    entityservice.cache:
+      level: WARNING
+
+    entityservice.utils:
+      level: INFO
+
+    celery:
+      level: INFO
+
+    jaeger_tracing:
+      level: WARNING
+      propagate: no
+
+    werkzeug:
+      level: WARNING
+      propagate: no
+
+  root:
+    level: INFO
+    handlers: [stdout, stderr, info_file_handler, error_file_handler]
+

@@ -1,0 +1,78 @@
+# Template to pull logs from Kubernetes pods.
+
+# Parameters:
+# `logsFolderPath` is the folder where the logs from the pods will be stored.
+# `releaseName` is the name of the release used to get the relevant list of pods.
+# `kubeConfigFile` is the kubeConfigFile path.
+# `JobAttempt` should be provided by the variable `System.JobAttempt` which is not directly accessible from the template.
+#   This incremental value is required to be able to re-run the job, in fact the `PublishPipelineArtifact` step fails
+#   if the build publish an artifact with the same name twice.
+
+parameters:
+  logsFolderPath: ''
+  releaseName: ''
+  kubernetesServiceEndpoint: ''
+  JobAttempt: ''
+  namespace: ''
+
+steps:
+
+- task: Kubernetes@1
+  displayName: 'Anonlink Entity Service Backend Worker Logs'
+  condition: always()
+  inputs:
+    failOnStderr: false
+    connectionType: 'Kubernetes Service Connection'
+    kubernetesServiceEndpoint: ${{ parameters.kubernetesServiceEndpoint }}
+    command: 'logs'
+    arguments: '--namespace ${{ parameters.namespace }} -lrelease=${{ parameters.releaseName }} -ltier=backend --tail=-1 -c celery-worker --prefix=true'
+
+- task: Kubernetes@1
+  displayName: 'Anonlink Entity Service NGINX Logs'
+  condition: always()
+  inputs:
+    failOnStderr: false
+    connectionType: 'Kubernetes Service Connection'
+    kubernetesServiceEndpoint: ${{ parameters.kubernetesServiceEndpoint }}
+    command: 'logs'
+    arguments: '--namespace ${{ parameters.namespace }} -lrelease=${{ parameters.releaseName }} -ltier=frontend --tail=-1 --container=entityservice-nginx --prefix=true'
+
+- task: Kubernetes@1
+  displayName: 'Anonlink Entity Service API Logs'
+  condition: always()
+  inputs:
+    failOnStderr: false
+    connectionType: 'Kubernetes Service Connection'
+    kubernetesServiceEndpoint: ${{ parameters.kubernetesServiceEndpoint }}
+    command: 'logs'
+    arguments: '--namespace ${{ parameters.namespace }} -lrelease=${{ parameters.releaseName }} -ltier=frontend --tail=-1 --container=entityservice-flask --prefix=true'
+
+- task: Kubernetes@1
+  displayName: 'DB Logs'
+  condition: always()
+  inputs:
+    failOnStderr: false
+    connectionType: 'Kubernetes Service Connection'
+    kubernetesServiceEndpoint: ${{ parameters.kubernetesServiceEndpoint }}
+    command: 'logs'
+    arguments: '--namespace ${{ parameters.namespace }} -lrelease=${{ parameters.releaseName }} -lapp=db --tail=-1 --all-containers=true --prefix=true'
+
+- task: Kubernetes@1
+  displayName: 'Redis Logs'
+  condition: always()
+  inputs:
+    failOnStderr: false
+    connectionType: 'Kubernetes Service Connection'
+    kubernetesServiceEndpoint: ${{ parameters.kubernetesServiceEndpoint }}
+    command: 'logs'
+    arguments: '--namespace ${{ parameters.namespace }} -lrelease=${{ parameters.releaseName }} -lapp=memstore --tail=-1 --all-containers=true --prefix=true'
+
+- task: Kubernetes@1
+  displayName: 'Minio Logs'
+  condition: always()
+  inputs:
+    failOnStderr: false
+    connectionType: 'Kubernetes Service Connection'
+    kubernetesServiceEndpoint: ${{ parameters.kubernetesServiceEndpoint }}
+    command: 'logs'
+    arguments: '--namespace ${{ parameters.namespace }} -lrelease=${{ parameters.releaseName }} -lapp=minio --tail=-1 --all-containers=true --prefix=true'

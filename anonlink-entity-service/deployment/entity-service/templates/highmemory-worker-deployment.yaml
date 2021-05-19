@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    {{- include "es.release_labels" . | indent 4 }}
+    component: {{ list (required "workers.name must be provided." .Values.workers.name) "highmemory" | join "-" | quote }}
+    tier: backend
+  name: {{ .Release.Name }}-highmemory-worker
+  {{- if .Values.workers.deploymentAnnotations }}
+  annotations:
+{{ toYaml .Values.workers.deploymentAnnotations | indent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ required "workers.highmemory.replicaCount must be provided." .Values.workers.highmemory.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "es.appname" . }}
+      component: {{ list (required "workers.name must be provided." .Values.workers.name) "highmemory" | join "-" | quote }}
+      release: {{ .Release.Name }}
+      tier: backend
+  {{- if .Values.workers.strategy }}
+  strategy:
+{{ toYaml .Values.workers.strategy | indent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+{{- if .Values.workers.podAnnotations }}
+{{ toYaml .Values.workers.podAnnotations | indent 8 }}
+{{- end }}
+      labels:
+        {{- include "es.release_labels" . | indent 8 }}
+        component: "{{ .Values.workers.name }}-highmemory"
+        tier: backend
+    spec:
+      containers:
+        - name: celery-worker
+          image: {{ required "workers.image.repository must be provided." .Values.workers.image.repository }}:{{ required "workers.image.tag must be provided." .Values.workers.image.tag }}
+          imagePullPolicy: {{ .Values.workers.image.pullPolicy | default "" | quote }}
+          resources:
+{{ toYaml .Values.workers.highmemory.resources | indent 12 }}
+          envFrom:
+          - configMapRef:
+              name: {{ template "es.fullname" . }}
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "es.fullname" . }}
+                  key: redisPassword
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "es.fullname" . }}
+                  key: postgresPassword
+            - name: MINIO_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "es.fullname" . }}
+                  key: minioAccessKey
+            - name: MINIO_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "es.fullname" . }}
+                  key: minioSecretKey
+          command:
+            - "celery"
+            - "-A"
+            - "entityservice.async_worker"
+            - "worker"
+            - "--loglevel=info"
+            - "-O"
+            - "fair"
+            - "-Q"
+            - "celery,compute,highmemory"
+          volumeMounts:
+            - name: config-volume
+              mountPath: /var/config
+          args:
+          {{- range $key, $value := .Values.workers.extraArgs }}
+            - --{{ $key }}={{ $value }}
+          {{- end }}
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ template "es.fullname" . }}-monitoring-config
+      {{- if .Values.api.pullSecret }}
+      imagePullSecrets:
+      - name: {{ .Values.api.pullSecret }}
+      {{- end}}

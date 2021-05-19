@@ -1,0 +1,29 @@
+{{- if .Values.api.ingress.enabled }}
+{{- $serviceName := include "api.fullname" . }}
+{{- $servicePort := (required "api.service.servicePort must be provided." .Values.api.service.servicePort) -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+{{- if .Values.api.ingress.annotations }}
+  annotations:
+{{ toYaml .Values.api.ingress.annotations | indent 4 }}
+{{- end }}
+  name: {{ template "es.fullname" . }}
+  labels:
+    {{- include "es.release_labels" .| indent 4 }}
+spec:
+  rules:
+  {{- range .Values.api.ingress.hosts }}
+  - host: {{ . }}
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: {{ $serviceName }}
+          servicePort: {{ $servicePort }}
+  {{- end -}}
+  {{- if .Values.api.ingress.tls }}
+  tls:
+{{ toYaml .Values.api.ingress.tls | indent 4 }}
+  {{- end -}}
+{{- end -}}

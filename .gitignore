@@ -1,3 +1,7 @@
+tests/exe_test
+commit.bat
+.idea
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
