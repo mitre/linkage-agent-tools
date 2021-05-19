@@ -52,12 +52,12 @@ class CSVManager(wx.Frame):
         hbox = wx.BoxSizer()
         sizer = wx.GridSizer(8, 2, 10, 300)
 
-        btn1 = wx.Button(panel, label='Select Schema Folder')
-        btn2 = wx.Button(panel, label='Select Inbox Folder')
-        btn3 = wx.Button(panel, label='Select Output Folder')
-        btn4 = wx.Button(panel, label='Validate Inbox')
-        btn5 = wx.Button(panel, label='Start Service')
-        btn6 = wx.Button(panel, label='Match Records')
+        schema_btn = wx.Button(panel, label='Select Schema Folder')
+        inbox_btn = wx.Button(panel, label='Select Inbox Folder')
+        output_btn = wx.Button(panel, label='Select Output Folder')
+        validate_btn = wx.Button(panel, label='Validate Inbox')
+        start_service_btn = wx.Button(panel, label='Start Service')
+        match_btn = wx.Button(panel, label='Match Records')
 
         self.enter_owner_names_text = wx.StaticText(panel, label="Enter Data Owner Names (comma seperated)")
         self.owner_names_input = wx.TextCtrl(panel, value=str(ownerNames).replace("[", "").replace("]", "").replace("'", ""))
@@ -70,17 +70,17 @@ class CSVManager(wx.Frame):
         self.port_text = wx.StaticText(panel, label="")
         self.match_text = wx.StaticText(panel, label="")
 
-        sizer.AddMany([self.enter_owner_names_text, self.owner_names_input, self.open_schema_text, btn1, self.open_inbox_text, btn2, self.open_output_text, btn3, self.threshold_text, self.threshold_input, self.inbox_text, btn4, self.port_text, btn5, self.match_text, btn6])
+        sizer.AddMany([self.enter_owner_names_text, self.owner_names_input, self.open_schema_text, schema_btn, self.open_inbox_text, inbox_btn, self.open_output_text, output_btn, self.threshold_text, self.threshold_input, self.inbox_text, validate_btn, self.port_text, start_service_btn, self.match_text, match_btn])
 
         hbox.Add(sizer, 0, wx.ALL, 15)
         panel.SetSizer(hbox)
 
-        btn1.Bind(wx.EVT_BUTTON, self.OnOpenSchema)
-        btn2.Bind(wx.EVT_BUTTON, self.OnOpenInbox)
-        btn3.Bind(wx.EVT_BUTTON, self.OnOpenOutput)
-        btn4.Bind(wx.EVT_BUTTON, self.StartValidate)
-        btn5.Bind(wx.EVT_BUTTON, self.StartService)
-        btn6.Bind(wx.EVT_BUTTON, self.StartMatch)
+        schema_btn.Bind(wx.EVT_BUTTON, self.OnOpenSchema)
+        inbox_btn.Bind(wx.EVT_BUTTON, self.OnOpenInbox)
+        output_btn.Bind(wx.EVT_BUTTON, self.OnOpenOutput)
+        validate_btn.Bind(wx.EVT_BUTTON, self.StartValidate)
+        start_service_btn.Bind(wx.EVT_BUTTON, self.StartService)
+        match_btn.Bind(wx.EVT_BUTTON, self.StartMatch)
 
         self.owner_names_input.Bind(wx.EVT_TEXT, self.UpdateOwners)
         self.threshold_input.Bind(wx.EVT_TEXT, self.UpdateThreshold)
