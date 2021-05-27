@@ -1,5 +1,5 @@
 from dcctools.config import Configuration
-from tinydb import TinyDB
+from pymongo import MongoClient
 from dcctools.deconflict import deconflict
 from functools import reduce
 from pathlib import Path
@@ -14,7 +14,8 @@ parser.add_argument('--remove', action="store_true", help='Delete the results.js
 args = parser.parse_args()
 
 c = Configuration("config.json")
-database = TinyDB('results.json')
+client = MongoClient(c.mongo_uri())
+database = client.linkage_agent
 
 systems = c.systems()
 header = ['LINK_ID']
@@ -34,7 +35,7 @@ with open(result_csv_path, 'w', newline='') as csvfile:
   writer = csv.DictWriter(csvfile, fieldnames=header)
   writer.writeheader()
 
-  for row in database.all():
+  for row in database.match_groups.find():
     conflict = reduce(lambda acc, s: acc | len(row.get(s, [])) > 1, systems, False)
     final_record = {}
     if conflict:

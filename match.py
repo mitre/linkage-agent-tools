@@ -1,12 +1,11 @@
 import time
 from dcctools.config import Configuration
-from tinydb import TinyDB
-from tinydb.storages import JSONStorage
-from tinydb.middlewares import CachingMiddleware
+from pymongo import MongoClient
 from dcctools.anonlink import Results, Project
 
 c = Configuration("config.json")
-database = TinyDB('results.json', storage=CachingMiddleware(JSONStorage))
+client = MongoClient(c.mongo_uri())
+database = client.linkage_agent
 for project_name, schema in c.load_schema().items():
   project = Project(project_name, schema, c.systems(), c.entity_service_url())
   project.start_project()
@@ -23,6 +22,4 @@ for project_name, schema in c.load_schema().items():
   result_json = project.get_results()
   results = Results(c.systems(), project_name, result_json)
   print(result_json)
-  results.insert_results(database)
-
-database.close()
+  results.insert_results(database.match_groups)

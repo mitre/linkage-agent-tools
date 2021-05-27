@@ -10,13 +10,17 @@ These tool facilitate a Privacy Preserving Record Linkage (PPRL) process. They b
 
 The primary dependency of these tools is on the [anonlink-entity-service](https://anonlink-entity-service.readthedocs.io/en/stable/). This software package provides a web service for accessing [anonlink](https://github.com/data61/anonlink)'s matching capabilites. This software must be installed for the Linkage Agent Tools to work. Install instructions can be found on the [anonlink-entity-service Deployment page](https://anonlink-entity-service.readthedocs.io/en/stable/deployment.html)
 
+### MongoDB
+
+Linkage Agent Tools uses [MongoDB](https://www.mongodb.com/) to store results obtained from the anonlink-entity-service. Install MongoDB by [downloading the community version](https://www.mongodb.com/try/download/community).
+
 ### Dependency Overview
 
-Linkage Agent Tools is a set of scripts designed to interact with the previously mentioned anonlink-entity-service. They were created and tested on Python 3.7.4. The tools rely on two libraries: [Requests](https://requests.readthedocs.io/en/master/) and [TinyDB](https://tinydb.readthedocs.io/en/latest/intro.html).
+Linkage Agent Tools is a set of scripts designed to interact with the previously mentioned anonlink-entity-service. They were created and tested on Python 3.7.4. The tools rely on two libraries: [Requests](https://requests.readthedocs.io/en/master/) and [pymongo](https://pymongo.readthedocs.io/en/stable/).
 
 Requests is a library that makes HTTP requests. This is used for the tools to communicate with the web service offered by the anonlink-entity-service.
 
-TinyDB is a Python-based implementation of a document database. It runs inside of the Python interpreter and stores it's information in a JSON file. TinyDB is used to keep track of matches across anonlink projects. It is then queries to deconflict results between projects and construct a full set of LINK_IDs for all individuals.
+pymongo is a Python client library for MongoDB.
 
 Linkage Agent Tools contains a test suite, which was created using [pytest](https://docs.pytest.org/en/latest/).
 
@@ -56,7 +60,8 @@ Linkage Agent Tools is driven by a central configuration file, which is a JSON d
   "matching_results_folder": "/path/to/results",
   "output_folder": "/path/to/output",
   "entity_service_url": "http://localhost:8851/api/v1",
-  "matching_threshold": 0.8
+  "matching_threshold": 0.8,
+  "mongo_uri": "localhost:27017"
 }
 ```
 A description of the properties in the file:
@@ -68,6 +73,7 @@ A description of the properties in the file:
 * **output_folder** - Folder where CSV files are generated, one per data owner. These files contain LINK_IDs mapped to a single data owner.
 * **entity_service_url** - The RESTful service endpoint for the anonlink-entity-service.
 * **matching_threshold** - The threshold for considering a potential set of records a match when comparing in anonlink.
+* **mongo_uri** - The URI to use when connecting to MongoDB to store or access results. For details on the URI structure, consult the [Connection String URI Format documentation](https://docs.mongodb.com/manual/reference/connection-string/)
 
 ## Structure
 
@@ -75,13 +81,9 @@ This project is a set of python scripts driven by a central configuration file, 
 
 1. Data owners transmit their garbled zip files to the Linkage Agent. These zip files should be placed into the configured inbox folder.
 1. Run `validate.py` which will ensure all of the necessary files are present.
-1. When all data is present, run `match.py`, which will perform pairwise matching of the garbled information sent by the data owners. The matching information will be stored in a JSON file created by TinyDB.
+1. When all data is present, run `match.py`, which will perform pairwise matching of the garbled information sent by the data owners. The matching information will be stored in MongoDB.
 1. After matching, run `linkids.py`, which will take all of the resulting matching information and use it to generate LINK_IDs, which are written to a CSV file in the configured results folder.
 1. Once all LINK_IDs have been created, run `dataownerids.py` which will create a file per data owner that can be sent with only information on their LINK_IDs.
-
-## Clean Up
-
-Running `match.py` creates a file called `results.json` that is storage for TinyDB. This file should be removed between matching runs, otherwise the matching runs will be combined. Running `python linkids.py --remove` will remove this file once the LINKIDs have been generated.
 
 ## Running Tests
 
