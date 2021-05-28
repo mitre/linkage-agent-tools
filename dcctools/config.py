@@ -63,6 +63,14 @@ class Configuration:
         clks = clk_file.read()
     return clks
 
+  def get_household_clks_raw(self, system, schema):
+    clks = None
+    clk_zip_path = Path(self.config_json['inbox_folder']) / "{}_households.zip".format(system)
+    with ZipFile(clk_zip_path, mode='r') as clk_zip:
+      with clk_zip.open("output/households/{}.json".format(schema)) as clk_file:
+        clks = clk_file.read()
+    return clks
+
   def get_block(self, system, project):
     block_path = Path(self.config_json['inbox_folder']) / system / "blocking-output/{}.json".format(project)
     return block_path
@@ -90,3 +98,9 @@ class Configuration:
 
   def blocking_schema(self):
     return self.config_json['blocking_schema']
+
+  def household_match(self):
+    return self.config_json['household_match']
+
+  def household_schema(self):
+    return self.config_json['household_schema']
