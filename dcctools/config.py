@@ -1,5 +1,6 @@
 import json
 import os
+import csv
 from pathlib import Path
 from zipfile import ZipFile
 
@@ -74,6 +75,24 @@ class Configuration:
   def get_block(self, system, project):
     block_path = Path(self.config_json['inbox_folder']) / system / "blocking-output/{}.json".format(project)
     return block_path
+
+  def get_data_owner_household_links(self, system):
+    house_mapping = {}
+    clk_zip_path = Path(self.config_json['inbox_folder']) / "{}_households.zip".format(system)
+    extract_path = Path(self.config_json['inbox_folder']) / system
+    if not os.path.exists(extract_path):
+        os.mkdir(extract_path)
+    with ZipFile(clk_zip_path, mode='r') as clk_zip:
+      clk_zip.extractall(extract_path)
+    with open("{}/output/households/households.csv".format(extract_path), 'r') as household_file:
+      household_reader = csv.reader(household_file)
+      next(household_reader)
+      household_csv = list(household_reader)
+      for line in household_csv:
+        for id in line[1].split(','):
+          # Map the household pos to the list key = individual pos
+          house_mapping[id] = int(line[0])
+    return house_mapping
 
   def matching_threshold(self):
     return self.config_json['matching_threshold']
