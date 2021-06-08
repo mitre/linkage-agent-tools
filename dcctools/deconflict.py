@@ -80,7 +80,7 @@ def add_single_households(household_links, single_households, systems):
 
 def add_to_singles(single_households, systems, new):
   for sys in systems:
-    if new[sys]:
+    if sys in new.keys() and new[sys]:
       single_households[sys].append(new[sys])
 
 def convert_ilinks_to_hlinks(individual_links, house_mappings, systems):
