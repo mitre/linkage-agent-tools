@@ -73,9 +73,8 @@ def household_deconflict(household_links, individual_links, systems, config):
 def add_single_households(household_links, single_households, systems):
   for s in systems:
     single_households_deduped = list(dict.fromkeys(single_households[s]))
-    single_link = {}
     for house in single_households_deduped:
-      single_link[s] = house
+      single_link = {s: house}
       household_links.append(single_link)
 
 def add_to_singles(single_households, systems, new):
