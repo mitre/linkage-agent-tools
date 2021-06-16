@@ -90,7 +90,7 @@ Linkage Agent Tools contains a unit test suite. Tests can be run with the follow
 `python -m pytest`
 
 # Linkage Agent Tools Executables
-Fork of https://github.com/mitre/linkage-agent-tools. All python files should conform to existing command line documentation. Command line and GUI tools should be interoperable. Executables built using pyinstaller version 4.2. Docker remains a dependency.
+A Widows executable version of the tools with a GUI is availible. Docker Desktop is the only dependency of the GUI tool. Command line and GUI tools are interoperable. Executables built using pyinstaller version 4.2.
 
 ## Basic User Instructions
 Download the DCCexecutable.zip file from https://github.com/Sam-Gresh/linkage-agent-tools/releases/tag/v0.0.3. Unzip the file to a new directory. In the folder DCCExecutable, run the executable DCCexecutable and select the correct schema, inbox, and output directories. If an error occurs, the directories can be set manually from config.json. Make sure docker is running, then click start service. Place the garbled zip files in the specified inbox directory, and set the "Data providers" field. Validate the inbox, then click Match. All csv outputs should appear in the specified output directory after some time.
