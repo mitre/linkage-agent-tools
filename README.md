@@ -89,12 +89,6 @@ Linkage Agent Tools contains a unit test suite. Tests can be run with the follow
 
 `python -m pytest`
 
-## Notice
-
-Copyright 2020 The MITRE Corporation.
-
-Approved for Public Release; Distribution Unlimited. Case Number 19-2008
-
 # Linkage Agent Tools Executables
 Fork of https://github.com/mitre/linkage-agent-tools. All python files should conform to existing command line documentation. Command line and GUI tools should be interoperable. Executables built using pyinstaller version 4.2. Docker remains a dependency.
 
@@ -129,3 +123,9 @@ Clone the repository. From the cloned directory run the following commands:
 `pyinstaller DCCExecutable.py  --add-data anonlink-entity-service;anonlink-entity-service --add-data config.json;.`
 
 The built executable will appear in /dist.
+
+## Notice
+
+Copyright 2020 The MITRE Corporation.
+
+Approved for Public Release; Distribution Unlimited. Case Number 19-2008
