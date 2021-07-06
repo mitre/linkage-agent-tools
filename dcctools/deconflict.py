@@ -46,9 +46,9 @@ def household_deconflict(household_links, individual_links, systems, config):
             if sys in found.keys() and found[sys] and new[sys] and (found[sys] != new[sys]):
               metrics['conflict'] += 1
               add_to_singles(single_households, systems, new)
-              add_to_singles(single_households, systems, found)
+              # add_to_singles(single_households, systems, found)
               conflicts.append(new)
-              household_links.remove(found)
+              # household_links.remove(found)
               break
             else:
               if i == (len(systems) - 1):
