@@ -9,7 +9,7 @@ systems = c.systems()
 
 for s in systems:
   system_csv_path = Path(c.output_folder()) / "{}.csv".format(s)
-  household_system_csv_path = Path(c.output_folder()) / "{}-households.csv".format(s)
+  household_system_csv_path = Path(c.output_folder()) / "{}_households.csv".format(s)
   with open(result_csv_path) as csvfile:
     reader = csv.DictReader(csvfile)
     with open(system_csv_path, 'w', newline='') as csvfile:

@@ -74,8 +74,10 @@ A description of the properties in the file:
 * **entity_service_url** - The RESTful service endpoint for the anonlink-entity-service.
 * **matching_threshold** - The threshold for considering a potential set of records a match when comparing in anonlink.
 * **mongo_uri** - The URI to use when connecting to MongoDB to store or access results. For details on the URI structure, consult the [Connection String URI Format documentation](https://docs.mongodb.com/manual/reference/connection-string/)
-* **blocked** - A boolean value for if the CLK's from the data owner in the inbox folder were generated via [blocking](https://anonlink-client.readthedocs.io/en/latest/tutorial/Blocking%20with%20Anonlink%20Entity%20Service.html) 
+* **blocked** - A boolean value for if the CLK's from the data owner in the inbox folder were generated via [blocking](https://anonlink-client.readthedocs.io/en/latest/tutorial/Blocking%20with%20Anonlink%20Entity%20Service.html)
 * **blocking_schema** - The optional path to the file used by data owner tools for blocking
+* **household_match** - A boolean true / false value for running the household pprl and matching options if household data was provided by the data owners
+* **household_schema** - The path to the file used during household PPRL
 
 ## Structure
 
@@ -83,9 +85,10 @@ This project is a set of python scripts driven by a central configuration file, 
 
 1. Data owners transmit their garbled zip files to the Linkage Agent. These zip files should be placed into the configured inbox folder.
 1. Run `validate.py` which will ensure all of the necessary files are present.
+1. Run `drop.py` if you have done a previous matching run to clear old data in the database
 1. When all data is present, run `match.py`, which will perform pairwise matching of the garbled information sent by the data owners. The matching information will be stored in MongoDB.
-1. After matching, run `linkids.py`, which will take all of the resulting matching information and use it to generate LINK_IDs, which are written to a CSV file in the configured results folder.
-1. Once all LINK_IDs have been created, run `dataownerids.py` which will create a file per data owner that can be sent with only information on their LINK_IDs.
+1. After matching, run `link_ids.py`, which will take all of the resulting matching information and use it to generate LINK_IDs, which are written to a CSV file in the configured results folder.
+1. Once all LINK_IDs have been created, run `data_owner_ids.py` which will create a file per data owner that can be sent with only information on their LINK_IDs.
 
 ## Running Tests
 

@@ -23,7 +23,7 @@ household_pair_count = 0
 household_answer_count = 0
 
 hid_csv_path = Path(c.matching_results_folder()) / "household_id_link_ids.csv"
-answer_key_path = Path(data_owner_tools_path) / 'full_answer_key.csv'
+answer_key_path = Path(data_owner_tools_path) / 'temp-data/full_answer_key.csv'
 
 answer_key_rows = []
 with open(answer_key_path) as key_csv:
