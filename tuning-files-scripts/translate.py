@@ -1,3 +1,5 @@
+# File may be deprecated - need to check with Andy
+
 import csv
 
 systems = ['a', 'b', 'c']

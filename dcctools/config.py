@@ -44,7 +44,7 @@ class Configuration:
       clk_zip.extractall(Path(self.config_json['inbox_folder']) / system)
 
   def extract_blocks(self, system):
-    block_zip_path = Path(self.config_json['inbox_folder']) / "{}-block.zip".format(system)
+    block_zip_path = Path(self.config_json['inbox_folder']) / "{}_block.zip".format(system)
     extract_path = Path(self.config_json['inbox_folder']) / system
     if not os.path.exists(extract_path):
         os.mkdir(extract_path)

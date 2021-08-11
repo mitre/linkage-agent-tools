@@ -130,3 +130,6 @@ dmypy.json
 
 # Unit test database file
 tests/test_db.json
+
+# Temporary data for runs
+temp-data/
