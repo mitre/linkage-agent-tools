@@ -56,10 +56,10 @@ with open(result_csv_path, "w", newline="") as csvfile:
             final_record = deconflict(row, systems)
         else:
             for s in systems:
-                id = row.get(s, None)
-                if id != None:
-                    final_record[s] = id[0]
-                    all_ids_for_systems[s].remove(id[0])
+                record_id = row.get(s, None)
+                if record_id != None:
+                    final_record[s] = record_id[0]
+                    all_ids_for_systems[s].remove(record_id[0])
         final_record["LINK_ID"] = uuid.uuid1()
         individual_linkages.append(final_record)
         writer.writerow(final_record)
@@ -71,7 +71,7 @@ with open(result_csv_path, "w", newline="") as csvfile:
             individual_linkages.append(final_record)
             writer.writerow(final_record)
 
-print("results/link_ids.csv created")
+print(f"{result_csv_path} created")
 
 if c.household_match():
     with open(household_result_csv_path, "w", newline="") as csvfile:
@@ -81,10 +81,10 @@ if c.household_match():
         for row in database.household_match_groups.find():
             final_record = {}
             for s in systems:
-                id = row.get(s, None)
-                if id != None:
-                    final_record[s] = id[0]
-                    all_ids_for_households[s].remove(id[0])
+                record_id = row.get(s, None)
+                if record_id != None:
+                    final_record[s] = record_id[0]
+                    all_ids_for_households[s].remove(record_id[0])
             final_records.append(final_record)
 
         for system, unmatched_ids in all_ids_for_households.items():
@@ -98,7 +98,7 @@ if c.household_match():
             record["LINK_ID"] = uuid.uuid1()
             writer.writerow(record)
 
-    print("results/household_link_ids.csv created")
+    print(f"{household_result_csv_path} created")
 
 if args.remove:
     database.match_groups.drop()

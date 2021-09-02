@@ -19,6 +19,7 @@ for s in systems:
             for row in reader:
                 if len(row[s]) > 0:
                     writer.writerow({"LINK_ID": row["LINK_ID"], s: row[s]})
+    print(f"{system_csv_path} created")
     if c.household_match():
         with open(household_csv_path) as csvfile:
             reader = csv.DictReader(csvfile)
@@ -28,3 +29,4 @@ for s in systems:
                 for row in reader:
                     if len(row[s]) > 0:
                         writer.writerow({"LINK_ID": row["LINK_ID"], s: row[s]})
+        print(f"{household_system_csv_path} created")

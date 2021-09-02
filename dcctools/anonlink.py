@@ -3,6 +3,7 @@ import json
 import subprocess
 
 import requests
+from tqdm import tqdm
 
 
 class Project:
@@ -109,40 +110,35 @@ class Results:
 
     def insert_results(self, collection):
         matches_to_insert = len(self.results["groups"])
-        print("Inserting {} records into the local database.".format(matches_to_insert))
         insert_count = 0
-        for result_group in self.results["groups"]:
-            if (insert_count != 0) & (insert_count % 100 == 0):
-                print(
-                    "Inserted {} of {} records.".format(insert_count, matches_to_insert)
-                )
+        for result_group in tqdm(self.results["groups"], desc="Inserting {} records into the local database: ".format(matches_to_insert)):
             record = {}
             for result_record in result_group:
                 record[self.systems[result_record[0]]] = result_record[1]
             query = []
-            for system, id in record.items():
-                query.append({system: id})
+            for system, record_id in record.items():
+                query.append({system: record_id})
             query_result = collection.find({"$or": query})
             query_result_count = collection.count_documents({"$or": query})
             if query_result_count == 0:
                 document_to_insert = {}
-                for system, id in record.items():
-                    document_to_insert[system] = [id]
+                for system, record_id in record.items():
+                    document_to_insert[system] = [record_id]
                 run_result = record
                 run_result["project"] = self.project
                 document_to_insert["run_results"] = [run_result]
                 collection.insert_one(document_to_insert)
-            if query_result_count == 1:
+            elif query_result_count == 1:
                 result_doc = query_result[0]
                 doc_id = result_doc["_id"]
                 updates = {"$addToSet": {}}
-                for system, id in record.items():
-                    updates["$addToSet"][system] = id
+                for system, record_id in record.items():
+                    updates["$addToSet"][system] = record_id
                 run_result = record
                 run_result["project"] = self.project
                 updates["$addToSet"]["run_results"] = run_result
                 collection.update_one({"_id": doc_id}, updates)
-            if query_result_count > 1:
+            else query_result_count > 1:
                 # This identifies a link between clusters that weren't
                 # linked before. We will need to merge the results
                 merged_document = {"run_results": []}
@@ -155,16 +151,16 @@ class Results:
                             if existing_id_list is None:
                                 merged_document[system] = id_list
                             else:
-                                for id in id_list:
-                                    if id not in existing_id_list:
-                                        existing_id_list.append(id)
+                                for record_id in id_list:
+                                    if record_id not in existing_id_list:
+                                        existing_id_list.append(record_id)
                     merged_document["run_results"].extend(qr["run_results"])
-                for system, id in record.items():
+                for system, record_id in record.items():
                     system_ids = merged_document.get(system)
                     if system_ids is None:
-                        merged_document[system] = [id]
-                    elif id not in system_ids:
-                        system_ids.append(id)
+                        merged_document[system] = [record_id]
+                    elif record_id not in system_ids:
+                        system_ids.append(record_id)
                 run_result = record
                 run_result["project"] = self.project
                 merged_document["run_results"].append(run_result)

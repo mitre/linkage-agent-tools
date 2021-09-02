@@ -9,6 +9,7 @@ from dcctools.config import Configuration
 c = Configuration("config.json")
 client = MongoClient(c.mongo_uri())
 database = client.linkage_agent
+SLEEP_TIME = 0.5
 
 if c.household_match():
     with open(Path(c.household_schema())) as schema_file:
@@ -33,16 +34,17 @@ if c.household_match():
             print(status)
             if status.get("state") == "completed":
                 running = False
-            time.sleep(0.5)
+                break
+            time.sleep(SLEEP_TIME)
         result_json = household_project.get_results()
         results = Results(c.systems(), project_name, result_json)
-        print(result_json)
         results.insert_results(database.household_match_groups)
 
 if c.blocked():
     for system in c.systems():
         c.extract_clks(system)
         c.extract_blocks(system)
+
 for project_name, schema in c.load_schema().items():
     project = Project(
         project_name, schema, c.systems(), c.entity_service_url(), c.blocked()
@@ -64,8 +66,8 @@ for project_name, schema in c.load_schema().items():
         print(status)
         if status.get("state") == "completed":
             running = False
-        time.sleep(0.5)
+            break
+        time.sleep(SLEEP_TIME)
     result_json = project.get_results()
     results = Results(c.systems(), project_name, result_json)
-    print(result_json)
     results.insert_results(database.match_groups)

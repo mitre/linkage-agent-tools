@@ -10,6 +10,8 @@ These tool facilitate a Privacy Preserving Record Linkage (PPRL) process. They b
 
 The primary dependency of these tools is on the [anonlink-entity-service](https://anonlink-entity-service.readthedocs.io/en/stable/). This software package provides a web service for accessing [anonlink](https://github.com/data61/anonlink)'s matching capabilites. This software must be installed for the Linkage Agent Tools to work. Install instructions can be found on the [anonlink-entity-service Deployment page](https://anonlink-entity-service.readthedocs.io/en/stable/deployment.html)
 
+After following the install instructions in the `anonlink-entity-service` documentation, you can confirm it is working if the API call to `/api/v1/status` responds as described in the example at https://anonlink-entity-service.readthedocs.io/en/stable/local-deployment.html to clarify when entity service is up and running correctly.
+
 ### MongoDB
 
 Linkage Agent Tools uses [MongoDB](https://www.mongodb.com/) to store results obtained from the anonlink-entity-service. Install MongoDB by [downloading the community version](https://www.mongodb.com/try/download/community).
@@ -52,16 +54,20 @@ Linkage Agent Tools is driven by a central configuration file, which is a JSON d
 
 ```
 {
-  "systems": ["a", "b", "c"],
+  "systems": ["site_a", "site_b", "site_c", "site_d", "site_e", "site_f"],
   "projects": ["name-sex-dob-phone", "name-sex-dob-zip",
     "name-sex-dob-parents", "name-sex-dob-addr"],
-  "schema_folder": "/path/to/schema",
-  "inbox_folder": "/path/to/inbox",
-  "matching_results_folder": "/path/to/results",
-  "output_folder": "/path/to/output",
+  "schema_folder": "/CODI/data-owner-tools/example-schema",
+  "inbox_folder": "/CODI/inbox",
+  "matching_results_folder": "/CODI/results",
+  "output_folder": "/CODI/output",
   "entity_service_url": "http://localhost:8851/api/v1",
-  "matching_threshold": 0.8,
-  "mongo_uri": "localhost:27017"
+  "matching_threshold": 0.75,
+  "mongo_uri": "localhost:27017",
+  "blocked": false,
+  "blocking_schema": "/CODI/data-owner-tools/example-blocking-schema/lambda.json",
+  "household_match": true,
+  "household_schema": "/CODI/data-owner-tools/example-schema/household-schema/fn-phone-addr-zip.json"
 }
 ```
 A description of the properties in the file:
@@ -79,6 +85,32 @@ A description of the properties in the file:
 * **household_match** - A boolean true / false value for running the household pprl and matching options if household data was provided by the data owners
 * **household_schema** - The path to the file used during household PPRL
 
+## Input and Output Setup
+
+Once you specify the paths outlined in the configuration section above, you need to put the zip files from each data owner into the `inbox_folder` specified, ex. with households from `systems` aka data owners `[site_a, site_b, site_c]`:
+```
+inbox/
+  site_a.zip
+  site_a_households.zip
+  site_b.zip
+  site_b_households.zip
+  site_c.zip
+  site_c_households.zip
+  ...
+```
+
+After running the scripts in the order specified in the repository structure section below, the project will produce the following files in the `output_folder` specified in the config:
+```
+output/
+  site_a.csv
+  site_a_households.csv
+  site_b.csv
+  site_b_households.csv
+  site_c.csv
+  site_c_households.csv
+  ...
+```
+
 ## Structure
 
 This project is a set of python scripts driven by a central configuration file, `config.json`. It is expected to operate in the following order:
@@ -95,6 +127,10 @@ This project is a set of python scripts driven by a central configuration file, 
 Linkage Agent Tools contains a unit test suite. Tests can be run with the following command:
 
 `python -m pytest`
+
+## [WIP] Jupyter Notebook
+
+The `Linkage and Blocking Tuning Tool` Jupyter notebook is a work in progress meant for testing and tuning different configurations against the synthetic data set with Data Owner Tools and Linkage Agent Tools projects running on the same machine. It will currently run all necessary scripts to do end to end testing of the entire PPRL process but is still being improved and will include more documentation when finalized.
 
 ## Notice
 

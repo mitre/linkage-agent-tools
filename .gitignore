@@ -132,4 +132,4 @@ dmypy.json
 tests/test_db.json
 
 # Temporary data for runs
-temp-data/
+temp-data/*

@@ -17,10 +17,10 @@ def deconflict(result_document, systems):
     return final_record
 
 
-def link_count(result_document, system, id):
+def link_count(result_document, system, link_id):
     count = 0
     for rr in result_document["run_results"]:
-        if rr.get(system, None) == id:
+        if rr.get(system, None) == link_id:
             count += 1
     return count
 
@@ -51,12 +51,12 @@ def household_deconflict(household_links, individual_links, systems, config):
                         metrics["equal"] += 1
                         break
                     # Check if new conflicts with found
-                    for i, sys in enumerate(systems):
+                    for i, system in enumerate(systems):
                         if (
-                            sys in found.keys()
-                            and found[sys]
-                            and new[sys]
-                            and (found[sys] != new[sys])
+                            system in found.keys()
+                            and found[system]
+                            and new[system]
+                            and (found[system] != new[system])
                         ):
                             metrics["conflict"] += 1
                             add_to_singles(single_households, systems, new)
@@ -67,10 +67,10 @@ def household_deconflict(household_links, individual_links, systems, config):
                         else:
                             if i == (len(systems) - 1):
                                 metrics["combine"] += 1
-                            if sys in found.keys() and found[sys]:
-                                new[sys] = found[sys]
+                            if system in found.keys() and found[system]:
+                                new[system] = found[system]
                             else:
-                                found[sys] = new[sys]
+                                found[system] = new[system]
                 else:
                     # If not found in the household_links it must have been removed due to conflict
                     metrics["skipped"] += 1
@@ -111,9 +111,9 @@ def add_single_households(household_links, single_households, systems):
 
 
 def add_to_singles(single_households, systems, new):
-    for sys in systems:
-        if sys in new.keys() and new[sys]:
-            single_households[sys].append(new[sys])
+    for system in systems:
+        if system in new.keys() and new[system]:
+            single_households[system].append(new[system])
 
 
 def convert_ilinks_to_hlinks(individual_links, house_mappings, systems):
