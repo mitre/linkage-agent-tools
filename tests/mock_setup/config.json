@@ -3,5 +3,12 @@
   "projects": ["name-dob", "name-phone"],
   "inbox_folder": "inbox",
   "matching_results_folder": "results",
-  "output_folder": "output"
+  "output_folder": "output",
+  "entity_service_url": "http://localhost:8851/api/v1",
+  "matching_threshold": 0.75,
+  "mongo_uri": "localhost:27017",
+  "blocked": false,
+  "blocking_schema": "example-blocking-schema/lambda.json",
+  "household_match": true,
+  "household_schema": "household-schema/fn-phone-addr-zip.json"
 }

@@ -138,7 +138,8 @@ class Results:
                 run_result["project"] = self.project
                 updates["$addToSet"]["run_results"] = run_result
                 collection.update_one({"_id": doc_id}, updates)
-            else query_result_count > 1:
+            else:
+                # query_result_count > 1:
                 # This identifies a link between clusters that weren't
                 # linked before. We will need to merge the results
                 merged_document = {"run_results": []}

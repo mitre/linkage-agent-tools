@@ -65,7 +65,7 @@ Linkage Agent Tools is driven by a central configuration file, which is a JSON d
   "matching_threshold": 0.75,
   "mongo_uri": "localhost:27017",
   "blocked": false,
-  "blocking_schema": "/CODI/data-owner-tools/example-blocking-schema/lambda.json",
+  "blocking_schema": "/CODI/data-owner-tools/example-schema/blocking-schema/lambda.json",
   "household_match": true,
   "household_schema": "/CODI/data-owner-tools/example-schema/household-schema/fn-phone-addr-zip.json"
 }
@@ -121,6 +121,37 @@ This project is a set of python scripts driven by a central configuration file, 
 1. When all data is present, run `match.py`, which will perform pairwise matching of the garbled information sent by the data owners. The matching information will be stored in MongoDB.
 1. After matching, run `link_ids.py`, which will take all of the resulting matching information and use it to generate LINK_IDs, which are written to a CSV file in the configured results folder.
 1. Once all LINK_IDs have been created, run `data_owner_ids.py` which will create a file per data owner that can be sent with only information on their LINK_IDs.
+
+#### Example system folder hierarchy:
+
+The `schema_folder` in the example below is using the example config paths from above. The schemas used by the data-owner during garbling of the data needs to be the same schemas pointed to in the linkage-agent `config.json`.
+
+```
+/CODI/
+  linkage-agent-tools/
+    ...
+  inbox/
+    site_a.zip
+    site_a_households.zip
+    site_a_block.zip
+    site_b.zip
+    site_b_households.zip
+    site_b_block.zip
+  output/
+    site_a.csv
+    site_a_households.csv
+    site_b.csv
+    site_b_households.csv
+  data-owner-tools/
+    ...
+    example-schema/
+      name-dob-ex.json
+      name-phone-ex.json
+      blocking-schema/
+        lambda.json
+      household-schema/
+        fn-phone-addr-zip.json
+```
 
 ## Running Tests
 

@@ -4,12 +4,12 @@ from pathlib import Path
 from dcctools.config import Configuration
 
 c = Configuration("config.json")
-systems = c.systems()
+systems = c.systems
 header = ["LINK_ID"]
 header.extend(systems)
 
-household_pos_csv_path = Path(c.matching_results_folder()) / "household_link_ids.csv"
-hid_csv_path = Path(c.matching_results_folder()) / "household_id_link_ids.csv"
+household_pos_csv_path = Path(c.matching_results_folder) / "household_link_ids.csv"
+hid_csv_path = Path(c.matching_results_folder) / "household_id_link_ids.csv"
 
 hid_line_map = {}
 

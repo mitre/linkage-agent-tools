@@ -11,7 +11,7 @@ args = parser.parse_args()
 data_owner_tools_path = Path(args.dotools[0])
 
 c = Configuration("config.json")
-systems = c.systems()
+systems = c.systems
 
 true_positives = 0
 false_positives = 0
@@ -22,7 +22,7 @@ partial_false_positives = 0
 household_pair_count = 0
 household_answer_count = 0
 
-hid_csv_path = Path(c.matching_results_folder()) / "household_id_link_ids.csv"
+hid_csv_path = Path(c.matching_results_folder) / "household_id_link_ids.csv"
 answer_key_path = Path(data_owner_tools_path) / 'temp-data/full_answer_key.csv'
 
 answer_key_rows = []

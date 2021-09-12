@@ -21,16 +21,16 @@ parser.add_argument(
 args = parser.parse_args()
 
 c = Configuration("config.json")
-client = MongoClient(c.mongo_uri())
+client = MongoClient(c.mongo_uri)
 database = client.linkage_agent
 
-systems = c.systems()
+systems = c.systems
 header = ["LINK_ID"]
 header.extend(systems)
 
 all_ids_for_systems = {}
 all_ids_for_households = {}
-first_project = c.projects()[0]
+first_project = c.projects[0]
 individual_linkages = []
 for system in systems:
     clk_json = c.get_clks_raw(system, first_project)
@@ -42,8 +42,8 @@ for system in systems:
     h_system_size = len(h_clks["clks"])
     all_ids_for_households[system] = list(range(h_system_size))
 
-result_csv_path = Path(c.matching_results_folder()) / "link_ids.csv"
-household_result_csv_path = Path(c.matching_results_folder()) / "household_link_ids.csv"
+result_csv_path = Path(c.matching_results_folder) / "link_ids.csv"
+household_result_csv_path = Path(c.matching_results_folder) / "household_link_ids.csv"
 
 with open(result_csv_path, "w", newline="") as csvfile:
     writer = csv.DictWriter(csvfile, fieldnames=header)
@@ -73,7 +73,7 @@ with open(result_csv_path, "w", newline="") as csvfile:
 
 print(f"{result_csv_path} created")
 
-if c.household_match():
+if c.household_match:
     with open(household_result_csv_path, "w", newline="") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=header)
         writer.writeheader()

@@ -11,7 +11,7 @@ args = parser.parse_args()
 answer_key_file = Path(args.answerkey[0])
 ​
 c = Configuration("config.json")
-systems = c.systems()
+systems = c.systems
 ​
 true_positives = 0
 false_positives = 0
@@ -29,7 +29,7 @@ with open(answer_key_file) as ak_csv:
 ​
 answer_key_length = len(answer_key)
 ​
-patid_csv_path = Path(c.matching_results_folder()) / "patid_link_ids.csv"
+patid_csv_path = Path(c.matching_results_folder) / "patid_link_ids.csv"
 ​
 with open(patid_csv_path) as patid_csv:
   pat_id_reader = csv.reader(patid_csv)

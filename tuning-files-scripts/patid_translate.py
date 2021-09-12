@@ -12,7 +12,7 @@ args = parser.parse_args()
 data_owner_tools_path = Path(args.dotools[0])
 
 c = Configuration("config.json")
-systems = c.systems()
+systems = c.systems
 header = ['LINK_ID']
 header.extend(systems)
 
@@ -25,8 +25,8 @@ for s in systems:
     next(pii_reader)
     pii_line_map[s] = list(pii_reader)
 
-result_csv_path = Path(c.matching_results_folder()) / "link_ids.csv"
-patid_csv_path = Path(c.matching_results_folder()) / "patid_link_ids.csv"
+result_csv_path = Path(c.matching_results_folder) / "link_ids.csv"
+patid_csv_path = Path(c.matching_results_folder) / "patid_link_ids.csv"
 
 with open(result_csv_path) as csvfile:
   link_id_reader = csv.DictReader(csvfile)

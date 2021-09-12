@@ -9,7 +9,7 @@ from zipfile import ZipFile
 class Configuration:
     def __init__(self, filename):
         self.filename = filename
-        self.config_json = json.load(open(f))
+        self.config_json = json.load(open(filename))
 
     @property
     def system_count(self):
@@ -29,7 +29,7 @@ class Configuration:
                     missing_paths.append(household_zip_path)
             if self.config_json["blocked"]:
                 system_zip_path = inbox_folder / "{}_block.zip".format(s)
-                if not os.path.exists(system_zip_path)
+                if not os.path.exists(system_zip_path):
                     missing_paths.append(system_zip_path)
         return missing_paths
 

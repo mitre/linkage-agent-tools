@@ -2,15 +2,15 @@
   "systems": ["site_a", "site_b", "site_c", "site_d", "site_e", "site_f"],
   "projects": ["name-sex-dob-phone", "name-sex-dob-zip",
     "name-sex-dob-parents", "name-sex-dob-addr"],
-  "schema_folder": "/CODI/data-owner-tools/example-schema",
-  "inbox_folder": "/CODI/inbox",
-  "matching_results_folder": "/CODI/results",
-  "output_folder": "/CODI/output",
+  "schema_folder": "/Users/apellitieri/Desktop/CDC/CODI/data-owner-tools/example-schema",
+  "inbox_folder": "/Users/apellitieri/Desktop/CDC/CODI/inbox",
+  "matching_results_folder": "/Users/apellitieri/Desktop/CDC/CODI/results",
+  "output_folder": "/Users/apellitieri/Desktop/CDC/CODI/output",
   "entity_service_url": "http://localhost:8851/api/v1",
   "matching_threshold": 0.75,
   "mongo_uri": "localhost:27017",
   "blocked": false,
-  "blocking_schema": "/CODI/data-owner-tools/example-blocking-schema/lambda.json",
+  "blocking_schema": "/Users/apellitieri/Desktop/CDC/CODI/data-owner-tools/example-blocking-schema/lambda.json",
   "household_match": true,
-  "household_schema": "/CODI/data-owner-tools/example-schema/household-schema/fn-phone-addr-zip.json"
+  "household_schema": "/Users/apellitieri/Desktop/CDC/CODI/data-owner-tools/example-schema/household-schema/fn-phone-addr-zip.json"
 }

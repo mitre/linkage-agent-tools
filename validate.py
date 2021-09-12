@@ -2,7 +2,7 @@ from dcctools.config import Configuration
 
 c = Configuration("config.json")
 missing_files = c.validate_all_present()
-if len(missing_files):
+if len(missing_files) == 0:
     print("All necessary input is present")
 else:
     print("One or more files missing from data owners:")
