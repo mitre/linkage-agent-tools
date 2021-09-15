@@ -137,3 +137,6 @@ tests/test_db.json
 # Temporary data for runs
 temp-data/*
 /config.json
+inbox/*
+output/*
+results/*
