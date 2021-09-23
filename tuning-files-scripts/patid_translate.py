@@ -1,7 +1,9 @@
 import csv
 from pathlib import Path
-from dcctools.config import Configuration
 import argparse
+import sys
+
+from dcctools.config import Configuration
 
 parser = argparse.ArgumentParser(description='Tool for translating linkage table to patid table for scoring')
 parser.add_argument('--dotools', nargs=1, required=True, help='data-owner-tools project path')
@@ -10,21 +12,21 @@ args = parser.parse_args()
 data_owner_tools_path = Path(args.dotools[0])
 
 c = Configuration("config.json")
-systems = c.systems()
+systems = c.systems
 header = ['LINK_ID']
 header.extend(systems)
 
 pii_line_map = {}
 
 for s in systems:
-  pii_csv_path = Path(data_owner_tools_path) / "pii_{}.csv".format(s)
+  pii_csv_path = Path(data_owner_tools_path) / "temp-data/pii_{}.csv".format(s)
   with open(pii_csv_path) as pii_csv:
     pii_reader = csv.reader(pii_csv)
     next(pii_reader)
     pii_line_map[s] = list(pii_reader)
 
-result_csv_path = Path(c.matching_results_folder()) / "link_ids.csv"
-patid_csv_path = Path(c.matching_results_folder()) / "patid_link_ids.csv"
+result_csv_path = Path(c.matching_results_folder) / "link_ids.csv"
+patid_csv_path = Path(c.matching_results_folder) / "patid_link_ids.csv"
 
 with open(result_csv_path) as csvfile:
   link_id_reader = csv.DictReader(csvfile)
