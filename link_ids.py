@@ -34,10 +34,15 @@ def do_link_ids(c, remove=False):
         clks = json.loads(clk_json)
         system_size = len(clks["clks"])
         all_ids_for_systems[system] = list(range(system_size))
-        household_clk_json = c.get_household_clks_raw(system, "fn-phone-addr-zip")
-        h_clks = json.loads(household_clk_json)
-        h_system_size = len(h_clks["clks"])
-        all_ids_for_households[system] = list(range(h_system_size))
+        if c.household_match:
+            print("Doing household matching")
+            household_clk_json = c.get_household_clks_raw(system, "fn-phone-addr-zip")
+            h_clks = json.loads(household_clk_json)
+            h_system_size = len(h_clks["clks"])
+            all_ids_for_households[system] = list(range(h_system_size))
+            print("Done with household matching")
+        else:
+            print("HOUSEHOLD MATCHING SKIPPED")
 
     result_csv_path = Path(c.matching_results_folder) / "link_ids.csv"
     household_result_csv_path = Path(c.matching_results_folder) / "household_link_ids.csv"
