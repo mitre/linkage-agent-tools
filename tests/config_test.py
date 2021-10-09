@@ -18,7 +18,7 @@ def test_validate_all_present():
     c = cu.get_config("tests/mock_setup/config.json")
     expected = 0
     found = len(c.validate_all_present())
-    print("Expceted: " + str(expected))
+    print("Expected: " + str(expected))
     print("Found:    " + str(found))
     print(c.validate_all_present())
-#    assert len(c.validate_all_present()) == 0
+    assert len(c.validate_all_present()) == 0

@@ -3,6 +3,7 @@ import validate as val
 import match as m
 import link_ids as li
 
+
 def validate(config):
     val.do_validate(config)
 
