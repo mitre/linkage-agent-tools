@@ -121,6 +121,5 @@ if __name__ == "__main__":
         help="Drop match_groups collection from database when finished",
     )
     args = parser.parse_args()
-    # not sure if this line needs to be here (jeg)
     link_ids(args.remove)
 

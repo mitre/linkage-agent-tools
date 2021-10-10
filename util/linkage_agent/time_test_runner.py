@@ -1,4 +1,5 @@
 import json
+import argparse
 from pathlib import Path
 
 import util.file.file_util as fu
@@ -9,21 +10,14 @@ import os
 import time
 
 
-root_dir = "test-data/envs/time-test-no-households"
-
-
-def run_time_test():
+def run_time_test(root_dir_name, patient_dirs, config):
     print("Starting tests...")
-    # get the configuration
-    config = cu.get_config(root_dir + "/config.json")
     print("------------------------------------")
     print("Configuration:")
     print(ju.pretty_print(config.config_json))
     print("------------------------------------")
     # get the output dir and the test dirs
-    root_dir_name = fu.get_file_name(root_dir)
     outbox_root = config.output_folder
-    patient_dirs = fu.get_dirs(fu.get_file_name(root_dir + "/patients"))
     print("Got " + str(len(patient_dirs)) + " test directories:")
     for dir_name in patient_dirs:
         print("\t" + dir_name)
@@ -77,6 +71,11 @@ def run_time_test():
 
 
 if __name__ == "__main__":
-    run_time_test()
+    print("Reading arguments...")
+    parser = argparse.ArgumentParser(
+        description="Tool for running time tests for generating LINK_IDs in the CODI PPRL process"
+    )
+    args = parser.parse_args()
+    print(args[0])
 
 
