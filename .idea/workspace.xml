@@ -2,21 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="d5f3a1b6-3233-4728-83b7-9cb931a00693" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/test/linkage-agent/time-test/test_time_test_runner.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/run-time-tests.bat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/time_test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/link_ids.py" beforeDir="false" afterPath="$PROJECT_DIR$/link_ids.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-data/envs/time-test-no-households/output/inbox-001-output/hospital_001.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-data/envs/time-test-no-households/output/inbox-001-output/hospital_002.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-data/envs/time-test-no-households/output/inbox-001-output/hospital_003.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-data/envs/time-test-no-households/output/inbox-001-output/link_ids.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-data/envs/time-test-no-households/output/inbox-002-output/hospital_001.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-data/envs/time-test-no-households/output/inbox-002-output/hospital_002.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-data/envs/time-test-no-households/output/inbox-002-output/hospital_003.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-data/envs/time-test-no-households/output/inbox-002-output/link_ids.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-data/envs/time-test-no-households/output/inbox-003-output/hospital_001.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-data/envs/time-test-no-households/output/inbox-003-output/hospital_002.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-data/envs/time-test-no-households/output/inbox-003-output/hospital_003.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/test-data/envs/time-test-no-households/output/inbox-003-output/link_ids.csv" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/util/linkage_agent/time_test_runner.py" beforeDir="false" afterPath="$PROJECT_DIR$/util/linkage_agent/time_test_runner.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

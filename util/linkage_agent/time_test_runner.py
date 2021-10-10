@@ -70,12 +70,4 @@ def run_time_test(root_dir_name, patient_dirs, config):
     print("Done.")
 
 
-if __name__ == "__main__":
-    print("Reading arguments...")
-    parser = argparse.ArgumentParser(
-        description="Tool for running time tests for generating LINK_IDs in the CODI PPRL process"
-    )
-    args = parser.parse_args()
-    print(args[0])
-
 
