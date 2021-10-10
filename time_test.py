@@ -1,11 +1,24 @@
-import util.linkage_agent.time_test_runner
 import argparse
+from pathlib import Path
 
-def run_test(root_dir):
-    print("Running...")
+import util.config.config_util as cu
+import util.linkage_agent.time_test_runner as ttr
+
+
+def run_test(root_dir_abs_path):
+    config = cu.get_config_from_abs_path(root_dir_abs_path + "/config.json")
+    print("---------------------------")
+    print("Config:\n" + cu.get_json_pretty_printed(config))
+    print("---------------------------")
+    root_dir_name = root_dir
+    patient_dirs = str(Path(root_dir, "patients"))
+    print("root_dir:     " + root_dir)
+    print("patient_dirs: " + patient_dirs)
+    ttr.run_time_test(root_dir_name, patient_dirs, config)
 
 
 if __name__ == "__main__":
+    # get the args from the cmd line
     print("Reading arguments...")
     parser = argparse.ArgumentParser(
         description="Tool for running time tests for generating LINK_IDs in the CODI PPRL process"
@@ -16,3 +29,7 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     print("Path: " + args.dir)
+    # get the derived params
+    root_dir = args.dir
+    run_test(root_dir)
+
