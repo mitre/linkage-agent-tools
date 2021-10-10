@@ -2,6 +2,7 @@ from pymongo import MongoClient
 import validate as val
 import match as m
 import link_ids as li
+import data_owner_ids as doi
 
 
 def validate(config):
@@ -22,4 +23,8 @@ def match(config):
 
 def link_id(config):
     li.do_link_ids(config)
+
+
+def data_owner_ids(config):
+    doi.do_data_owner_ids(config)
 

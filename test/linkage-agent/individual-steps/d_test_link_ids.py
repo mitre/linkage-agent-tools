@@ -11,6 +11,8 @@ def test_match():
     lau.match(config)
     print("Doing link_id...")
     lau.link_id(config)
+    print("Doing data_owner_ids")
+    lau.data_owner_ids(config)
     print("Doing drop...")
     lau.drop(config)
     print("Done.")
