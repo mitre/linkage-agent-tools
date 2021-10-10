@@ -3,6 +3,7 @@ import validate as val
 import match as m
 import link_ids as li
 import data_owner_ids as doi
+import util.config.config_util as cu
 
 
 def validate(config):
