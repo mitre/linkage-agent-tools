@@ -9,7 +9,7 @@ household_csv_path = Path(c.matching_results_folder) / "household_link_ids.csv"
 systems = c.systems
 
 for s in systems:
-    system_csv_path = Path(c.output_folder / "{}.csv".format(s)
+    system_csv_path = Path(c.output_folder / "{}.csv".format(s))
     household_system_csv_path = Path(c.output_folder) / "{}_households.csv".format(s)
     with open(result_csv_path) as csvfile:
         reader = csv.DictReader(csvfile)
