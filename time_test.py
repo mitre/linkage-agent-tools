@@ -10,9 +10,9 @@ def run_test(root_dir_abs_path):
     print("---------------------------")
     print("Config:\n" + cu.get_json_pretty_printed(config))
     print("---------------------------")
-    root_dir_name = root_dir
-    patient_dirs = str(Path(root_dir, "patients"))
-    print("root_dir:     " + root_dir)
+    root_dir_name = root_dir_abs_path
+    patient_dirs = str(Path(root_dir_abs_path, "patients"))
+    print("root_dir:     " + root_dir_abs_path)
     print("patient_dirs: " + patient_dirs)
     ttr.run_time_test(root_dir_name, patient_dirs, config)
 
