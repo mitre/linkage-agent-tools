@@ -1,3 +1,12 @@
+:: ------
+::
+:: bat file to run time tests
+::
+:: To test this process move the folder ./test-data/time-test/time-test-no-households to
+:: C:\test\time-test-no-households then run this from the cmd line
+::
+:: ------
+
 @echo off
 echo.
 echo. 
