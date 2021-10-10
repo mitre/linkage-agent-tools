@@ -31,8 +31,7 @@ def data_owner_ids(config):
 
 
 def generate_link_ids(config):
-    print("\nStarting test...")
-    config = cu.get_config("test/linkage-agent/no-household/config-no-households.json")
+    print("\nStarting Generate Link IDs...")
     print("Doing drop...")
     drop(config)
     print("Doing validation...")
