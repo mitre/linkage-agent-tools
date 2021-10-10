@@ -64,11 +64,17 @@ def get_files(path):
 
 # Method to create a directory if it does not exist
 def mkdirs(path):
-    os.mkdir(path)
+    if not os.path.exists(path):
+        os.makedirs(path)
 
 
 # Delete a directory
 def rmdir(path):
     if os.path.exists(path):
         shutil.rmtree(path)
+
+
+def exists(path):
+    return os.path.exists(path)
+
 
