@@ -57,9 +57,11 @@ def run_time_test():
         data["output_folder"] = str(output_dir)
         config_str = ju.get_str(data)
         current_config = cu.get_config_from_string(config_str)
+        fu.mkdirs(config.matching_results_folder)
+        fu.mkdirs(config.output_folder)
         print("Config:\n" + ju.pretty_print(current_config.config_json))
         start = time.time()
-        lau.generate_link_ids(config)
+        lau.generate_link_ids(current_config)
         end = time.time()
         elapsed = end - start
         msg = msg + str(elapsed) + "," + infile_dir_name + "\n"
