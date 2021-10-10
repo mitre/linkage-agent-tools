@@ -25,4 +25,9 @@ def get_config(file_name):
     return config
 
 
+def get_config_from_string(json_string):
+    json_obj = json.loads(json_string)
+    config = Configuration(None)
+    config.init(json_obj)
+    return config
 

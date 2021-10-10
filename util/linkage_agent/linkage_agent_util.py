@@ -28,3 +28,20 @@ def link_id(config):
 def data_owner_ids(config):
     doi.do_data_owner_ids(config)
 
+
+def generate_link_ids(config):
+    print("\nStarting test...")
+    config = cu.get_config("test/linkage-agent/no-household/config-no-households.json")
+    print("Doing drop...")
+    drop(config)
+    print("Doing validation...")
+    validate(config)
+    print("Doing match...")
+    match(config)
+    print("Doing link_id...")
+    link_id(config)
+    print("Doing data_owner_ids")
+    data_owner_ids(config)
+    print("Doing drop...")
+    drop(config)
+    print("Done.")

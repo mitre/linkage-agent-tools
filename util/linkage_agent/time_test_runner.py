@@ -4,7 +4,9 @@ from pathlib import Path
 import util.file.file_util as fu
 import util.config.config_util as cu
 import util.json.json_util as ju
+import util.linkage_agent.linkage_agent_util as lau
 import os
+import time
 
 
 root_dir = "test-data/envs/time-test-no-households"
@@ -32,6 +34,7 @@ def run_time_test():
     print("------------------------------------")
     print("")
     print("")
+    msg = ""
     for dir_name in patient_dirs:
         # get the directories for this run
         print("------------------------------------")
@@ -53,8 +56,19 @@ def run_time_test():
         data["matching_results_folder"] = str(out_dir)
         data["output_folder"] = str(output_dir)
         config_str = ju.get_str(data)
-        print("Config:\n" + str(config_str))
+        current_config = cu.get_config_from_string(config_str)
+        print("Config:\n" + ju.pretty_print(current_config.config_json))
+        start = time.time()
+        lau.generate_link_ids(config)
+        end = time.time()
+        elapsed = end - start
+        msg = msg + str(elapsed) + "," + infile_dir_name + "\n"
+        print(msg)
     # done
+    print("")
+    print("")
+    print("Final measurements:")
+    print(msg)
     print("")
     print("")
     print("Done.")
