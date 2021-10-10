@@ -5,6 +5,8 @@ import util.linkage_agent.linkage_agent_util as lau
 def test_match():
     print("\nStarting test...")
     config = cu.get_config("test-data/defaults/config.json")
+    print("Doing drop...")
+    lau.drop(config)
     print("Doing validation...")
     lau.validate(config)
     print("Doing match...")
