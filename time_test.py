@@ -3,6 +3,7 @@ from pathlib import Path
 
 import util.config.config_util as cu
 import util.linkage_agent.time_test_runner as ttr
+import util.file.file_util as fu
 
 
 def run_test(root_dir_abs_path):
@@ -11,9 +12,11 @@ def run_test(root_dir_abs_path):
     print("Config:\n" + cu.get_json_pretty_printed(config))
     print("---------------------------")
     root_dir_name = root_dir_abs_path
-    patient_dirs = str(Path(root_dir_abs_path, "patients"))
-    print("root_dir:     " + root_dir_abs_path)
-    print("patient_dirs: " + patient_dirs)
+    patient_root_dir = str(Path(root_dir_abs_path, "patients"))
+    print("root_dir:    " + root_dir_abs_path)
+    print("patient_dir: " + patient_root_dir)
+    patient_dirs = fu.get_dirs(patient_root_dir)
+    print("Got " + str(len(patient_dirs)) + " patient dirs")
     ttr.run_time_test(root_dir_name, patient_dirs, config)
 
 
