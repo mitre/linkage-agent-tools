@@ -28,6 +28,9 @@ def run_time_test(root_dir_name, patient_dirs, config):
     print("------------------------------------")
     print("")
     print("")
+    # crate the dir to write intermediate results
+    time_test_result_dir = Path(root_dir_name, "time-test-results")
+    fu.mkdirs(time_test_result_dir)
     msg = ""
     for dir_name in patient_dirs:
         # get the directories for this run
@@ -60,11 +63,19 @@ def run_time_test(root_dir_name, patient_dirs, config):
         elapsed = end - start
         msg = msg + str(elapsed) + "," + infile_dir_name + "\n"
         print(msg)
+        time_test_result_file = Path(time_test_result_dir, "time-test-results-" + infile_dir_name + ".txt")
+        print("Writing results to: " + str(time_test_result_file))
+        fu.write_string_to_file(msg, str(time_test_result_file))
+        print("Done writing file")
     # done
     print("")
     print("")
     print("Final measurements:")
     print(msg)
+    print("Writing results to: " + str(time_test_result_file))
+    time_test_result_file = Path(time_test_result_dir, "time-test-results-FINAL.txt")
+    fu.write_string_to_file(msg, str(time_test_result_file))
+    print("Done writing file")
     print("")
     print("")
     print("Done.")
