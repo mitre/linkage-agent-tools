@@ -1,4 +1,4 @@
-FROM data61/anonlink-nginx
+FROM data61/anonlink-app
 
 LABEL maintainer="Drew Pellitieri <apellitieri@mitre.org>"
 
