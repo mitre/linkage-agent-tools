@@ -4,7 +4,7 @@ LABEL maintainer="Drew Pellitieri <apellitieri@mitre.org>"
 
 USER root
 
-ENTRYPOINT dockerize -wait tcp://db:5432 alembic upgrade head
+ENTRYPOINT /bin/sh -c "dockerize -wait tcp://db:5432 alembic upgrade head"
 
 COPY . /app
 
