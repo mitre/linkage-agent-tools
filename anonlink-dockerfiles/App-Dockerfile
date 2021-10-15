@@ -4,6 +4,9 @@ LABEL maintainer="Drew Pellitieri <apellitieri@mitre.org>"
 
 USER root
 
+WORKDIR /app
+COPY . /app
+
 RUN chmod -R ugo+rwx /var/www
 RUN chmod -R ugo+rwx /var/log
 
