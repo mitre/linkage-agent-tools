@@ -2,11 +2,9 @@ FROM data61/anonlink-nginx
 
 LABEL maintainer="Drew Pellitieri <apellitieri@mitre.org>"
 
-RUN whoami
-
 USER root
 
 RUN chmod -R ugo+rwx /var/www
-    chmod -R ugo+rwx /var/log
+RUN chmod -R ugo+rwx /var/log
 
 # USER
