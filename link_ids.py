@@ -21,7 +21,11 @@ parser.add_argument(
 args = parser.parse_args()
 
 c = Configuration("config.json")
-client = MongoClient(c.mongo_uri)
+
+if 'MONGODB_USERNAME' in os.environ and 'MONGODB_PASSWORD' in os.environ:
+    client = MongoClient(host=c.mongo_uri, username=os.environ['MONGODB_USERNAME'], password=os.environ['MONGODB_PASSWORD'])
+else:
+    client = MongoClient(c.mongo_uri)
 database = client.linkage_agent
 
 systems = c.systems
