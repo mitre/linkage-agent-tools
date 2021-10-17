@@ -1,4 +1,4 @@
-FROM data61/anonlink-app
+FROM data61/anonlink-app:latest
 
 LABEL maintainer="Drew Pellitieri <apellitieri@mitre.org>"
 
