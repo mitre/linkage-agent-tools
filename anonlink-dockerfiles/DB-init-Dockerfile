@@ -4,7 +4,5 @@ LABEL maintainer="Drew Pellitieri <apellitieri@mitre.org>"
 
 USER root
 
-ENTRYPOINT /bin/sh -c "dockerize -wait tcp://db:5432 alembic upgrade head"
-
 RUN chmod -R ugo+rwx /var/www
 RUN chmod -R ugo+rwx /var/log
