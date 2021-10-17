@@ -2,8 +2,8 @@ import argparse
 import csv
 from functools import reduce
 import json
-from pathlib import Path
 import os
+from pathlib import Path
 import uuid
 
 from pymongo import MongoClient
