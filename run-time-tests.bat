@@ -12,8 +12,8 @@ echo.
 echo. 
 echo Calling python process:
 @echo on
-python time_test.py --dir C:\test\time-test-no-households
-:: python time_test.py --dir C:\pprl\test-sets\test-set-000
+:: python time_test.py --dir C:\test\time-test-no-households
+python time_test.py --dir C:\test\test-set-inc-all-six
 @echo off
 echo.
 echo.
