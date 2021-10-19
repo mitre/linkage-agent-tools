@@ -1,6 +1,7 @@
 import itertools as it
 import json
 import subprocess
+import pymongo
 
 import requests
 from tqdm import tqdm
@@ -109,18 +110,32 @@ class Results:
         self.project = project
 
     def insert_results(self, collection):
+        # matches_to_insert is the list of sets of matched patients to insert into db (1000 sets of 6 for the test case)
         matches_to_insert = len(self.results["groups"])
         insert_count = 0
+        # ADDED INDEX
+        # for each of the "result_groups" (sets of matching records, 1000 for the test cases)
         for result_group in tqdm(self.results["groups"], desc="Inserting {} records into the local database: ".format(matches_to_insert)):
+            # create the record to be inserted (this is going to a dictionary of the hospitals and row ids for the set of matches)
             record = {}
             for result_record in result_group:
                 record[self.systems[result_record[0]]] = result_record[1]
+            # create the query from the dictionary
             query = []
             for system, record_id in record.items():
+                collection.create_index([(system, pymongo.ASCENDING)])
                 query.append({system: record_id})
+            # the query now contains the set of hospitals and row ids
+            # DEBUG CODE NEXT TWO LINES REPLACE THE FOLLOWING TWO
+            # DUMMY
+            # query_result = collection.find({"$or": query})
+            # query_result_count = collection.find({"$or": query}).count()
+            # REAL
             query_result = collection.find({"$or": query})
             query_result_count = collection.count_documents({"$or": query})
+            # END REAL
             if query_result_count == 0:
+                # if no results found do an insert
                 document_to_insert = {}
                 for system, record_id in record.items():
                     document_to_insert[system] = [record_id]
