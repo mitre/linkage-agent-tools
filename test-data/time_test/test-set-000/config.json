@@ -1,0 +1,23 @@
+{
+  "systems": [
+    "test-set-000",
+	"test-set-001"
+  ],
+  "projects": [
+    "name-sex-dob-phone",
+    "name-sex-dob-zip",
+    "name-sex-dob-parents",
+    "name-sex-dob-addr"
+  ],
+  "schema_folder": "C:\\pprl\\test-sets\\test-set-000\\schema",
+  "inbox_folder": "C:\\pprl\\test-sets\\test-set-000\\inbox",
+  "matching_results_folder": "C:\\pprl\\test-sets\\test-set-000\\output",
+  "output_folder": "C:\\pprl\\test-sets\\test-set-000\\output",
+  "entity_service_url": "http://localhost:8851/api/v1",
+  "matching_threshold": 0.75,
+  "mongo_uri": "localhost:27017",
+  "blocked": false,
+  "blocking_schema": "C:\\pprl\\test-sets\\test-set-000\\schema\\name-sex-dob-addr.json",
+  "household_match": false,
+  "household_schema": "C:\\pprl\\test-sets\\test-set-000\\schema\\name-sex-dob-parents.json"
+}

@@ -51,7 +51,9 @@ def do_match(c):
             c.extract_clks(system)
             c.extract_blocks(system)
 
+    iter_num = 0
     for project_name, schema in c.load_schema().items():
+        iter_num = iter_num + 1
         project = Project(
             project_name, schema, c.systems, c.entity_service_url, c.blocked
         )
@@ -76,6 +78,7 @@ def do_match(c):
             time.sleep(SLEEP_TIME)
         result_json = project.get_results()
         results = Results(c.systems, project_name, result_json)
+        print("Matching groups for system " + str(iter_num) + " of " + str(len(c.load_schema().items())))
         results.insert_results(database.match_groups)
 
 

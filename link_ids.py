@@ -108,7 +108,7 @@ def do_link_ids(c, remove=False):
         database.household_match_groups.drop()
         print("Match groups DELETED from database")
     else:
-        print("Match groups NOT deleted from database.")
+        print("Match groups not deleted as this point (they might be deleted later in the process)")
 
 
 if __name__ == "__main__":
