@@ -4,6 +4,5 @@ echo.
 echo Starting anonlink entity service (aes) Using: --scale es_worker=10
 echo.
 echo.
-cd ../anonlink-entity-service
-docker-compose -p anonlink -f tools/docker-compose.yml up --scale es_worker=10
+docker-compose -p anonlink -f ../anonlink-entity-service/tools/docker-compose.yml up --scale es_worker=10
 
