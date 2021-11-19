@@ -12,14 +12,14 @@ c = Configuration("config.json")
 client = MongoClient(c.mongo_uri)
 database = client.linkage_agent
 
-parser = argparse.ArgumentParser(
-    description="Tool for tracing a LINKID back to its matching record in MongoDB"
-)
-parser.add_argument(
-    "linkid",
-    help="The LINKID to find",
-)
-args = parser.parse_args()
+# parser = argparse.ArgumentParser(
+#     description="Tool for tracing a LINKID back to its matching record in MongoDB"
+# )
+# parser.add_argument(
+#     "linkid",
+#     help="The LINKID to find",
+# )
+# args = parser.parse_args()
 
 
 
