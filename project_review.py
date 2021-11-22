@@ -12,119 +12,190 @@ c = Configuration("config.json")
 client = MongoClient(c.mongo_uri)
 database = client.linkage_agent
 
-# parser = argparse.ArgumentParser(
-#     description="Tool for tracing a LINKID back to its matching record in MongoDB"
-# )
-# parser.add_argument(
-#     "linkid",
-#     help="The LINKID to find",
-# )
-# args = parser.parse_args()
+link_id_csv_path = Path(c.matching_results_folder) / "link_ids.csv"
 
 
-
-# 2 get some overall analytics. total match pairs, total links
-total = database.match_groups.count_documents({})
-print(f"total number of matches: {total}")
-
-total = database.match_groups.aggregate([{
-    "$group": {
-        "_id": None,
-        "count": {
-            "$sum": {"$size": "$run_results"}
-        }
-    }
-}])
-for doc in total:  # should only be one
-    print(f"total number of matched pairs (run_results): {doc['count']}")
+with open(link_id_csv_path) as csvfile:
+    link_id_rows = csv.DictReader(csvfile)
+    # drop keys with empty string values
+    link_id_rows = list(map(lambda r: {k: v for k, v in r.items() if v},
+                            link_id_rows))
 
 
-# 2. get analytics on how many matches are based on each project
+def find_link_id(result):
+    matching_fn = lambda r: all(k == 'run_results' or (k in r and int(r[k]) in result[k]) for k in result.keys())
+    link_id = next(filter(matching_fn, link_id_rows))['LINK_ID']
+    return link_id
 
-# 3. get analytics on what matches would be different if each project were excluded - numbers, specific examples
 
-for project in c.projects:
-    print(project.upper())
-    query = {"run_results.project": project}
-    count = database.match_groups.count_documents(query)
-    print(f"{count} results have a match on {project}")
+def describe(changed, project, args):
+    linkid = changed['link_id']
+    if args.linkids:
+        print(linkid)
+    else:
+        if 'new' not in changed or len(changed['new']) == 0:
+            print(f"LINKID {linkid} was created using only {project}")
+        else:
+            delta = changed['original'].keys() - changed['new'].keys() - set(['run_results'])
+            print(f"LINKID {linkid} links to {' and '.join(delta)} only by {project}\
+ -- remaining links are {list(changed['new'].keys())}")
 
-    only_this_project = {**query, "run_results": {"$size": 1}}
-    count = database.match_groups.count_documents(only_this_project)
-    print(f"{count} results have a match ONLY on {project}")
+    if args.debug:
+        pp(changed)
 
-    if count:
-        results = database.match_groups.find(only_this_project)
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Tool for reviewing how removing one project\
+                     will affect overall matching"
+    )
+
+    parser.add_argument(
+        "-p", "--project",
+        help="Select a project to test removing. \
+              Default: iterates through all defined projects",
+    )
+
+    parser.add_argument(
+        "-l", "--linkids", action="store_true",
+        help="Print out only a list of LINKIDs for which \
+              the mapping would change based on removing projects",
+    )
+
+    parser.add_argument(
+        "-d", "--debug", action="store_true",
+        help="Print out additional detail for debugging",
+    )
+
+    parser.add_argument(
+        "-s", "--summary", action="store_true",
+        help="Print out summary statistics",
+    )
+
+    args = parser.parse_args()
+
+    if args.debug:
+        args.summary = True
+    elif not args.linkids and not args.summary:
+        # if no args were provided, default to summary
+        args.summary = True
+
+    if args.summary:
+        # 2 get some overall analytics. total match pairs, total links
+        total = database.match_groups.count_documents({})
+        print(f"Total number of matches: {total}")
+
+        total = database.match_groups.aggregate([{
+            "$group": {
+                "_id": None,
+                "count": {
+                    "$sum": {"$size": "$run_results"}
+                }
+            }
+        }])
+        for doc in total:  # should only be one
+            count = doc['count']
+            print(f"Total number of matched pairs (run_results): {count}")
+
+    for project in c.projects:
+        if args.project and args.project != project:
+            continue
+
+        changed_results = []
+        print(project.upper())
+        query = {"run_results.project": project}
+        count = database.match_groups.count_documents(query)
+        if args.summary:
+            print(f"{count} results have a match on {project}")
+
+        only_this_project = {**query, "run_results": {"$size": 1}}
+        count = database.match_groups.count_documents(only_this_project)
+        if args.summary:
+            print(f"{count} results have a match ONLY on {project}")
+
+        if count:
+            results = database.match_groups.find(only_this_project, {"_id": 0})
+            for result in results:
+                changed_results.append({'original': result,
+                                        'link_id': find_link_id(result)})
+
+        # find results that would be different if this project were excluded
+        results = database.match_groups.find(query, {"_id": 0})
         for result in results:
-            pp(result)
+            if len(result['run_results']) == 1:
+                continue  # already addressed in the "match ONLY on" logic ^
 
-    # Now find results that would be different if this project were excluded
-    different_results = []
-    results = database.match_groups.find(query)
-    for result in results:
-        if len(result['run_results']) == 1:
-            continue  # we already addressed this above, in the "match ONLY on" section
+            # sample result:
+            #  {
+            #   "site_c": [518],
+            #   "site_d": [317],
+            #   "site_e": [732],
+            #   "run_results": [
+            #     {
+            #       "site_c": 518,
+            #       "site_d": 317,
+            #       "project": "name-sex-dob-phone"
+            #     },
+            #     {
+            #       "site_c": 518,
+            #       "site_d": 317,
+            #       "project": "name-sex-dob-zip"
+            #     },
+            #     {
+            #       "site_d": 317,
+            #       "site_e": 732,
+            #       "project": "name-sex-dob-parents"
+            #     },
+            #     {
+            #       "site_d": 518,
+            #       "site_e": 732,
+            #       "project": "name-sex-dob-parents"
+            #     }
+            #   ]
+            # }
 
-        # sample result:
-        #  {
-        #   "site_c": [518],
-        #   "site_d": [317],
-        #   "site_e": [732],
-        #   "run_results": [
-        #     {
-        #       "site_c": 518,
-        #       "site_d": 317,
-        #       "project": "name-sex-dob-phone"
-        #     },
-        #     {
-        #       "site_c": 518,
-        #       "site_d": 317,
-        #       "project": "name-sex-dob-zip"
-        #     },
-        #     {
-        #       "site_d": 317,
-        #       "site_e": 732,
-        #       "project": "name-sex-dob-parents"
-        #     },
-        #     {
-        #       "site_d": 518,
-        #       "site_e": 732,
-        #       "project": "name-sex-dob-parents"
-        #     }
-        #   ]
-        # }
+            # basically the idea is we need to rebuild the site lists,
+            # but don't include the given project
+            # (it may be possible to do this by mongo aggregation,
+            #  but i hope this is more readable)
 
-        # basically the idea is we need to rebuild the site lists,
-        # but don't include the given project
-        # (it may be possible to do this by mongo aggregation but i hope this is more readable)
+            new_result = {}
 
-        new_result = {}
-
-        for project_result in result['run_results']:
-            if project_result['project'] == project:
-                continue
-
-            for key, value in project_result.items():
-                if key == 'project':
+            for project_result in result['run_results']:
+                if project_result['project'] == project:
                     continue
 
-                if key not in new_result:
-                    new_result[key] = set()
+                for key, value in project_result.items():
+                    if key == 'project':
+                        continue
 
-                new_result[key].add(value)
+                    if key not in new_result:
+                        new_result[key] = set()
 
-        # now compare the old result to the new result, see if anything changed
-        for key, value in result.items():
-            if key in ['run_results', '_id']:
-                continue
+                    new_result[key].add(value)
 
-            if key not in new_result or set(value) != new_result[key]:
-                different_results.append((result, new_result))
-                break
+            # now compare the old result to the new result, see what changed
+            for key, value in result.items():
+                if key in ['run_results', '_id']:
+                    continue
+
+                if key not in new_result or set(value) != new_result[key]:
+                    # find the link_id belonging to this result
+                    link_id = find_link_id(result)
+                    changed_results.append({'original': result,
+                                            'new': new_result,
+                                            'link_id': link_id})
+                    break
+
+        if args.summary:
+            count = len(changed_results)
+            print(f"Total # of changes by removing this project: {count}")
+        if changed_results:
+            for r in changed_results:
+                describe(r, project, args)
+
+        print()
 
 
-    print(f"number of changes by removing this project: {len(different_results)}")
-    if different_results:
-        pp(different_results)
-
-    print()
+if __name__ == '__main__':
+    main()
