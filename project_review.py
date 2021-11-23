@@ -34,7 +34,9 @@ def describe(changed, project, args):
         print(linkid)
     else:
         if 'new' not in changed or len(changed['new']) == 0:
-            print(f"LINKID {linkid} was created using only {project}")
+            sites = changed['original'].keys() - set(['run_results'])
+            print(f"LINKID {linkid} was created using only {project}\
+ -- sites: {list(sites)}")
         else:
             delta = changed['original'].keys() - changed['new'].keys() - set(['run_results'])
             print(f"LINKID {linkid} links to {' and '.join(delta)} only by {project}\
@@ -53,13 +55,12 @@ def main():
     parser.add_argument(
         "-p", "--project",
         help="Select a project to test removing. \
-              Default: iterates through all defined projects",
+              Default: iterate through all defined projects",
     )
 
     parser.add_argument(
         "-l", "--linkids", action="store_true",
-        help="Print out only a list of LINKIDs for which \
-              the mapping would change based on removing projects",
+        help="Print out ONLY the LINKIDs without additional description",
     )
 
     parser.add_argument(
@@ -67,35 +68,23 @@ def main():
         help="Print out additional detail for debugging",
     )
 
-    parser.add_argument(
-        "-s", "--summary", action="store_true",
-        help="Print out summary statistics",
-    )
-
     args = parser.parse_args()
 
-    if args.debug:
-        args.summary = True
-    elif not args.linkids and not args.summary:
-        # if no args were provided, default to summary
-        args.summary = True
+    # get some overall analytics. total match pairs, total links
+    total = database.match_groups.count_documents({})
+    print(f"Total number of matches: {total}")
 
-    if args.summary:
-        # 2 get some overall analytics. total match pairs, total links
-        total = database.match_groups.count_documents({})
-        print(f"Total number of matches: {total}")
-
-        total = database.match_groups.aggregate([{
-            "$group": {
-                "_id": None,
-                "count": {
-                    "$sum": {"$size": "$run_results"}
-                }
+    total = database.match_groups.aggregate([{
+        "$group": {
+            "_id": None,
+            "count": {
+                "$sum": {"$size": "$run_results"}
             }
-        }])
-        for doc in total:  # should only be one
-            count = doc['count']
-            print(f"Total number of matched pairs (run_results): {count}")
+        }
+    }])
+    for doc in total:  # should only be one result in the cursor
+        count = doc['count']
+        print(f"Total number of matched pairs (run_results): {count}")
 
     for project in c.projects:
         if args.project and args.project != project:
@@ -105,13 +94,11 @@ def main():
         print(project.upper())
         query = {"run_results.project": project}
         count = database.match_groups.count_documents(query)
-        if args.summary:
-            print(f"{count} results have a match on {project}")
+        print(f"{count} results have a match on {project}")
 
         only_this_project = {**query, "run_results": {"$size": 1}}
         count = database.match_groups.count_documents(only_this_project)
-        if args.summary:
-            print(f"{count} results have a match ONLY on {project}")
+        print(f"{count} results have a match ONLY on {project}")
 
         if count:
             results = database.match_groups.find(only_this_project, {"_id": 0})
@@ -187,9 +174,8 @@ def main():
                                             'link_id': link_id})
                     break
 
-        if args.summary:
-            count = len(changed_results)
-            print(f"Total # of changes by removing this project: {count}")
+        count = len(changed_results)
+        print(f"Total # of changes by removing this project: {count}")
         if changed_results:
             for r in changed_results:
                 describe(r, project, args)
