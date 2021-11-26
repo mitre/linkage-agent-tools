@@ -1,0 +1,27 @@
+{
+  "systems": [
+    "hospital-01",
+    "hospital-02",
+    "hospital-03",
+    "hospital-04",
+    "hospital-05",
+    "hospital-06"
+  ],
+  "projects": [
+    "name-sex-dob-phone",
+    "name-sex-dob-zip",
+    "name-sex-dob-parents",
+    "name-sex-dob-addr"
+  ],
+  "schema_folder": "C:\\test\\test-set-inc-all-six\\schema",
+  "inbox_folder": "C:\\test\\test-set-inc-all-six\\patients",
+  "matching_results_folder": "C:\\test\\test-set-inc-all-six\\output",
+  "output_folder": "C:\\test\\test-set-inc-all-six\\output",
+  "entity_service_url": "http://localhost:8851/api/v1",
+  "matching_threshold": 0.75,
+  "mongo_uri": "localhost:27017",
+  "blocked": false,
+  "blocking_schema": "C:\\test\\test-set-inc-all-six\\schema\\name-sex-dob-addr.json",
+  "household_match": false,
+  "household_schema": "C:\\test\\test-set-inc-all-six\\schema\\name-sex-dob-parents.json"
+}

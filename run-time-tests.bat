@@ -12,7 +12,7 @@ echo.
 echo. 
 echo Calling python process:
 @echo on
-python time_test.py --dir C:\test\test-set-inc-all-six
+python time_test.py --dir C:\test\test-set-30k
 @echo off
 echo.
 echo.

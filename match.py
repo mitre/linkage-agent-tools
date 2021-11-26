@@ -15,7 +15,7 @@ def match():
 def do_match(c):
     client = MongoClient(c.mongo_uri)
     database = client.linkage_agent
-    SLEEP_TIME = 0.5
+    SLEEP_TIME = 10.0
 
     if c.household_match:
         with open(Path(c.household_schema)) as schema_file:
@@ -69,6 +69,13 @@ def do_match(c):
                 project.upload_clks(system, c.get_clks_raw(system, project_name))
         project.start_run(c.matching_threshold)
         running = True
+        print("")
+        print("--- * * *")
+        print("---")
+        print("--- RUNNING")
+        print("---")
+        print("--- * * *")
+        print("")
         while running:
             status = project.get_run_status()
             print(status)
@@ -76,8 +83,18 @@ def do_match(c):
                 running = False
                 break
             time.sleep(SLEEP_TIME)
+        print("")
+        print("--- * * *")
+        print("---")
+        print("--- Getting results")
+        print("---")
+        print("--- * * *")
+        print("")
+        print("Calling get_result")
         result_json = project.get_results()
+        print("Creating result object")
         results = Results(c.systems, project_name, result_json)
+        print("")
         print("Matching groups for system " + str(iter_num) + " of " + str(len(c.load_schema().items())))
         results.insert_results(database.match_groups)
 
