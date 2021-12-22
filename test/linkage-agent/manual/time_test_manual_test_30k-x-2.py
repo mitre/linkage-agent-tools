@@ -10,4 +10,4 @@
 import time_test as tt
 
 if __name__ == "__main__":
-    tt.run_test("C:\\test\\test-set-1k1k")
+    tt.run_test("C:\\test\\test-set-30k-x-2")
