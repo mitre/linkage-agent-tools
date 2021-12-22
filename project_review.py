@@ -15,6 +15,12 @@ database = client.linkage_agent
 link_id_csv_path = Path(c.matching_results_folder) / "link_ids.csv"
 
 
+CSV_HEADERS = ['link_id', 'removed_project']
+
+for s in c.systems:
+    CSV_HEADERS.append(s)
+    CSV_HEADERS.append(f"{s}_id")
+
 with open(link_id_csv_path) as csvfile:
     link_id_rows = csv.DictReader(csvfile)
     # drop keys with empty string values
@@ -22,24 +28,57 @@ with open(link_id_csv_path) as csvfile:
                             link_id_rows))
 
 
-def find_link_id(result):
+def find_link_id_row(result):
     matching_fn = lambda r: all(k == 'run_results' or (k in r and int(r[k]) in result[k]) for k in result.keys())
-    link_id = next(filter(matching_fn, link_id_rows))['LINK_ID']
-    return link_id
+    link_id_row = next(filter(matching_fn, link_id_rows))
+    return link_id_row
 
 
 def describe(changed, project, args):
-    linkid = changed['link_id']
+    link_id_row = changed['link_id_row']
+    link_id = link_id_row['LINK_ID']
     if args.linkids:
-        print(linkid)
+        print(link_id)
     else:
         if 'new' not in changed or len(changed['new']) == 0:
             sites = changed['original'].keys() - set(['run_results'])
-            print(f"LINKID {linkid} was created using only {project}\
+
+            if args.csv:
+                csv_cells = [link_id, project]
+
+                for s in c.systems:
+                    action = 'dropped' if s in sites else ''
+                    s_id = link_id_row[s] if s in link_id_row else ''
+                    csv_cells.append(action)
+                    csv_cells.append(s_id)
+
+                print(','.join(csv_cells))
+
+            else:
+                print(f"LINKID {link_id} was created using only {project}\
  -- sites: {list(sites)}")
         else:
             delta = changed['original'].keys() - changed['new'].keys() - set(['run_results'])
-            print(f"LINKID {linkid} links to {' and '.join(delta)} only by {project}\
+
+            if args.csv:
+                csv_cells = [link_id, project]
+
+                for s in c.systems:
+                    if s in delta:
+                        action = 'dropped'
+                    elif s in changed['original']:
+                        action = 'retained'
+                    else:
+                        action = ''
+
+                    s_id = link_id_row[s] if s in link_id_row else ''
+
+                    csv_cells.append(action)
+                    csv_cells.append(s_id)
+
+                print(','.join(csv_cells))
+            else:
+                print(f"LINKID {link_id} links to {' and '.join(delta)} only by {project}\
  -- remaining links are {list(changed['new'].keys())}")
 
     if args.debug:
@@ -64,6 +103,11 @@ def main():
     )
 
     parser.add_argument(
+        "-c", "--csv", action="store_true",
+        help="Print output in a CSV format",
+    )
+
+    parser.add_argument(
         "-d", "--debug", action="store_true",
         help="Print out additional detail for debugging",
     )
@@ -71,40 +115,46 @@ def main():
     args = parser.parse_args()
 
     # get some overall analytics. total match pairs, total links
-    total = database.match_groups.count_documents({})
-    print(f"Total number of matches: {total}")
+    if args.csv:
+        print(','.join(CSV_HEADERS))
 
-    total = database.match_groups.aggregate([{
-        "$group": {
-            "_id": None,
-            "count": {
-                "$sum": {"$size": "$run_results"}
+    else:
+        total = database.match_groups.count_documents({})
+        print(f"Total number of matches: {total}")
+
+        total = database.match_groups.aggregate([{
+            "$group": {
+                "_id": None,
+                "count": {
+                    "$sum": {"$size": "$run_results"}
+                }
             }
-        }
-    }])
-    for doc in total:  # should only be one result in the cursor
-        count = doc['count']
-        print(f"Total number of matched pairs (run_results): {count}")
+        }])
+        for doc in total:  # should only be one result in the cursor
+            count = doc['count']
+            print(f"Total number of matched pairs (run_results): {count}")
 
     for project in c.projects:
         if args.project and args.project != project:
             continue
 
         changed_results = []
-        print(project.upper())
         query = {"run_results.project": project}
-        count = database.match_groups.count_documents(query)
-        print(f"{count} results have a match on {project}")
+        if not args.csv:
+            print(project.upper())
+            count = database.match_groups.count_documents(query)
+            print(f"{count} results have a match on {project}")
 
         only_this_project = {**query, "run_results": {"$size": 1}}
         count = database.match_groups.count_documents(only_this_project)
-        print(f"{count} results have a match ONLY on {project}")
+        if not args.csv:
+            print(f"{count} results have a match ONLY on {project}")
 
         if count:
             results = database.match_groups.find(only_this_project, {"_id": 0})
             for result in results:
                 changed_results.append({'original': result,
-                                        'link_id': find_link_id(result)})
+                                        'link_id_row': find_link_id_row(result)})
 
         # find results that would be different if this project were excluded
         results = database.match_groups.find(query, {"_id": 0})
@@ -168,19 +218,22 @@ def main():
 
                 if key not in new_result or set(value) != new_result[key]:
                     # find the link_id belonging to this result
-                    link_id = find_link_id(result)
+                    link_id_row = find_link_id_row(result)
                     changed_results.append({'original': result,
                                             'new': new_result,
-                                            'link_id': link_id})
+                                            'link_id_row': link_id_row})
                     break
 
         count = len(changed_results)
-        print(f"Total # of changes by removing this project: {count}")
+        if not args.csv:
+            print(f"Total # of changes by removing this project: {count}")
+
         if changed_results:
             for r in changed_results:
                 describe(r, project, args)
 
-        print()
+        if not args.csv:
+            print()
 
 
 if __name__ == '__main__':

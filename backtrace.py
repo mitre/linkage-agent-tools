@@ -27,10 +27,15 @@ with open(result_csv_path) as csvfile:
     reader = csv.DictReader(csvfile)
     link_id_row = next(filter(lambda r: r['LINK_ID'] == args.linkid, reader))
 
+print(f"Actual linkages for {args.linkid}:")
+
 query = {}
 for (key, value) in link_id_row.items():
     if key != 'LINK_ID' and len(value) > 0:
-      query[key] = int(value)
+        query[key] = int(value)
+        print(f"{key}: {value}")
+
+print('---')
 
 for result in database.match_groups.find(query):
     print(result)
