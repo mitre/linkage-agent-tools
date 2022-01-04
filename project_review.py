@@ -21,14 +21,49 @@ for s in c.systems:
     CSV_HEADERS.append(s)
     CSV_HEADERS.append(f"{s}_id")
 
+# link_id_dict is a map of system->position->full link_ids.csv row.
+# For example given link_ids.csv:
+#   link_id,site_a,site_b
+#   xyz,12,34
+# we will get a mapping as follows:
+# {
+#   site_a: {12: {xyz,12,34}},
+#   site_b: {34: {xyz,12,34}}
+# }
+# This allows us to quickly look up any full row
+#  based on just one single system position
+# (Why include the full row and not just the link_id?
+# Fewer code changes needed elsewhere)
+link_id_dict = {}
+for system in c.systems:
+    link_id_dict[system] = {}
+
 with open(link_id_csv_path) as csvfile:
     link_id_rows = csv.DictReader(csvfile)
     # drop keys with empty string values
     link_id_rows = list(map(lambda r: {k: v for k, v in r.items() if v},
                             link_id_rows))
+    for row in link_id_rows:
+        for system in c.systems:
+            if system in row and row[system]:
+                pos = row[system]
+                link_id_dict[system][pos] = row
 
 
 def find_link_id_row(result):
+    for system in c.systems:
+        if system in result and result[system] and len(result[system]) == 1:
+            # We have a system with only one position listed in the results,
+            # therefore it's guaranteed we can use that position as a lookup.
+            # In other words, if there are 2+ positions listed then we don't
+            # have enough info to know which was actually linked
+            # to the link ID this result represents
+            pos = str(result[system][0])
+            return link_id_dict[system][pos]
+
+    # If we make it here, all systems in this matching result
+    # have more than one position listed,
+    # so fall back to the old, slow, loop approach
     matching_fn = lambda r: all(k == 'run_results' or (k in r and int(r[k]) in result[k]) for k in result.keys())
     link_id_row = next(filter(matching_fn, link_id_rows))
     return link_id_row
