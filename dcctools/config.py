@@ -8,8 +8,13 @@ from zipfile import ZipFile
 
 class Configuration:
     def __init__(self, filename):
-        self.filename = filename
-        self.config_json = json.load(open(filename))
+        if filename is not None:
+            self.filename = filename
+            self.config_json = json.load(open(filename))
+
+    def init(self, json_obj):
+        self.config_json = json_obj
+        self.filename = ""
 
     @property
     def system_count(self):

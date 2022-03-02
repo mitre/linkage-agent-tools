@@ -1,0 +1,27 @@
+{
+  "systems": [
+    "hospital-01",
+    "hospital-02",
+    "hospital-03",
+    "hospital-04",
+    "hospital-05",
+    "hospital-06"
+  ],
+  "projects": [
+    "name-sex-dob-phone",
+    "name-sex-dob-zip",
+    "name-sex-dob-parents",
+    "name-sex-dob-addr"
+  ],
+  "schema_folder": "test-data/envs/perf-testing/six-the-same-1k/schema",
+  "inbox_folder": "test-data/envs/perf-testing/six-the-same-1k/patients/hospitals-0001",
+  "matching_results_folder": "test-data/envs/perf-testing/six-the-same-1k/output",
+  "output_folder": "test-data/envs/perf-testing/six-the-same-1k/output",
+  "entity_service_url": "http://localhost:8851/api/v1",
+  "matching_threshold": 0.75,
+  "mongo_uri": "localhost:27017",
+  "blocked": false,
+  "blocking_schema": "test-data/envs/perf-testing/six-the-same-1k/name-sex-dob-addr.json",
+  "household_match": false,
+  "household_schema": "test-data/envs/perf-testing/six-the-same-1k/name-sex-dob-parents.json"
+}

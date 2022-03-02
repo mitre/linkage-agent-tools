@@ -1,6 +1,7 @@
 import itertools as it
 import json
 import subprocess
+import pymongo
 
 import requests
 from tqdm import tqdm
@@ -111,12 +112,14 @@ class Results:
     def insert_results(self, collection):
         matches_to_insert = len(self.results["groups"])
         insert_count = 0
+
         for result_group in tqdm(self.results["groups"], desc="Inserting {} records into the local database: ".format(matches_to_insert)):
             record = {}
             for result_record in result_group:
                 record[self.systems[result_record[0]]] = result_record[1]
             query = []
             for system, record_id in record.items():
+                collection.create_index([(system, pymongo.ASCENDING)])
                 query.append({system: record_id})
             query_result = collection.find({"$or": query})
             query_result_count = collection.count_documents({"$or": query})
