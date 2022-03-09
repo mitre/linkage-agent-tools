@@ -125,8 +125,9 @@ A description of the properties in the file:
 - **mongo_uri** - The URI to use when connecting to MongoDB to store or access
   results. For details on the URI structure, consult the
   [Connection String URI Format documentation](https://docs.mongodb.com/manual/reference/connection-string/)
-- **blocked** - A boolean value for if the CLK's from the data owner in the
-  inbox folder were generated via
+- **blocked** - A boolean value indicating whether the
+  [CLK](https://anonlink-entity-service.readthedocs.io/en/stable/concepts.html)s
+  from the data owner in the inbox folder were generated via
   [blocking](https://anonlink-client.readthedocs.io/en/latest/tutorial/Blocking%20with%20Anonlink%20Entity%20Service.html)
 - **blocking_schema** - The optional path to the file used by data owner tools
   for blocking
@@ -152,6 +153,9 @@ inbox/
   ...
 ```
 
+Note that these file names exactly match the `systems` list in the
+configuration, with `.zip` at the end. This is required.
+
 And an example for households, with `household_match` set to `true`:
 
 ```
@@ -161,6 +165,10 @@ inbox/
   site_c_households.zip
   ...
 ```
+
+Note that the household file names in this example also start with system names
+from the `systems` configuration value, and end with `_households.zip`; this is
+also required.
 
 After running the scripts in the order specified in the repository structure
 section below, the project will produce the following files in the
@@ -199,8 +207,9 @@ This project is a set of python scripts driven by a central configuration file,
    the database; this will drop all data for individuals and households, whether
    `household_match` is `true` or `false`
 1. When all data is present, run `match.py`, which will perform pairwise
-   matching of the garbled information sent by the data owners. The matching
-   information will be stored in MongoDB.
+   matching of the garbled information sent by the data owners for either
+   individuals or households, depending on the value of `household_match`. The
+   matching information will be stored in MongoDB.
 1. After matching, run `link_ids.py`, which will take all of the resulting
    matching information and use it to generate LINK_IDs, which are written to a
    CSV file in the configured results folder.

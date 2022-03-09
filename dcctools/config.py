@@ -25,13 +25,14 @@ class Configuration:
         root_path = Path(self.filename).parent
         inbox_folder = root_path / self.config_json["inbox_folder"]
         for s in self.config_json["systems"]:
-            system_zip_path = inbox_folder / "{}.zip".format(s)
-            if not os.path.exists(system_zip_path):
-                missing_paths.append(system_zip_path)
             if self.config_json["household_match"]:
                 household_zip_path = inbox_folder / "{}_households.zip".format(s)
                 if not os.path.exists(household_zip_path):
                     missing_paths.append(household_zip_path)
+            else:
+                system_zip_path = inbox_folder / "{}.zip".format(s)
+                if not os.path.exists(system_zip_path):
+                    missing_paths.append(system_zip_path)
             if self.config_json["blocked"]:
                 system_zip_path = inbox_folder / "{}_block.zip".format(s)
                 if not os.path.exists(system_zip_path):

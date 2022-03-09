@@ -22,8 +22,8 @@ def do_validate(c):
         print("All necessary input is present")
     else:
         print("One or more files missing from data owners:")
-        for filename in missing_files:
-            print(filename)
+        for filename in sorted(missing_files):
+            print(f"Missing file: {filename}")
 
 
 if __name__ == "__main__":
