@@ -1,13 +1,23 @@
+#!/usr/bin/env python
+
+import argparse
+
 from dcctools.config import Configuration
 
 
-def validate():
-    config = Configuration("config.json")
-    return do_validate(config)
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--config",
+        default="config.json",
+        help='Configuration file (default "config.json")',
+    )
+    args = parser.parse_args()
+    return args
 
 
 def do_validate(c):
-    missing_files = c.validate_all_present()
+    missing_files = set(c.validate_all_present())
     if len(missing_files) == 0:
         print("All necessary input is present")
     else:
@@ -17,5 +27,6 @@ def do_validate(c):
 
 
 if __name__ == "__main__":
-    validate()
-
+    args = parse_args()
+    config = Configuration(args.config)
+    do_validate(config)

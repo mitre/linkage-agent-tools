@@ -36,6 +36,10 @@ class Configuration:
                 system_zip_path = inbox_folder / "{}_block.zip".format(s)
                 if not os.path.exists(system_zip_path):
                     missing_paths.append(system_zip_path)
+        for d in ["matching_results_folder", "output_folder"]:
+            path_to_check = root_path / getattr(self, d)
+            if not os.path.exists(path_to_check):
+                missing_paths.append(path_to_check)
         return missing_paths
 
     @property

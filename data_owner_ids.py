@@ -1,42 +1,50 @@
+#!/usr/bin/env python
+
+import argparse
 import csv
 from pathlib import Path
 
 from dcctools.config import Configuration
 
 
-def data_owner_ids():
-    c = Configuration("config.json")
-    do_data_owner_ids(c)
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--config",
+        default="config.json",
+        help='Configuration file (default "config.json")',
+    )
+    args = parser.parse_args()
+    return args
+
+
+def process_csv(csv_path, system_csv_path, system):
+    with open(csv_path) as csvfile:
+        reader = csv.DictReader(csvfile)
+        with open(system_csv_path, "w", newline="") as system_csvfile:
+            writer = csv.DictWriter(system_csvfile, fieldnames=["LINK_ID", system])
+            writer.writeheader()
+            for row in reader:
+                if len(row[system]) > 0:
+                    writer.writerow({"LINK_ID": row["LINK_ID"], system: row[system]})
 
 
 def do_data_owner_ids(c):
-    result_csv_path = Path(c.matching_results_folder) / "link_ids.csv"
-    household_csv_path = Path(c.matching_results_folder) / "household_link_ids.csv"
-    systems = c.systems
+    if c.household_match:
+        csv_path = Path(c.matching_results_folder) / "household_link_ids.csv"
+    else:
+        csv_path = Path(c.matching_results_folder) / "link_ids.csv"
 
-    for s in systems:
-        system_csv_path = Path(c.output_folder, "{}.csv".format(s))
-        household_system_csv_path = Path(c.output_folder), "{}_households.csv".format(s)
-        with open(result_csv_path) as csvfile:
-            reader = csv.DictReader(csvfile)
-            with open(system_csv_path, "w", newline="") as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=["LINK_ID", s])
-                writer.writeheader()
-                for row in reader:
-                    if len(row[s]) > 0:
-                        writer.writerow({"LINK_ID": row["LINK_ID"], s: row[s]})
-        print(f"{system_csv_path} created")
+    for system in c.systems:
         if c.household_match:
-            with open(household_csv_path) as csvfile:
-                reader = csv.DictReader(csvfile)
-                with open(household_system_csv_path, "w", newline="") as csvfile:
-                    writer = csv.DictWriter(csvfile, fieldnames=["LINK_ID", s])
-                    writer.writeheader()
-                    for row in reader:
-                        if len(row[s]) > 0:
-                            writer.writerow({"LINK_ID": row["LINK_ID"], s: row[s]})
-            print(f"{household_system_csv_path} created")
+            system_csv_path = Path(c.output_folder) / "{}_households.csv".format(system)
+        else:
+            system_csv_path = Path(c.output_folder) / "{}.csv".format(system)
+        process_csv(csv_path, system_csv_path, system)
+        print(f"{system_csv_path} created")
 
 
 if __name__ == "__main__":
-    data_owner_ids()
+    args = parse_args()
+    config = Configuration(args.config)
+    do_data_owner_ids(config)

@@ -1,8 +1,8 @@
 import itertools as it
 import json
 import subprocess
-import pymongo
 
+import pymongo
 import requests
 from tqdm import tqdm
 
@@ -113,7 +113,12 @@ class Results:
         matches_to_insert = len(self.results["groups"])
         insert_count = 0
 
-        for result_group in tqdm(self.results["groups"], desc="Inserting {} records into the local database: ".format(matches_to_insert)):
+        for result_group in tqdm(
+            self.results["groups"],
+            desc="Inserting {} records into the local database: ".format(
+                matches_to_insert
+            ),
+        ):
             record = {}
             for result_record in result_group:
                 record[self.systems[result_record[0]]] = result_record[1]
