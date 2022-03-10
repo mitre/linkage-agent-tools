@@ -22,26 +22,49 @@ class Configuration:
 
     def validate_all_present(self):
         missing_paths = []
+        expected_paths = []
+        unexpected_paths = []
         root_path = Path(self.filename).parent
         inbox_folder = root_path / self.config_json["inbox_folder"]
         for s in self.config_json["systems"]:
+            system_zip_path = inbox_folder / "{}.zip".format(s)
+            household_zip_path = inbox_folder / "{}_households.zip".format(s)
             if self.config_json["household_match"]:
-                household_zip_path = inbox_folder / "{}_households.zip".format(s)
+                expected_paths.append(household_zip_path)
                 if not os.path.exists(household_zip_path):
                     missing_paths.append(household_zip_path)
+                if os.path.exists(system_zip_path):
+                    unexpected_paths.append(system_zip_path)
             else:
-                system_zip_path = inbox_folder / "{}.zip".format(s)
+                expected_paths.append(system_zip_path)
                 if not os.path.exists(system_zip_path):
                     missing_paths.append(system_zip_path)
+                if os.path.exists(household_zip_path):
+                    unexpected_paths.append(household_zip_path)
             if self.config_json["blocked"]:
                 system_zip_path = inbox_folder / "{}_block.zip".format(s)
                 if not os.path.exists(system_zip_path):
                     missing_paths.append(system_zip_path)
+        # Check for additional files in inbox that don't match these two patterns
+        expected_paths_set = set(expected_paths)
+        inbox_paths_present = set(
+            [
+                f
+                for f in inbox_folder.glob("*")
+                if f.is_file() and not f.name.startswith(".")
+            ]
+        )
+        # If it's the same size or smaller, any issues meeting the above patterns
+        # should already be accounted for, so check only for additional unexpected
+        if len(inbox_paths_present) > len(expected_paths_set):
+            for p in inbox_paths_present - expected_paths_set:
+                unexpected_paths.append(p)
+
         for d in ["matching_results_folder", "output_folder"]:
             path_to_check = root_path / getattr(self, d)
             if not os.path.exists(path_to_check):
                 missing_paths.append(path_to_check)
-        return missing_paths
+        return (set(missing_paths), set(unexpected_paths))
 
     @property
     def systems(self):
