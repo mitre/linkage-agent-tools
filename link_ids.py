@@ -4,14 +4,13 @@ import argparse
 import csv
 from functools import reduce
 import json
-import os
 from pathlib import Path
 import uuid
 
 from pymongo import MongoClient
 
 from dcctools.config import Configuration
-from dcctools.deconflict import deconflict, household_deconflict
+from dcctools.deconflict import deconflict
 
 
 def parse_args():
@@ -77,8 +76,6 @@ def do_link_ids(c, remove=False):
                     final_record = {system: unmatched_id}
                     final_records.append(final_record)
 
-            print("Before deconflict: " + str(len(final_records)))
-            household_deconflict(final_records, individual_linkages, systems, c)
             for record in final_records:
                 record["LINK_ID"] = uuid.uuid1()
                 writer.writerow(record)
