@@ -2,9 +2,7 @@ import argparse
 import itertools
 import json
 
-from dcctools.config import Configuration
-
-c = Configuration("config.json")
+from config import Configuration
 
 parser = argparse.ArgumentParser(
     description="Tool for counting the number of exact matches (exactly identical hashes) \
@@ -16,6 +14,11 @@ parser.add_argument(
           Default: name-sex-dob-zip",
 )
 args = parser.parse_args()
+
+# note the path has to be relative to the directory
+# that the script was invoked from
+# python3 dcctools/exact_matches.py --> use path "./config.json"
+c = Configuration("config.json")
 
 project = args.project
 

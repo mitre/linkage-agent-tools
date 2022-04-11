@@ -5,7 +5,7 @@ import csv
 
 from pymongo import MongoClient
 
-from dcctools.config import Configuration
+from config import Configuration
 
 c = Configuration("config.json")
 client = MongoClient(c.mongo_uri)
