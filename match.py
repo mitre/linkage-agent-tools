@@ -4,6 +4,7 @@ import argparse
 import logging
 from pathlib import Path
 import time
+import json
 
 from pymongo import MongoClient
 
@@ -15,7 +16,6 @@ SLEEP_TIME = 10.0
 
 log = logging.getLogger(__name__)
 
-
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -26,11 +26,22 @@ def parse_args():
     parser.add_argument(
         "--verbose", default=False, action="store_true", help="Show debugging output"
     )
+    parser.add_argument(
+        "--projects_only",
+        default=False,
+        action="store_true",
+        help="Run projects and generate results, but don't perform matching"
+    )
+    parser.add_argument(
+        "--match_only",
+        default=False,
+        action="store_true",
+        help="Perform matching based on stored results"
+    )
     args = parser.parse_args()
     return args
 
-
-def do_match(c):
+def run_projects(c):
     client = MongoClient(c.mongo_uri)
     database = client.linkage_agent
 
@@ -107,19 +118,32 @@ def do_match(c):
                 time.sleep(SLEEP_TIME)
             print("\n--- Getting results ---\n")
             result_json = project.get_results()
-            results = Results(c.systems, project_name, result_json)
-            print(
-                "Matching groups for system "
-                + str(iter_num)
-                + " of "
-                + str(len(c.load_schema().items()))
-            )
-            results.insert_results(database.match_groups)
+            with open(Path(c.project_results_dir) / f'{project_name}.json', 'w') as json_file:
+                json.dump(result_json, json_file)
 
+def do_match(systems, project_results_dir, database):
+    print(project_results_dir)
+    for file_name in Path(project_results_dir).glob('*.json'):
+        project_name = Path(file_name).stem
+        with open(file_name) as file:
+            result_json = json.load(file)
+            results = Results(systems, project_name, result_json)
+            print('Matching groups for system f{project_name}')
+            results.insert_results(database.match_groups)
 
 if __name__ == "__main__":
     args = parse_args()
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG, format="%(message)s")
     config = Configuration(args.config)
-    do_match(config)
+
+    client = MongoClient(config.mongo_uri)
+    database = client.linkage_agent
+
+    if args.projects_only:
+        run_projects(config)
+    elif args.match_only:
+        do_match(config.systems, config.project_results_dir, database)
+    else:
+        run_projects(config)
+        do_match(config.systems, config.project_results_dir, database)
