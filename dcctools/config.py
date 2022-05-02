@@ -208,3 +208,7 @@ class Configuration:
     @property
     def household_schema(self):
         return self.config_json["household_schema"]
+
+    @property
+    def project_results_dir(self):
+        return self.config_json["project_results_folder"]
