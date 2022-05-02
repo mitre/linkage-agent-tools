@@ -19,8 +19,10 @@ def drop(config):
 
 
 def match(config):
-    m.do_match(config)
-
+    client = MongoClient(config.mongo_uri)
+    database = client.linkage_agent
+    m.do_match(config.systems, config.project_results_dir, database)
+    m.run_projects(config)
 
 def link_id(config):
     li.do_link_ids(config)
