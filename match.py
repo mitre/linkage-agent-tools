@@ -118,6 +118,7 @@ def run_projects(c):
                 time.sleep(SLEEP_TIME)
             print("\n--- Getting results ---\n")
             result_json = project.get_results()
+            Path(c.project_results_dir).mkdir(parents=True, exist_ok=True)
             with open(Path(c.project_results_dir) / f'{project_name}.json', 'w') as json_file:
                 json.dump(result_json, json_file)
 
