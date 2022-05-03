@@ -74,7 +74,7 @@ in the Python Standard Library.
 cd linkage-agent-tools/
 
 # Create a virtual environment in a `venv/` folder
-python3 -m venv venv/
+python -m venv venv/
 
 # Activate the virtual environment
 source venv/bin/activate
