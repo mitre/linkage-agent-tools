@@ -19,4 +19,3 @@ def test_match():
     lau.data_owner_ids(config)
     # No drop done at the end so we can look at the data after the run if we need to
     print("Done.")
-

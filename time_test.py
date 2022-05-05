@@ -35,4 +35,3 @@ if __name__ == "__main__":
     # get the derived params
     root_dir = args.dir
     run_test(root_dir)
-

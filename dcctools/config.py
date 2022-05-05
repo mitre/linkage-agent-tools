@@ -22,14 +22,21 @@ class Configuration:
 
     def validate_config(self):
         config_issues = []
-        if self.config_json["household_match"] and "household_threshold" not in self.config_json.keys():
-            config_issues.append("config file specifies household match without float household matching threshold")
+        if (
+            self.config_json["household_match"]
+            and "household_threshold" not in self.config_json.keys()
+        ):
+            config_issues.append(
+                "config file specifies household match without float household matching threshold"
+            )
         elif type(self.config_json["matching_threshold"]) == list:
             proj_len = len(self.config_json["projects"])
             thresh_len = len(self.config_json["matching_threshold"])
             if proj_len != thresh_len:
-                config_issues.append(f"Number of projects ({proj_len}) and thresholds ({thresh_len}) is unequal \
-                \n\tThreshold must either be float or list of floats equal in length to the number of projects")
+                config_issues.append(
+                    f"Number of projects ({proj_len}) and thresholds ({thresh_len}) is unequal \
+                \n\tThreshold must either be float or list of floats equal in length to the number of projects"
+                )
         return config_issues
 
     def validate_all_present(self):
@@ -175,14 +182,17 @@ class Configuration:
         return house_mapping
 
     def get_project_threshold(self, project_name):
-        config_threshold = self.household_threshold if self.household_match else self.matching_threshold
+        config_threshold = (
+            self.household_threshold
+            if self.household_match
+            else self.matching_threshold
+        )
         if type(config_threshold) == list:
             project_index = config_threshold.index(project_name)
             threshold = config_threshold[project_index]
         else:
             threshold = config_threshold
         return threshold
-
 
     @property
     def matching_threshold(self):

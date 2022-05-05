@@ -20,7 +20,9 @@ def get_config_json_obj(file_name):
         config = json.load(file)
     config["schema_folder"] = fu.get_file_name(config["schema_folder"])
     config["inbox_folder"] = fu.get_file_name(config["inbox_folder"])
-    config["matching_results_folder"] = fu.get_file_name(config["matching_results_folder"])
+    config["matching_results_folder"] = fu.get_file_name(
+        config["matching_results_folder"]
+    )
     config["output_folder"] = fu.get_file_name(config["output_folder"])
     config["blocking_schema"] = fu.get_file_name(config["blocking_schema"])
     config["household_schema"] = fu.get_file_name(config["household_schema"])
@@ -50,4 +52,3 @@ def get_config_from_string(json_string):
 
 def get_json_pretty_printed(config):
     return ju.pretty_print(config.config_json)
-

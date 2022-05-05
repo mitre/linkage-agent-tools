@@ -7,4 +7,3 @@ def test_validate():
     config = cu.get_config("test-data/defaults/config.json")
     lau.validate(config)
     print("Done.")
-

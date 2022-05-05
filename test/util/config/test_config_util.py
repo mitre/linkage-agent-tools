@@ -14,4 +14,3 @@ def test_get_config():
     config = cu.get_config("test/util/config/config.json")
     print(ju.pretty_print(config.config_json))
     print("Done.")
-

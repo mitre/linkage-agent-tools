@@ -11,7 +11,7 @@ def test_system_count():
     found = c.system_count
     print("Expected: " + str(expected))
     print("Found:    " + str(found))
-    assert (expected == found)
+    assert expected == found
 
 
 def test_validate_all_present():
@@ -40,7 +40,7 @@ def test_validate_config():
         f"Number of projects ({n_expected_proj}) and thresholds ({n_expected_thresh}) is unequal \
                 \n\tThreshold must either be float or list of floats equal in length to the number of projects"
     ]
-    
+
     c_multi_thresh = cu.get_config("tests/mock_setup/config-multi-threshold.json")
     actual_issues = c_multi_thresh.validate_config()
     assert len(expected_issues) == len(actual_issues)
@@ -48,9 +48,10 @@ def test_validate_config():
         assert actual_issues[i] == expected_issue
 
     c_hh_no_thresh = cu.get_config("tests/mock_setup/config-hh-no-thresh.json")
-    expected_issues = ["config file specifies household match without float household matching threshold"]
+    expected_issues = [
+        "config file specifies household match without float household matching threshold"
+    ]
     actual_issues = c_hh_no_thresh.validate_config()
     assert len(expected_issues) == len(actual_issues)
     for i, expected_issue in enumerate(expected_issues):
         assert actual_issues[i] == expected_issue
-

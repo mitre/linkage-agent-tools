@@ -17,11 +17,14 @@ def drop(config):
     database.household_match_groups.drop()
     print("Database cleared.")
 
+
 def projects(config):
     p.run_projects(config)
 
+
 def match(config):
     m.do_match(config)
+
 
 def link_id(config):
     li.do_link_ids(config)
