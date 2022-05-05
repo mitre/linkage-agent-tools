@@ -1,9 +1,9 @@
 from pymongo import MongoClient
 import validate as val
+import projects as p
 import match as m
 import link_ids as li
 import data_owner_ids as doi
-import util.config.config_util as cu
 
 
 def validate(config):
@@ -17,12 +17,13 @@ def drop(config):
     database.household_match_groups.drop()
     print("Database cleared.")
 
+def projects(config):
+    p.run_projects(config)
 
 def match(config):
     client = MongoClient(config.mongo_uri)
     database = client.linkage_agent
     m.do_match(config.systems, config.project_results_dir, database, config.household_match)
-    m.run_projects(config)
 
 def link_id(config):
     li.do_link_ids(config)
@@ -38,6 +39,8 @@ def generate_link_ids(config):
     drop(config)
     print("Doing validation...")
     validate(config)
+    print("Running projects...")
+    projects(config)
     print("Doing match...")
     match(config)
     print("")
