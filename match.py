@@ -16,6 +16,7 @@ SLEEP_TIME = 10.0
 
 log = logging.getLogger(__name__)
 
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -41,10 +42,8 @@ def parse_args():
     args = parser.parse_args()
     return args
 
-def run_projects(c):
-    client = MongoClient(c.mongo_uri)
-    database = client.linkage_agent
 
+def run_projects(c):
     if c.household_match:
         log.debug("Processing households")
         with open(Path(c.household_schema)) as schema_file:
@@ -68,6 +67,7 @@ def run_projects(c):
                 threshold = c.matching_threshold
             household_project.start_run(threshold)
             running = True
+            print("\n--- RUNNING ---\n")
             while running:
                 status = household_project.get_run_status()
                 print(status)
@@ -75,9 +75,11 @@ def run_projects(c):
                     running = False
                     break
                 time.sleep(SLEEP_TIME)
+            print("\n--- Getting results ---\n")
             result_json = household_project.get_results()
-            results = Results(c.systems, project_name, result_json)
-            results.insert_results(database.household_match_groups)
+            Path(c.project_results_dir).mkdir(parents=True, exist_ok=True)
+            with open(Path(c.project_results_dir) / f'{project_name}.json', 'w') as json_file:
+                json.dump(result_json, json_file)
     else:
         log.debug("Processing individuals")
         if c.blocked:
@@ -122,15 +124,19 @@ def run_projects(c):
             with open(Path(c.project_results_dir) / f'{project_name}.json', 'w') as json_file:
                 json.dump(result_json, json_file)
 
-def do_match(systems, project_results_dir, database):
-    print(project_results_dir)
+
+def do_match(systems, project_results_dir, database, household_match):
     for file_name in Path(project_results_dir).glob('*.json'):
         project_name = Path(file_name).stem
         with open(file_name) as file:
             result_json = json.load(file)
             results = Results(systems, project_name, result_json)
             print('Matching groups for system f{project_name}')
-            results.insert_results(database.match_groups)
+            if household_match:
+                results.insert_results(database.match_groups)
+            else:
+                results.insert_results(database.house_hold_match_groups)
+
 
 if __name__ == "__main__":
     args = parse_args()
@@ -144,7 +150,7 @@ if __name__ == "__main__":
     if args.projects_only:
         run_projects(config)
     elif args.match_only:
-        do_match(config.systems, config.project_results_dir, database)
+        do_match(config.systems, config.project_results_dir, database, config.household_match)
     else:
         run_projects(config)
-        do_match(config.systems, config.project_results_dir, database)
+        do_match(config.systems, config.project_results_dir, database, config.household_match)
