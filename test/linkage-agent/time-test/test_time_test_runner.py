@@ -9,4 +9,3 @@ def test_time_test_runner():
     root_dir_name = fu.get_file_name(root_dir)
     patient_dirs = fu.get_dirs(fu.get_file_name(root_dir + "/patients"))
     ttr.run_time_test(root_dir_name, patient_dirs, config)
-

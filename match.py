@@ -18,7 +18,9 @@ log = logging.getLogger(__name__)
 
 class MissingResults(Exception):
     def __init__(self, expected_results, available_results, message=None):
-        message = message if message else self.message(expected_results, available_results)
+        message = (
+            message if message else self.message(expected_results, available_results)
+        )
         super().__init__(message)
 
     def message(self, expected_results, available_results):
@@ -40,9 +42,11 @@ def parse_args():
 
 
 def has_results_available(config, projects=None):
-    available_results = set(map(lambda x: x.stem, Path(config.project_results_dir).glob('*.json')))
+    available_results = set(
+        map(lambda x: x.stem, Path(config.project_results_dir).glob("*.json"))
+    )
     expected_results = set(projects) if projects else set(config.projects)
-    if (expected_results <= available_results):
+    if expected_results <= available_results:
         return True
     else:
         raise MissingResults(expected_results, available_results)
@@ -60,10 +64,10 @@ def do_match(config, projects=None):
 def do_matching(config, projects, collection):
     has_results_available(config, projects)
     for project_name in projects:
-        with open(Path(config.project_results_dir) / f'{project_name}.json') as file:
+        with open(Path(config.project_results_dir) / f"{project_name}.json") as file:
             result_json = json.load(file)
             results = Results(config.systems, project_name, result_json)
-            print(f'Matching for project: {project_name}')
+            print(f"Matching for project: {project_name}")
             results.insert_results(collection)
 
 

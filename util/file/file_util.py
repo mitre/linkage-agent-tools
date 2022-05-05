@@ -81,5 +81,3 @@ def exists(path):
 def write_string_to_file(string, file_path):
     with open(file_path, "w") as text_file:
         text_file.write(string)
-
-

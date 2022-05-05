@@ -54,8 +54,18 @@ def run_time_test(root_dir_name, patient_dirs, config):
         fu.mkdirs(current_config.matching_results_folder)
         fu.mkdirs(current_config.output_folder)
         print("Exists:")
-        print("matching_folder: " + str(fu.exists(config.matching_results_folder)) + "\t" + config.matching_results_folder)
-        print("output_folder:   " + str(fu.exists(config.output_folder)) + "\t" + config.output_folder)
+        print(
+            "matching_folder: "
+            + str(fu.exists(config.matching_results_folder))
+            + "\t"
+            + config.matching_results_folder
+        )
+        print(
+            "output_folder:   "
+            + str(fu.exists(config.output_folder))
+            + "\t"
+            + config.output_folder
+        )
         print("Config:\n" + ju.pretty_print(current_config.config_json))
         start = time.time()
         lau.generate_link_ids(current_config)
@@ -63,7 +73,9 @@ def run_time_test(root_dir_name, patient_dirs, config):
         elapsed = end - start
         msg = msg + str(elapsed) + "," + infile_dir_name + "\n"
         print(msg)
-        time_test_result_file = Path(time_test_result_dir, "time-test-results-" + infile_dir_name + ".txt")
+        time_test_result_file = Path(
+            time_test_result_dir, "time-test-results-" + infile_dir_name + ".txt"
+        )
         print("Writing results to: " + str(time_test_result_file))
         fu.write_string_to_file(msg, str(time_test_result_file))
         print("Done writing file")
@@ -79,6 +91,3 @@ def run_time_test(root_dir_name, patient_dirs, config):
     print("")
     print("")
     print("Done.")
-
-
-

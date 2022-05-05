@@ -7,4 +7,3 @@ def test_drop():
     config = cu.get_config("test-data/defaults/config.json")
     lau.drop(config)
     print("Done.")
-
