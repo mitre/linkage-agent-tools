@@ -1,3 +1,4 @@
+black==22.3.0
 pytest>=7.1.2
 requests>=2.20.0
 pymongo>=3.11.2
