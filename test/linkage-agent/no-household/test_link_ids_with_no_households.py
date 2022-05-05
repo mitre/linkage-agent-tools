@@ -9,6 +9,8 @@ def test_match():
     lau.drop(config)
     print("Doing validation...")
     lau.validate(config)
+    print("Running projects...")
+    lau.projects(config)
     print("Doing match...")
     lau.match(config)
     print("Doing link_id...")

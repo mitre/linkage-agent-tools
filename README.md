@@ -117,6 +117,7 @@ document saved as `config.json`. An example is shown below:
   "schema_folder": "/CODI/data-owner-tools/example-schema",
   "inbox_folder": "/CODI/inbox",
   "matching_results_folder": "/CODI/results",
+  "project_results_folder": "/CODI/project_results",
   "output_folder": "/CODI/output",
   "entity_service_url": "http://localhost:8851/api/v1",
   "matching_threshold": 0.75,
@@ -144,6 +145,8 @@ A description of the properties in the file:
   be placed.
 - **matching_results_folder** - Folder where the CSV containing the complete
   mapping of LINK_IDs to all data owners
+  **project_results_folder** - Folder where results from projects run with `anonlink-entity-service`
+  are stored.
 - **output_folder** - Folder where CSV files are generated, one per data owner.
   These files contain LINK_IDs mapped to a single data owner.
 - **entity_service_url** - The RESTful service endpoint for the
@@ -234,7 +237,10 @@ This project is a set of python scripts driven by a central configuration file,
 1. Run `drop.py` if you have done a previous matching run to clear old data in
    the database; this will drop all data for individuals and households, whether
    `household_match` is `true` or `false`
-1. When all data is present, run `match.py`, which will perform pairwise
+1. When all data is present, run `projects.py` to run the projects with the
+   `anonlink-entity-service` in preparation for matching. Results will be stored
+   in the `project_results_folder`.
+1. Run `match.py`, which will perform pairwise
    matching of the garbled information sent by the data owners for either
    individuals or households, depending on the value of `household_match`. The
    matching information will be stored in MongoDB.

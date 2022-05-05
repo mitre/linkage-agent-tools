@@ -6,6 +6,7 @@ def test_match():
     print("\nStarting test...")
     config = cu.get_config("test-data/defaults/config.json")
     lau.validate(config)
+    lau.projects(config)
     lau.match(config)
     print("Done.")
 
