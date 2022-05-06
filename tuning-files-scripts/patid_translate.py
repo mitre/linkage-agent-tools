@@ -1,7 +1,7 @@
-import csv
-from pathlib import Path
 import argparse
+import csv
 import sys
+from pathlib import Path
 
 from dcctools.config import Configuration
 

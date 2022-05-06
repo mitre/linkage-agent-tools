@@ -1,8 +1,8 @@
 import os
 import shutil
-import definitions
 from pathlib import Path
 
+import definitions
 
 # ---
 #

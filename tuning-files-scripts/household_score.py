@@ -1,8 +1,9 @@
-import csv
-from pathlib import Path
-from dcctools.config import Configuration
-from itertools import combinations
 import argparse
+import csv
+from itertools import combinations
+from pathlib import Path
+
+from dcctools.config import Configuration
 
 parser = argparse.ArgumentParser(
     description="Tool for scoring household linkage results"

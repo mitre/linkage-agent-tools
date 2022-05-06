@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 import argparse
-import logging
-from pathlib import Path
-import time
 import json
+import logging
+import time
+from pathlib import Path
 
 from dcctools.anonlink import Project
 from dcctools.config import Configuration

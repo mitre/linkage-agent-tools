@@ -2,8 +2,8 @@ import argparse
 from pathlib import Path
 
 import util.config.config_util as cu
-import util.linkage_agent.time_test_runner as ttr
 import util.file.file_util as fu
+import util.linkage_agent.time_test_runner as ttr
 
 
 def run_test(root_dir_abs_path):

@@ -1,13 +1,13 @@
-import json
 import argparse
-from pathlib import Path
-
-import util.file.file_util as fu
-import util.config.config_util as cu
-import util.json.json_util as ju
-import util.linkage_agent.linkage_agent_util as lau
+import json
 import os
 import time
+from pathlib import Path
+
+import util.config.config_util as cu
+import util.file.file_util as fu
+import util.json.json_util as ju
+import util.linkage_agent.linkage_agent_util as lau
 
 
 def run_time_test(root_dir_name, patient_dirs, config):
