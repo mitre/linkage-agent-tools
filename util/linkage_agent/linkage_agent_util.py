@@ -1,9 +1,10 @@
 from pymongo import MongoClient
-import validate as val
-import projects as p
-import match as m
-import link_ids as li
+
 import data_owner_ids as doi
+import link_ids as li
+import match as m
+import projects as p
+import validate as val
 
 
 def validate(config):

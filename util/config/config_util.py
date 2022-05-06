@@ -1,7 +1,8 @@
-from dcctools.config import Configuration
-import util.file.file_util as fu
 import json
+
+import util.file.file_util as fu
 import util.json.json_util as ju
+from dcctools.config import Configuration
 
 
 def get_config_json_obj_from_abs_path(file_name):

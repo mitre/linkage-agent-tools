@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 import argparse
+import json
 import logging
 from pathlib import Path
-import json
 
 from pymongo import MongoClient
 

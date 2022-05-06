@@ -1,7 +1,6 @@
 import pytest
+
 import util.config.config_util as cu
-
-
 from dcctools.config import Configuration
 
 
