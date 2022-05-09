@@ -51,12 +51,40 @@ Linkage Agent Tools contains a test suite, which was created using
 
 ### Installing with an existing Python install
 
-1. Download the tools as a zip file using the "Clone or download" button on
-   GitHub.
-1. Unzip the file.
-1. From the unzipped directory run:
+#### Cloning the Repository
 
-   `pip install -r requirements.txt`
+Clone the project locally as a Git repository
+```shell
+git clone https://github.com/mitre/linkage-agent-tools.git
+```
+
+Or download as a zip file:
+
+1. [Click this link to download the project as a zip](https://github.com/mitre/linkage-agent-tools/archive/refs/heads/master.zip) or use the "Clone or download" button on GitHub.
+1. Unzip the file.
+
+#### Set up a virtual environment _(Optional, but recommended)_
+
+It can be helpful to set up a virtual environment to isolate project dependencies from system dependencies.
+There are a few libraries that can do this, but this documentation will stick with `venv` since that is included
+in the Python Standard Library.
+
+```shell
+# Navigate to the project folder
+cd linkage-agent-tools/
+
+# Create a virtual environment in a `venv/` folder
+python -m venv venv/
+
+# Activate the virtual environment
+source venv/bin/activate
+```
+
+#### Installing dependencies
+
+```shell
+pip install -r requirements.txt
+```
 
 ### Installing with Anaconda
 
