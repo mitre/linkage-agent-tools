@@ -62,7 +62,7 @@ def do_link_ids(c, remove=False):
             writer = csv.DictWriter(csvfile, fieldnames=header)
             writer.writeheader()
             final_records = []
-            for row in database.household_match_groups.find():
+            for row in database.household_match_groups.find(no_cursor_timeout=True):
                 final_record = {}
                 for s in systems:
                     record_id = row.get(s, None)
@@ -85,7 +85,7 @@ def do_link_ids(c, remove=False):
         with open(result_csv_path, "w", newline="") as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=header)
             writer.writeheader()
-            for row in database.match_groups.find():
+            for row in database.match_groups.find(no_cursor_timeout=True):
                 conflict = reduce(
                     lambda acc, s: acc | len(row.get(s, [])) > 1, systems, False
                 )
