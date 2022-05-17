@@ -169,6 +169,16 @@ class Configuration:
                         print(e)
         return house_mapping
 
+    def get_project_threshold(self, project_name):
+        config_threshold = self.household_threshold if self.household_match else self.matching_threshold
+        if type(config_threshold) == list:
+            project_index = config_threshold.index(project_name)
+            threshold = self.household_threshold[project_index]
+        else:
+            threshold = self.household_threshold
+        return threshold
+
+
     @property
     def matching_threshold(self):
         return self.config_json["matching_threshold"]
