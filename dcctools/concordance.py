@@ -1,8 +1,8 @@
 import argparse
 from itertools import combinations
-import pandas as pd
 from pathlib import Path
 
+import pandas as pd
 from config import Configuration
 
 c = Configuration("config.json")
@@ -23,7 +23,9 @@ system_data = {}
 system_data_folder = Path(args.system_data_folder)
 
 for site in systems:
-    system_data[site] = pd.read_csv(system_data_folder / f"concord_{site}.csv", dtype=str, index_col=0).add_suffix(f"_{site}")
+    system_data[site] = pd.read_csv(
+        system_data_folder / f"concord_{site}.csv", dtype=str, index_col=0
+    ).add_suffix(f"_{site}")
 
 for n in range(2, len(systems) + 1):
     print(f"{n}-wise concordance")
@@ -39,12 +41,14 @@ for n in range(2, len(systems) + 1):
             continue
 
         for s in test_systems:
-            test_data = test_data.merge(system_data[s], left_index=True, right_index=True)
+            test_data = test_data.merge(
+                system_data[s], left_index=True, right_index=True
+            )
 
         # index (link_id) no longer useful past this point
         test_data = test_data.reset_index()
 
-        for field in ['birth_date', 'sex']:
+        for field in ["birth_date", "sex"]:
             test_cols = [col for col in test_data.columns if col.startswith(field)]
 
             data_to_compare = test_data[test_cols]
@@ -65,5 +69,3 @@ for n in range(2, len(systems) + 1):
 
     print()
     print()
-
-
