@@ -28,9 +28,7 @@ def test_has_results_available(tmp_path):
     (d / 'foo.json').touch()
     (d / 'bar.json').touch()
     (d / 'quz.json').touch()
-    print(str(d))
 
-    print(str(d) + "FIND ME")
     with pytest.raises(MissingResults, match="Missing results for projects: baz"):
         has_results_available(MockConfiguration(str(d), ['foo', 'bar', 'baz']))
 
