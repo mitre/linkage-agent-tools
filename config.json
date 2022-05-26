@@ -6,7 +6,7 @@
   "matching_results_folder": "test-data/envs/small/results",
   "output_folder": "test-data/envs/small/output",
   "entity_service_url": "http://localhost:8851/api/v1",
-  "matching_threshold": 0.75,
+  "matching_threshold": [0.75,0.75,0.75,0.75],
   "mongo_uri": "localhost:27017",
   "blocked": false,
   "blocking_schema": "test-data/envs/small/schema/blocking-schema/lambda.json",
