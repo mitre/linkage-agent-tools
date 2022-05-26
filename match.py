@@ -91,7 +91,6 @@ def do_match(c):
                     )
                 else:
                     project.upload_clks(system, c.get_clks_raw(system, project_name))
-            # should we consider making the threshold a property of the project itself?
             if type(c.matching_threshold) == list:
                 threshold = c.matching_threshold[i]
             else:
