@@ -39,6 +39,14 @@ def do_validate(c):
     else:
         print("\nNo unexpected files are present")
 
+    config_issues = c.validate_config()
+    if config_issues:
+        print(f"\nWARNING: Found {len(config_issues)} issues in config file:")
+        for issue in config_issues:
+            print(f"\t{issue}")
+    else:
+        print("\nNo issues are present in config file")
+
 
 if __name__ == "__main__":
     args = parse_args()

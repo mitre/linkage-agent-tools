@@ -28,3 +28,22 @@ def test_validate_all_present():
     print(c.validate_all_present())
     assert len(actual_missing) == expected_missing
     assert len(actual_unexpected) == expected_unexpected
+
+
+def test_validate_config():
+    c_single_thresh = cu.get_config("tests/mock_setup/config.json")
+    actual_issues = c_single_thresh.validate_config()
+    assert len(actual_issues) == 0
+    n_expected_proj = 4
+    n_expected_thresh = 3
+    expected_issues = [
+        f"Number of projects ({n_expected_proj}) and thresholds ({n_expected_thresh}) is unequal \
+                \n\tThreshold must either be float or list of floats equal in length to the number of projects"
+    ]
+    c_multi_thresh = cu.get_config("tests/mock_setup/config-multi-threshold.json")
+    actual_issues = c_multi_thresh.validate_config()
+    assert len(expected_issues) == len(actual_issues)
+    for i, expected_issue in enumerate(expected_issues):
+        assert actual_issues[i] == expected_issue
+
+
