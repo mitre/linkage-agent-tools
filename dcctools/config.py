@@ -20,6 +20,18 @@ class Configuration:
     def system_count(self):
         return len(self.config_json["systems"])
 
+    def validate_config(self):
+        config_issues = []
+        if self.config_json["household_match"] and "household_threshold" not in self.config_json.keys():
+            config_issues.append("config file specifies household match without float household matching threshold")
+        elif type(self.config_json["matching_threshold"]) == list:
+            proj_len = len(self.config_json["projects"])
+            thresh_len = len(self.config_json["matching_threshold"])
+            if proj_len != thresh_len:
+                config_issues.append(f"Number of projects ({proj_len}) and thresholds ({thresh_len}) is unequal \
+                \n\tThreshold must either be float or list of floats equal in length to the number of projects")
+        return config_issues
+
     def validate_all_present(self):
         missing_paths = []
         expected_paths = []

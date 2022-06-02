@@ -51,7 +51,11 @@ def do_match(c):
                 household_project.upload_clks(
                     system, c.get_household_clks_raw(system, project_name)
                 )
-            household_project.start_run(c.matching_threshold)
+            if type(c.matching_threshold) == list:
+                threshold = c.matching_threshold[0]
+            else:
+                threshold = c.matching_threshold
+            household_project.start_run(threshold)
             running = True
             while running:
                 status = household_project.get_run_status()
@@ -72,7 +76,7 @@ def do_match(c):
                 c.extract_blocks(system)
 
         iter_num = 0
-        for project_name, schema in c.load_schema().items():
+        for i, (project_name, schema) in enumerate(c.load_schema().items()):
             iter_num = iter_num + 1
             project = Project(
                 project_name, schema, c.systems, c.entity_service_url, c.blocked
@@ -87,7 +91,11 @@ def do_match(c):
                     )
                 else:
                     project.upload_clks(system, c.get_clks_raw(system, project_name))
-            project.start_run(c.matching_threshold)
+            if type(c.matching_threshold) == list:
+                threshold = c.matching_threshold[i]
+            else:
+                threshold = c.matching_threshold
+            project.start_run(threshold)
             running = True
             print("\n--- RUNNING ---\n")
             while running:
