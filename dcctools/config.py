@@ -22,7 +22,9 @@ class Configuration:
 
     def validate_config(self):
         config_issues = []
-        if type(self.config_json["matching_threshold"]) == list:
+        if self.config_json["household_match"] and "household_threshold" not in self.config_json.keys():
+            config_issues.append("config file specifies household match without float household matching threshold")
+        elif type(self.config_json["matching_threshold"]) == list:
             proj_len = len(self.config_json["projects"])
             thresh_len = len(self.config_json["matching_threshold"])
             if proj_len != thresh_len:
