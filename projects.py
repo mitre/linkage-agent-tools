@@ -47,8 +47,8 @@ def run_projects(c, project_name=None):
             for project_name in c.load_schema().keys():
                 run_project(c, project_name)
 
-def run_project(c, project_name, households=False):
-    schema = c.load_schema()[project_name]
+def run_project(c, project_name=None, households=False):
+    schema = c.load_household_schema() if households else c.load_schema()[project_name]
     project = Project(
         project_name, schema, c.systems, c.entity_service_url, c.blocked
     )
