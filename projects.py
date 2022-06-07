@@ -46,12 +46,11 @@ def run_projects(c):
                 )
 
             if type(c.matching_threshold) == list:
-                threshold = c.matching_threshold[0]
+                threshold = c.household_threshold[0]
             else:
-                threshold = c.matching_threshold
+                threshold = c.household_threshold
 
             household_project.start_run(threshold)
-            household_project.start_run(c.matching_threshold)
             running = True
             print("\n--- RUNNING ---\n")
             while running:
@@ -95,7 +94,7 @@ def run_projects(c):
             else:
                 threshold = c.matching_threshold
 
-            project.start_run(c.matching_threshold)
+            project.start_run(threshold)
             running = True
             print("\n--- RUNNING ---\n")
             while running:
