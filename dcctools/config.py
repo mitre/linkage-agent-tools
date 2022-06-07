@@ -174,6 +174,10 @@ class Configuration:
         return self.config_json["matching_threshold"]
 
     @property
+    def household_threshold(self):
+        return self.config_json["household_threshold"]
+
+    @property
     def output_folder(self):
         return self.config_json["output_folder"]
 
