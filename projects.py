@@ -29,7 +29,7 @@ def parse_args():
     )
     return parser.parse_args()
 
-def run_projects(c, project_name):
+def run_projects(c, project_name=None):
     if c.household_match:
         log.debug("Processing households")
         project_name = "fn-phone-addr-zip"
@@ -90,5 +90,5 @@ if __name__ == "__main__":
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG, format="%(message)s")
     config = Configuration(args.config)
-    run_projects(config)
+    run_projects(config, args.project)
 
