@@ -178,9 +178,9 @@ class Configuration:
         config_threshold = self.household_threshold if self.household_match else self.matching_threshold
         if type(config_threshold) == list:
             project_index = config_threshold.index(project_name)
-            threshold = self.household_threshold[project_index]
+            threshold = config_threshold[project_index]
         else:
-            threshold = self.household_threshold
+            threshold = config_threshold
         return threshold
 
 
