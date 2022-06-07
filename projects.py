@@ -45,7 +45,7 @@ def run_projects(c):
                     system, c.get_household_clks_raw(system, project_name)
                 )
 
-            if type(c.matching_threshold) == list:
+            if type(c.household_threshold) == list:
                 threshold = c.household_threshold[0]
             else:
                 threshold = c.household_threshold
