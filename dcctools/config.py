@@ -90,6 +90,11 @@ class Configuration:
                 all_schema[p] = schema_file.read()
         return all_schema
 
+    def load_household_schema(self):
+        with open(Path(self.household_schema)) as schema_file:
+            household_schema = schema_file.read()
+        return household_schema
+
     @property
     def entity_service_url(self):
         return self.config_json["entity_service_url"]
