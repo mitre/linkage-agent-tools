@@ -24,47 +24,16 @@ def parse_args():
     parser.add_argument(
         "--verbose", default=False, action="store_true", help="Show debugging output"
     )
+    parser.add_argument(
+        "--project", default=None, help="Run specific project only"
+    )
     return parser.parse_args()
 
-def run_projects(c):
+def run_projects(c, project_name=None):
     if c.household_match:
         log.debug("Processing households")
-        with open(Path(c.household_schema)) as schema_file:
-            household_schema = schema_file.read()
-            project_name = "fn-phone-addr-zip"
-            household_project = Project(
-                project_name,
-                household_schema,
-                c.systems,
-                c.entity_service_url,
-                c.blocked,
-            )
-            household_project.start_project()
-            for system in c.systems:
-                household_project.upload_clks(
-                    system, c.get_household_clks_raw(system, project_name)
-                )
-
-            if type(c.household_threshold) == list:
-                threshold = c.household_threshold[0]
-            else:
-                threshold = c.household_threshold
-
-            household_project.start_run(threshold)
-            running = True
-            print("\n--- RUNNING ---\n")
-            while running:
-                status = household_project.get_run_status()
-                print(status)
-                if status.get("state") == "completed":
-                    running = False
-                    break
-                time.sleep(SLEEP_TIME)
-            print("\n--- Getting results ---\n")
-            result_json = household_project.get_results()
-            Path(c.project_results_dir).mkdir(parents=True, exist_ok=True)
-            with open(Path(c.project_results_dir) / f'{project_name}.json', 'w') as json_file:
-                json.dump(result_json, json_file)
+        project_name = "fn-phone-addr-zip"
+        run_project(c, project_name, households=True)
     else:
         log.debug("Processing individuals")
         if c.blocked:
@@ -72,15 +41,25 @@ def run_projects(c):
             for system in c.systems:
                 c.extract_clks(system)
                 c.extract_blocks(system)
+        if project_name:
+            run_project(c, project_name)
+        else:
+            for project_name in c.load_schema().keys():
+                run_project(c, project_name)
 
-        iter_num = 0
-        for i, (project_name, schema) in enumerate(c.load_schema().items()):
-            iter_num = iter_num + 1
-            project = Project(
-                project_name, schema, c.systems, c.entity_service_url, c.blocked
-            )
-            project.start_project()
-            for system in c.systems:
+def run_project(c, project_name=None, households=False):
+    schema = c.load_household_schema() if households else c.load_schema()[project_name]
+    project = Project(
+        project_name, schema, c.systems, c.entity_service_url, c.blocked
+    )
+    project.start_project()
+
+    for system in c.systems:
+            if households:
+                project.upload_clks(
+                    system, c.get_household_clks_raw(system, project_name)
+                )
+            else:
                 if c.blocked:
                     project.upload_clks_blocked(
                         system,
@@ -89,31 +68,27 @@ def run_projects(c):
                     )
                 else:
                     project.upload_clks(system, c.get_clks_raw(system, project_name))
-            if type(c.matching_threshold) == list:
-                threshold = c.matching_threshold[i]
-            else:
-                threshold = c.matching_threshold
-
-            project.start_run(threshold)
-            running = True
-            print("\n--- RUNNING ---\n")
-            while running:
-                status = project.get_run_status()
-                print(status)
-                if status.get("state") == "completed":
-                    running = False
-                    break
-                time.sleep(SLEEP_TIME)
-            print("\n--- Getting results ---\n")
-            result_json = project.get_results()
-            Path(c.project_results_dir).mkdir(parents=True, exist_ok=True)
-            with open(Path(c.project_results_dir) / f'{project_name}.json', 'w') as json_file:
-                json.dump(result_json, json_file)
+    threshold = c.get_project_threshold(project_name)
+    project.start_run(threshold)
+    running = True
+    print("\n--- RUNNING ---\n")
+    while running:
+        status = project.get_run_status()
+        print(status)
+        if status.get("state") == "completed":
+            running = False
+            break
+        time.sleep(SLEEP_TIME)
+    print("\n--- Getting results ---\n")
+    result_json = project.get_results()
+    Path(c.project_results_dir).mkdir(parents=True, exist_ok=True)
+    with open(Path(c.project_results_dir) / f'{project_name}.json', 'w') as json_file:
+        json.dump(result_json, json_file)
 
 if __name__ == "__main__":
     args = parse_args()
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG, format="%(message)s")
     config = Configuration(args.config)
-    run_projects(config)
+    run_projects(config, args.project)
 

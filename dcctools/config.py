@@ -90,6 +90,11 @@ class Configuration:
                 all_schema[p] = schema_file.read()
         return all_schema
 
+    def load_household_schema(self):
+        with open(Path(self.household_schema)) as schema_file:
+            household_schema = schema_file.read()
+        return household_schema
+
     @property
     def entity_service_url(self):
         return self.config_json["entity_service_url"]
@@ -168,6 +173,16 @@ class Configuration:
                         e = sys.exc_info()[0]
                         print(e)
         return house_mapping
+
+    def get_project_threshold(self, project_name):
+        config_threshold = self.household_threshold if self.household_match else self.matching_threshold
+        if type(config_threshold) == list:
+            project_index = config_threshold.index(project_name)
+            threshold = config_threshold[project_index]
+        else:
+            threshold = config_threshold
+        return threshold
+
 
     @property
     def matching_threshold(self):
