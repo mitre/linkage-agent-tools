@@ -1,12 +1,11 @@
-from pathlib import Path
-import time
 import argparse
 import csv
+import time
+from pathlib import Path
 from pprint import pprint as pp
 
-from pymongo import MongoClient
-
 from config import Configuration
+from pymongo import MongoClient
 
 c = Configuration("config.json")
 client = MongoClient(c.mongo_uri)
