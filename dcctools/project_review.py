@@ -50,10 +50,10 @@ with open(link_id_csv_path) as csvfile:
 def result_matching_fn(result):
     def matching_fn(r):
         all(
-            k == "run_results" or
-                 (k in r and int(r[k]) in result[k])
-                 for k in result.keys()
+            k == "run_results" or (k in r and int(r[k]) in result[k])
+            for k in result.keys()
         )
+
     return matching_fn
 
 
