@@ -1,5 +1,3 @@
-
-
 def run_test():
     print("Starting test...")
     print("Hello world")
