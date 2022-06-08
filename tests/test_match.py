@@ -1,5 +1,6 @@
 import pytest
-from match import MissingResults, has_results_available, do_match
+
+from match import MissingResults, do_match, has_results_available
 
 
 class MockConfiguration:
