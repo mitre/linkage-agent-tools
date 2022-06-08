@@ -10,6 +10,7 @@ import definitions
 #
 # ---
 
+
 # Method to get a file for the given path based on the root directory of the project
 def get_file_name(rel_path):
     return str(Path(definitions.ROOT_DIR, rel_path).resolve())
@@ -57,7 +58,7 @@ def get_files(path):
     rtn = []
     for file in files:
         cur = os.path.join(str(path), file)
-        if os.path.isdir(cur) == False:
+        if os.path.isdir(cur) is False:
             rtn.append(cur)
     return rtn
 

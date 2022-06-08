@@ -66,7 +66,7 @@ def do_link_ids(c, remove=False):
                 final_record = {}
                 for s in systems:
                     record_id = row.get(s, None)
-                    if record_id != None:
+                    if record_id is not None:
                         final_record[s] = record_id[0]
                         all_ids_for_households[s].remove(record_id[0])
                 final_records.append(final_record)
@@ -95,7 +95,7 @@ def do_link_ids(c, remove=False):
                 else:
                     for s in systems:
                         record_id = row.get(s, None)
-                        if record_id != None:
+                        if record_id is not None:
                             final_record[s] = record_id[0]
                             all_ids_for_systems[s].remove(record_id[0])
                 final_record["LINK_ID"] = uuid.uuid1()
@@ -117,7 +117,8 @@ def do_link_ids(c, remove=False):
         print("Match groups deleted from database")
     else:
         print(
-            "Match groups not deleted as this point (they might be deleted later in the process)"
+            "Match groups not deleted as this point"
+            "(they might be deleted later in the process)"
         )
 
 
