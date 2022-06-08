@@ -1,4 +1,3 @@
-import test_util.linkage.run_full_linkage_test as flt
 
 
 def run_test():

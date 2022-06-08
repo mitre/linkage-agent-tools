@@ -1,5 +1,3 @@
-import pytest
-
 from dcctools.deconflict import deconflict, link_count
 
 example_result = {

@@ -24,7 +24,8 @@ if __name__ == "__main__":
     # get the args from the cmd line
     print("Reading arguments...")
     parser = argparse.ArgumentParser(
-        description="Tool for running time tests for generating LINK_IDs in the CODI PPRL process"
+        description="Tool for running time tests for"
+        "generating LINK_IDs in the CODI PPRL process"
     )
     parser.add_argument(
         "--dir",

@@ -1,6 +1,5 @@
 import argparse
 import csv
-import time
 from pathlib import Path
 from pprint import pprint as pp
 
@@ -48,6 +47,16 @@ with open(link_id_csv_path) as csvfile:
                 link_id_dict[system][pos] = row
 
 
+def result_matching_fn(result):
+    def matching_fn(r):
+        all(
+            k == "run_results" or
+                 (k in r and int(r[k]) in result[k])
+                 for k in result.keys()
+        )
+    return matching_fn
+
+
 def find_link_id_row(result):
     for system in c.systems:
         if system in result and result[system] and len(result[system]) == 1:
@@ -62,9 +71,7 @@ def find_link_id_row(result):
     # If we make it here, all systems in this matching result
     # have more than one position listed,
     # so fall back to the old, slow, loop approach
-    matching_fn = lambda r: all(
-        k == "run_results" or (k in r and int(r[k]) in result[k]) for k in result.keys()
-    )
+    matching_fn = result_matching_fn(result)
     link_id_row = next(filter(matching_fn, link_id_rows))
     return link_id_row
 

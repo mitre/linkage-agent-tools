@@ -1,7 +1,5 @@
-import pytest
 
 import util.config.config_util as cu
-from dcctools.config import Configuration
 
 
 def test_system_count():
@@ -36,8 +34,10 @@ def test_validate_config():
     n_expected_proj = 4
     n_expected_thresh = 3
     expected_issues = [
-        f"Number of projects ({n_expected_proj}) and thresholds ({n_expected_thresh}) is unequal \
-                \n\tThreshold must either be float or list of floats equal in length to the number of projects"
+        f"Number of projects ({n_expected_proj}) and thresholds \
+                ({n_expected_thresh}) is unequal \
+                \n\tThreshold must either be float \
+                or list of floats equal in length to the number of projects"
     ]
 
     c_multi_thresh = cu.get_config("tests/mock_setup/config-multi-threshold.json")
@@ -48,7 +48,8 @@ def test_validate_config():
 
     c_hh_no_thresh = cu.get_config("tests/mock_setup/config-hh-no-thresh.json")
     expected_issues = [
-        "config file specifies household match without float household matching threshold"
+        "config file specifies household match \
+                without float household matching threshold"
     ]
     actual_issues = c_hh_no_thresh.validate_config()
     assert len(expected_issues) == len(actual_issues)

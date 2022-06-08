@@ -1,6 +1,5 @@
 import argparse
 import csv
-import time
 from pathlib import Path
 
 from config import Configuration
