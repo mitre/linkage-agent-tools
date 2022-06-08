@@ -16,6 +16,8 @@ def run_test_match():
     config = cu.get_config("test-data/envs/perf-testing/six-the-same-1k/config.json")
     print("Doing validation...")
     lau.validate(config)
+    print("Running projects...")
+    lau.projects(config)
     print("Doing match...")
     lau.match(config)
     print("Doing link_id...")

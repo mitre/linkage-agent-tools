@@ -174,6 +174,10 @@ class Configuration:
         return self.config_json["matching_threshold"]
 
     @property
+    def household_threshold(self):
+        return self.config_json["household_threshold"]
+
+    @property
     def output_folder(self):
         return self.config_json["output_folder"]
 
@@ -208,3 +212,7 @@ class Configuration:
     @property
     def household_schema(self):
         return self.config_json["household_schema"]
+
+    @property
+    def project_results_dir(self):
+        return self.config_json["project_results_folder"]

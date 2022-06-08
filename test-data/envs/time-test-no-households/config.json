@@ -12,6 +12,7 @@
   ],
   "schema_folder": "test-data/envs/time-test-no-households/schema",
   "inbox_folder": "test-data/envs/time-test-no-households/inbox",
+  "project_results_folder": "test-data/envs/time-test-no-households/project_results",
   "matching_results_folder": "test-data/envs/time-test-no-households/out",
   "output_folder": "test-data/envs/time-test-no-households/output",
   "entity_service_url": "http://localhost:8851/api/v1",

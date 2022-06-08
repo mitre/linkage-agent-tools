@@ -4,6 +4,7 @@
   "matching_threshold": [0.75,               0.75,                0.75,                   0.75],
   "schema_folder": "test-data/envs/small/schema",
   "inbox_folder": "test-data/envs/small/inbox",
+  "project_results_folder": "test-data/envs/small/project_results",
   "matching_results_folder": "test-data/envs/small/results",
   "output_folder": "test-data/envs/small/output",
   "entity_service_url": "http://localhost:8851/api/v1",

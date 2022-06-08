@@ -12,6 +12,7 @@
   ],
   "schema_folder": "test-data/envs/small-no-household/schema",
   "inbox_folder": "test-data/envs/small-no-household/inbox",
+  "project_results_folder": "test-data/envs/small-no-household/project_results",
   "matching_results_folder": "test-data/envs/small-no-household/output",
   "output_folder": "test-data/envs/small-no-household/output",
   "entity_service_url": "http://localhost:8851/api/v1",
