@@ -1,14 +1,15 @@
 import os
 import shutil
-import definitions
 from pathlib import Path
 
+import definitions
 
 # ---
 #
 # FILE METHODS
 #
 # ---
+
 
 # Method to get a file for the given path based on the root directory of the project
 def get_file_name(rel_path):
@@ -57,7 +58,7 @@ def get_files(path):
     rtn = []
     for file in files:
         cur = os.path.join(str(path), file)
-        if os.path.isdir(cur) == False:
+        if os.path.isdir(cur) is False:
             rtn.append(cur)
     return rtn
 
@@ -81,5 +82,3 @@ def exists(path):
 def write_string_to_file(string, file_path):
     with open(file_path, "w") as text_file:
         text_file.write(string)
-
-

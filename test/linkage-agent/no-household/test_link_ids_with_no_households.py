@@ -20,4 +20,3 @@ def test_match():
     print("Doing drop...")
     lau.drop(config)
     print("Done.")
-

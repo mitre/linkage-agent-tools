@@ -1,6 +1,4 @@
-import pytest
-
-from dcctools.deconflict import link_count, deconflict
+from dcctools.deconflict import deconflict, link_count
 
 example_result = {
     "a": [142],

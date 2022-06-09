@@ -9,7 +9,9 @@ parser = argparse.ArgumentParser(
                  for one project across sites."
 )
 parser.add_argument(
-    "-p", "--project", default="name-sex-dob-zip",
+    "-p",
+    "--project",
+    default="name-sex-dob-zip",
     help="Select a project to review exact matches across sites. \
           Default: name-sex-dob-zip",
 )
@@ -28,14 +30,16 @@ clks = {}
 for system in c.systems:
     raw_clks = c.get_clks_raw(system, project)
     clk_json = json.loads(raw_clks)
-    clks[system] = set(clk_json['clks'])
+    clks[system] = set(clk_json["clks"])
     print(f"Size of {system}: {len(clks[system])}")
 
 total_exact_matches = set()
 
 for pair in itertools.combinations(c.systems, 2):
     pairwise_matches = clks[pair[0]].intersection(clks[pair[1]])
-    print(f"Total exact matches between {pair[0]} and {pair[1]}: {len(pairwise_matches)}")
+    print(
+        f"Total exact matches between {pair[0]} and {pair[1]}: {len(pairwise_matches)}"
+    )
 
     total_exact_matches.update(pairwise_matches)  # update means add to set
 

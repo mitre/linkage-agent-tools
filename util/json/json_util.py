@@ -7,6 +7,3 @@ def pretty_print(json_obj):
 
 def get_str(json_object):
     return str(json.dumps(json_object))
-
-
-

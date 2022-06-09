@@ -1,7 +1,4 @@
-import os
-
 from pymongo import MongoClient
-import pytest
 
 from dcctools.anonlink import Results
 

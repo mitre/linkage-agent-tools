@@ -288,6 +288,16 @@ following command:
 
 `python -m pytest`
 
+## Formatting and Linting
+
+This repository uses `black`, `flake8`, and `isort` to maintain consistent formatting and style. These tools can be run with the following command:
+
+```shell
+black .
+isort .
+flake8 .
+```
+
 ## [WIP] Jupyter Notebook
 
 The `Linkage and Blocking Tuning Tool` Jupyter notebook is a work in progress

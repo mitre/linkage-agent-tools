@@ -1,9 +1,10 @@
 from pymongo import MongoClient
-import validate as val
-import projects as p
-import match as m
-import link_ids as li
+
 import data_owner_ids as doi
+import link_ids as li
+import match as m
+import projects as p
+import validate as val
 
 
 def validate(config):
@@ -17,11 +18,14 @@ def drop(config):
     database.household_match_groups.drop()
     print("Database cleared.")
 
+
 def projects(config):
     p.run_projects(config)
 
+
 def match(config):
     m.do_match(config)
+
 
 def link_id(config):
     li.do_link_ids(config)

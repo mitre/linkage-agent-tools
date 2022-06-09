@@ -1,7 +1,6 @@
 import util.config.config_util as cu
 import util.linkage_agent.linkage_agent_util as lau
 
-
 # ---
 #
 # This test case can be used to trouble shoot MongoDB issues.
@@ -29,4 +28,3 @@ def run_test_match():
 
 if __name__ == "__main__":
     run_test_match()
-

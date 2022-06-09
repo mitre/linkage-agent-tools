@@ -2,8 +2,8 @@ import argparse
 from pathlib import Path
 
 import util.config.config_util as cu
-import util.linkage_agent.time_test_runner as ttr
 import util.file.file_util as fu
+import util.linkage_agent.time_test_runner as ttr
 
 
 def run_test(root_dir_abs_path):
@@ -24,7 +24,8 @@ if __name__ == "__main__":
     # get the args from the cmd line
     print("Reading arguments...")
     parser = argparse.ArgumentParser(
-        description="Tool for running time tests for generating LINK_IDs in the CODI PPRL process"
+        description="Tool for running time tests for"
+        "generating LINK_IDs in the CODI PPRL process"
     )
     parser.add_argument(
         "--dir",
@@ -35,4 +36,3 @@ if __name__ == "__main__":
     # get the derived params
     root_dir = args.dir
     run_test(root_dir)
-
