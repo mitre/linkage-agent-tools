@@ -23,9 +23,26 @@ system_data = {}
 system_data_folder = Path(args.system_data_folder)
 
 for site in systems:
-    system_data[site] = pd.read_csv(
-        system_data_folder / f"concord_{site}.csv", dtype=str, index_col=0
-    ).add_suffix(f"_{site}")
+    site_data = pd.read_csv(
+        system_data_folder / f"concord_{site}.csv",
+        dtype=str,
+        # the file has many columns, we only care about a few:
+        usecols=["linkid", "birth_date", "sex"],
+    )
+    # concordance data comes from a use case query,
+    # which may contain data from multiple years.
+    # birth_date and sex come from DEMOGRAPHIC table
+    # which only has one row per individual total, not per year
+    # so we can drop duplicates on (linkid, birth_date, sex)
+    site_data = site_data.drop_duplicates()
+
+    # the index isn't considered in the dup check,
+    # so linkid gets set as index afterward
+    # (there may be ways to optimize this)
+    site_data = site_data.set_index("linkid")
+    site_data = site_data.add_suffix(f"_{site}")
+    system_data[site] = site_data
+
 
 for n in range(2, len(systems) + 1):
     print(f"{n}-wise concordance")
@@ -49,9 +66,7 @@ for n in range(2, len(systems) + 1):
         test_data = test_data.reset_index()
 
         for field in ["birth_date", "sex"]:
-            test_cols = [col for col in test_data.columns if col.startswith(field)]
-
-            data_to_compare = test_data[test_cols]
+            data_to_compare = test_data.filter(regex=f"{field}*", axis=1)
 
             # count the number of unique values per row
             concordance = data_to_compare.nunique(axis=1).value_counts().to_dict()
@@ -63,7 +78,7 @@ for n in range(2, len(systems) + 1):
             if 1 in concordance:
                 concordance_pct = concordance[1] / len(data_to_compare)
 
-            print(f"{field}: {concordance} --> {concordance_pct * 100.0}%")
+            print(f"{field}: {concordance} --> {concordance_pct * 100: .2f}%")
 
         print()
 
