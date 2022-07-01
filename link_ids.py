@@ -87,7 +87,6 @@ def do_link_ids(c, remove=False):
             writer = csv.DictWriter(csvfile, fieldnames=header)
             writer.writeheader()
             with client.start_session(causal_consistency=True) as session:
-                session_id = session.session_id["id"]
                 with database.match_groups.find(
                     session=session, no_cursor_timeout=True
                 ) as cursor:
@@ -96,7 +95,7 @@ def do_link_ids(c, remove=False):
                         # refresh the session if it's been more than 5 minutes
                         # https://www.mongodb.com/docs/v4.4/reference/method/cursor.noCursorTimeout/#session-idle-timeout-overrides-nocursortimeout
                         if (datetime.datetime.now() - refresh_timestamp).seconds > 300:
-                            client.admin.command({"refreshSessions": [session_id]})
+                            client.admin.command({"refreshSessions": [session.session_id]})
                             refresh_timestamp = datetime.datetime.now()
 
                         conflict = reduce(
