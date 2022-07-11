@@ -36,6 +36,11 @@ for site in systems:
     # so we can drop duplicates on (linkid, birth_date, sex)
     site_data = site_data.drop_duplicates()
 
+    # trying to get sex values to line up.
+    # prior results showed 0% concordance so we suspect maybe trailing spaces?
+    site_data["sex"] = site_data["sex"].apply(
+        lambda x: x.strip() if isinstance(x, str) else x
+    )
     # the index isn't considered in the dup check,
     # so linkid gets set as index afterward
     # (there may be ways to optimize this)
