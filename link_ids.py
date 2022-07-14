@@ -63,14 +63,25 @@ def do_link_ids(c, remove=False):
             writer = csv.DictWriter(csvfile, fieldnames=header)
             writer.writeheader()
             final_records = []
-            for row in database.household_match_groups.find(no_cursor_timeout=True):
-                final_record = {}
-                for s in systems:
-                    record_id = row.get(s, None)
-                    if record_id is not None:
-                        final_record[s] = record_id[0]
-                        all_ids_for_households[s].remove(record_id[0])
-                final_records.append(final_record)
+            with client.start_session(causal_consistency=True) as session:
+                with database.household_match_groups.find(
+                    session=session, no_cursor_timeout=True
+                ) as cursor:
+                    refresh_timestamp = datetime.datetime.now()
+                    for row in cursor:
+                        # refresh the session if it's been more than 5 minutes
+                        # https://www.mongodb.com/docs/v4.4/reference/method/cursor.noCursorTimeout/#session-idle-timeout-overrides-nocursortimeout
+                        if (datetime.datetime.now() - refresh_timestamp).seconds > 300:
+                            client.admin.command({"refreshSessions": [session.session_id]})
+                            refresh_timestamp = datetime.datetime.now()
+
+                        final_record = {}
+                        for s in systems:
+                            record_id = row.get(s, None)
+                            if record_id is not None:
+                                final_record[s] = record_id[0]
+                                all_ids_for_households[s].remove(record_id[0])
+                        final_records.append(final_record)
 
             for system, unmatched_ids in all_ids_for_households.items():
                 for unmatched_id in unmatched_ids:
