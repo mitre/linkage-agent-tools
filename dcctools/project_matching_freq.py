@@ -10,7 +10,8 @@ results = database.match_groups.aggregate(
     [
         {"$unwind": "$run_results"},
         {"$group": {"_id": "$run_results.project", "total": {"$sum": 1}}},
-    ]
+    ],
+    allowDiskUse=True,
 )
 
 for result in results:

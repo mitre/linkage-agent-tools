@@ -72,7 +72,9 @@ def do_link_ids(c, remove=False):
                         # refresh the session if it's been more than 5 minutes
                         # https://www.mongodb.com/docs/v4.4/reference/method/cursor.noCursorTimeout/#session-idle-timeout-overrides-nocursortimeout
                         if (datetime.datetime.now() - refresh_timestamp).seconds > 300:
-                            client.admin.command({"refreshSessions": [session.session_id]})
+                            client.admin.command(
+                                {"refreshSessions": [session.session_id]}
+                            )
                             refresh_timestamp = datetime.datetime.now()
 
                         final_record = {}
@@ -106,7 +108,9 @@ def do_link_ids(c, remove=False):
                         # refresh the session if it's been more than 5 minutes
                         # https://www.mongodb.com/docs/v4.4/reference/method/cursor.noCursorTimeout/#session-idle-timeout-overrides-nocursortimeout
                         if (datetime.datetime.now() - refresh_timestamp).seconds > 300:
-                            client.admin.command({"refreshSessions": [session.session_id]})
+                            client.admin.command(
+                                {"refreshSessions": [session.session_id]}
+                            )
                             refresh_timestamp = datetime.datetime.now()
 
                         conflict = reduce(
