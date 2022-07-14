@@ -13,7 +13,8 @@ results = database.match_groups.aggregate(
                 "total": {"$sum": 1},
             }
         }
-    ]
+    ],
+    allowDiskUse=True,
 )
 
 for result in results:

@@ -33,7 +33,8 @@ if version_array[0] > 4 or (version_array[0] == 4 and version_array[1] >= 4):
             },
             {"$group": {"_id": "$key", "total": {"$sum": 1}}},
             {"$sort": {"total": -1}},
-        ]
+        ],
+        allowDiskUse=True,
     )
 else:
     results = database.match_groups.aggregate(
@@ -59,7 +60,8 @@ else:
             },
             {"$group": {"_id": "$shape", "count": {"$sum": 1}}},
             {"$sort": {"count": -1}},
-        ]
+        ],
+        allowDiskUse=True,
     )
 
 
