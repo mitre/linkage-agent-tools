@@ -89,6 +89,7 @@ test_data = test_data.assign(
     dob_concord_only=lambda row: row[cbd_key] & (~row[cs_key]),
 )
 
+print("Done loading demographic analysis")
 
 # 2. Exact Match Analysis
 # For exact matches, I think we need to figure out exact matches by line number
@@ -109,6 +110,9 @@ data_to_compare = test_data.filter(regex=f"clk_*", axis="columns")
 concordance = data_to_compare.nunique(axis="columns")
 
 test_data[f"exact_match"] = concordance == 1
+
+print("Done loading exact match analysis")
+
 
 # 3. Match Group Analysis
 # this part comes from backtrace.py
@@ -180,6 +184,9 @@ test_data = test_data.assign(
 # 3c 3 match groups
 
 # 3d 4+ match groups
+
+print("Done loading match group analysis")
+
 
 target_counts = {
     "both_concordant": 75,
