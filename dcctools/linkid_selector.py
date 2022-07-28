@@ -65,6 +65,8 @@ for site in args.sites:
 
     test_data = test_data.merge(site_data[site], left_index=True, right_index=True)
 
+print(f"Link IDs with concordance data available: {len(test_data)}")
+
 for field in ["birth_date", "sex"]:
     data_to_compare = test_data.filter(regex=f"{field}*", axis="columns")
 
@@ -94,22 +96,34 @@ print("Done loading demographic analysis")
 # 2. Exact Match Analysis
 # For exact matches, I think we need to figure out exact matches by line number
 
-# TODO: there are 3 projects - how do we choose? for now just do addr
-for site in args.sites:
-    raw_clks = c.get_clks_raw(site, "name-sex-dob-addr")
-    clk_json = json.loads(raw_clks)
-    site_clks = clk_json["clks"]
-    clks_as_dict = {str(k): v for k, v in enumerate(site_clks)}
-    test_data[f"clk_{site}"] = test_data[site].map(clks_as_dict)
+for project in c.projects:
+    for site in args.sites:
+        raw_clks = c.get_clks_raw(site, project)
+        clk_json = json.loads(raw_clks)
+        site_clks = clk_json["clks"]
+        # convert the clks from an array to a dict with index (aka line number) as key
+        clks_as_dict = {str(k): v for k, v in enumerate(site_clks)}
+        # now we can use that dict as a map since test_data[site] is line number
+        test_data[f"clk_{project}_{site}"] = test_data[site].map(clks_as_dict)
 
+    # now it's basically just a concordance test again
+    data_to_compare = test_data.filter(regex=f"clk_{project}_*", axis="columns")
 
-# now it's basically just a concordance test again
-data_to_compare = test_data.filter(regex=f"clk_*", axis="columns")
+    # count the number of unique values per row
+    concordance = data_to_compare.nunique(axis="columns")
 
-# count the number of unique values per row
-concordance = data_to_compare.nunique(axis="columns")
+    test_data[f"exact_match_{project}"] = concordance == 1
 
-test_data[f"exact_match"] = concordance == 1
+# now we want to identify "only an exact match on 1/n projects" and "exact match on all projects"
+cem_key="count_projects_exact_matches"  # cem= "count exact matches"
+test_data[cem_key] = test_data.filter(regex=f"exact_match_*").sum(axis=1)
+
+test_data = test_data.assign(
+    only_Addr_exact_match=lambda df: (df[cem_key] == 1) & (df["exact_match_name-sex-dob-addr"]),
+    only_Phone_exact_match=lambda df: (df[cem_key] == 1) & (df["exact_match_name-sex-dob-phone"]),
+    only_Zip_exact_match=lambda df: (df[cem_key] == 1) & (df["exact_match_name-sex-dob-zip"]),
+    exact_match_on_all_projs=lambda df: df[cem_key] == 3,
+)
 
 print("Done loading exact match analysis")
 
@@ -190,22 +204,34 @@ print("Done loading match group analysis")
 
 target_counts = {
     "both_concordant": 75,
-    "both_discordant": 75,
-    "sex_concord_only": 75,
-    "dob_concord_only": 75,
-    "exact_match": 50,
-    "one_match_group_Address_only": 75,
-    "one_match_group_Phone_only": 75,
-    "one_match_group_Zip_only": 75,
-    "two_match_groups_Address_Phone": 75,
-    "two_match_groups_Address_Zip": 75,
-    "two_match_groups_Zip_Phone": 75,
-    "three_match_groups": 75,
-    "four_match_groups": "*",
+    "both_discordant": 1,
+    "sex_concord_only": 150,
+    "dob_concord_only": 46,
+    "exact_match_on_all_projs": 50,
+    "only_Addr_exact_match": 75,
+    "only_Phone_exact_match": 75,
+    "only_Zip_exact_match": 75,
+    "exact_match_name-sex-dob-addr": 0,
+    "exact_match_name-sex-dob-phone": 0,
+    "exact_match_name-sex-dob-zip": 0,
+    "one_match_group_Address_only": 0,
+    "one_match_group_Phone_only": 0,
+    "one_match_group_Zip_only": 0,
+    "two_match_groups_Address_Phone": 3,
+    "two_match_groups_Address_Zip": 120,
+    "two_match_groups_Zip_Phone": 125,
+    "three_match_groups": 100,
+    "four_match_groups": 105,
 }
 
 selected_ids = set()
 for label in target_counts.keys():
+    count = target_counts[label]
+
+    # only included in the output for debugging purposes
+    if count == 0:
+        continue
+
     # note these columns should be booleans, so
     # test_data[test_data[label]] gets us just the trues
     # then .index gets us the linkids
@@ -216,8 +242,6 @@ for label in target_counts.keys():
     selectable_ids = all_ids_for_label - selected_ids
 
     print(f"{label}: {len(selectable_ids)} Selectable IDs Available (not already selected in previous steps)")
-
-    count = target_counts[label]
 
     if count == "*":
         selection_for_label = list(selectable_ids)
