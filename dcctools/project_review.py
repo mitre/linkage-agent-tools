@@ -180,7 +180,8 @@ def main():
         print(f"Total number of matches: {total}")
 
         total = database.match_groups.aggregate(
-            [{"$group": {"_id": None, "count": {"$sum": {"$size": "$run_results"}}}}]
+            [{"$group": {"_id": None, "count": {"$sum": {"$size": "$run_results"}}}}],
+            allowDiskUse=True,
         )
         for doc in total:  # should only be one result in the cursor
             count = doc["count"]
