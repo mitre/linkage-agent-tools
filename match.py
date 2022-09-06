@@ -1,10 +1,15 @@
 #!/usr/bin/env python
 
 import argparse
+import json
 import logging
+import os
 from pathlib import Path
 import time
+import zipfile
 
+from datetime import datetime
+from datetime import timedelta
 from pymongo import MongoClient
 
 from dcctools.anonlink import Project, Results
@@ -117,9 +122,32 @@ def do_match(c):
             results.insert_results(database.match_groups)
 
 
+def validate_metadata(c):
+    timestamps = []
+    for site_archive in os.listdir(c.inbox_folder):
+        if site_archive != ".DS_Store":
+            with zipfile.ZipFile("/".join([c.inbox_folder, site_archive])) as archive:
+                found_metadata = False
+                for fname in archive.namelist():
+                    if "metadata" in fname:
+                        found_metadata = True
+                        mname = fname.replace("output/metadata", "").replace(".json", "")
+                        timestamp = datetime.strptime(mname, "%Y%m%dT%H%M%S")
+                        timestamps.append(timestamp)
+                        with archive.open(fname, "r") as metadata_fp:
+                            metadata = json.load(metadata_fp)
+                        garble_time = datetime.fromisoformat(metadata["garble_date"])
+                        assert (garble_time-timestamp) < timedelta(seconds=1), f"Metadata timecode {timestamp} does not match listed garble time {garble_time}"
+                assert found_metadata, f"Unable to locate metadata in archive {c.inbox_folder}/{site_archive}"
+
+    return timestamps
+
+
 if __name__ == "__main__":
     args = parse_args()
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG, format="%(message)s")
     config = Configuration(args.config)
-    do_match(config)
+    timestamps = validate_metadata(config)
+    print(timestamps)
+    do_match(config, timestamps)
