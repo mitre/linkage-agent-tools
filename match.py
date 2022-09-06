@@ -5,7 +5,6 @@ import json
 import logging
 from pathlib import Path
 import os
-import json
 import zipfile
 
 from datetime import datetime, timedelta
@@ -45,7 +44,6 @@ def parse_args():
     )
     return parser.parse_args()
 
-
 def has_results_available(config, projects=None):
     available_results = set(
         map(lambda x: x.stem, Path(config.project_results_dir).glob("*.json"))
@@ -56,15 +54,16 @@ def has_results_available(config, projects=None):
     else:
         raise MissingResults(expected_results, available_results)
 
-
-def do_match(config, projects=None):
+def do_match(config, timestamps, projects=None):
     projects = projects if projects else config.projects
+    projects_with_timestamps = ["".join(x) for x in zip(projects, timestamps)]
     database = MongoClient(config.mongo_uri).linkage_agent
     if config.household_match:
-        do_matching(config, ["fn-phone-addr-zip"], database.household_match_groups)
+        do_matching(
+            config, ["fn-phone-addr-zip" + timestamps[0]], database.household_match_groups
+        )
     else:
-        do_matching(config, projects, database.match_groups)
-
+        do_matching(config, projects_with_timestamps, database.match_groups)
 
 def do_matching(config, projects, collection):
     has_results_available(config, projects)
@@ -75,27 +74,31 @@ def do_matching(config, projects, collection):
             print(f"Matching for project: {project_name}")
             results.insert_results(collection)
 
-
 def validate_metadata(c):
     timestamps = []
     for site_archive in os.listdir(c.inbox_folder):
         if site_archive != ".DS_Store":
-            with zipfile.ZipFile("/".join([c.inbox_folder, site_archive])) as archive:
+            archive_path = Path(c.inbox_folder, site_archive)
+            with zipfile.ZipFile(archive_path) as archive:
                 found_metadata = False
                 for fname in archive.namelist():
                     if "metadata" in fname:
                         found_metadata = True
-                        mname = fname.replace("output/metadata", "").replace(".json", "")
+                        anchor = fname.rfind("T")
+                        mname = fname[(anchor - 8): (anchor + 7)]
                         timestamp = datetime.strptime(mname, "%Y%m%dT%H%M%S")
                         timestamps.append(timestamp)
                         with archive.open(fname, "r") as metadata_fp:
                             metadata = json.load(metadata_fp)
                         garble_time = datetime.fromisoformat(metadata["garble_date"])
-                        assert (garble_time-timestamp) < timedelta(seconds=1), f"Metadata timecode {timestamp} does not match listed garble time {garble_time}"
-                assert found_metadata, f"Unable to locate metadata in archive {c.inbox_folder}/{site_archive}"
+                        assert (garble_time - timestamp) < timedelta(
+                            seconds=1
+                        ), f"Metadata timecode {timestamp} does not match listed garble time {garble_time}"
+                assert (
+                    found_metadata
+                ), f"Unable to locate metadata in archive {c.inbox_folder}/{site_archive}"
 
     return timestamps
-
 
 if __name__ == "__main__":
     args = parse_args()
