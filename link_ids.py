@@ -2,10 +2,10 @@
 
 import argparse
 import csv
-from functools import reduce
 import json
-from pathlib import Path
 import uuid
+from functools import reduce
+from pathlib import Path
 
 from pymongo import MongoClient
 
