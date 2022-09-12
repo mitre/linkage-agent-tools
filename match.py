@@ -6,18 +6,30 @@ import logging
 import os
 import time
 import zipfile
+
 from datetime import datetime, timedelta
 from pathlib import Path
-
 from pymongo import MongoClient
 
-from dcctools.anonlink import Project, Results
+from dcctools.anonlink import Results
 from dcctools.config import Configuration
 
 # Delay between run status checks
 SLEEP_TIME = 10.0
 
 log = logging.getLogger(__name__)
+
+
+class MissingResults(Exception):
+    def __init__(self, expected_results, available_results, message=None):
+        message = (
+            message if message else self.message(expected_results, available_results)
+        )
+        super().__init__(message)
+
+    def message(self, expected_results, available_results):
+        missing_results = expected_results.difference(available_results)
+        return f'Missing results for projects: {", ".join(missing_results)}'
 
 
 def parse_args():
@@ -30,96 +42,40 @@ def parse_args():
     parser.add_argument(
         "--verbose", default=False, action="store_true", help="Show debugging output"
     )
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
-def do_match(c, timestamps):
-    client = MongoClient(c.mongo_uri)
-    database = client.linkage_agent
-
-    if c.household_match:
-        log.debug("Processing households")
-        with open(Path(c.household_schema)) as schema_file:
-            household_schema = schema_file.read()
-            project_name = "fn-phone-addr-zip"
-            household_project = Project(
-                project_name,
-                household_schema,
-                c.systems,
-                c.entity_service_url,
-                c.blocked,
-            )
-            household_project.start_project()
-            for system in c.systems:
-                household_project.upload_clks(
-                    system, c.get_household_clks_raw(system, project_name)
-                )
-            if type(c.matching_threshold) == list:
-                threshold = c.matching_threshold[0]
-            else:
-                threshold = c.matching_threshold
-            household_project.start_run(threshold)
-            running = True
-            while running:
-                status = household_project.get_run_status()
-                print(status)
-                if status.get("state") == "completed":
-                    running = False
-                    break
-                time.sleep(SLEEP_TIME)
-            result_json = household_project.get_results()
-            results = Results(c.systems, project_name, result_json)
-            results.insert_results(database.household_match_groups)
+def has_results_available(config, projects=None):
+    available_results = set(
+        map(lambda x: x.stem, Path(config.project_results_dir).glob("*.json"))
+    )
+    expected_results = set(projects) if projects else set(config.projects)
+    if expected_results <= available_results:
+        return True
     else:
-        log.debug("Processing individuals")
-        if c.blocked:
-            log.debug("Blocked, extracting CLKs and blocks")
-            for system in c.systems:
-                c.extract_clks(system)
-                c.extract_blocks(system)
+        raise MissingResults(expected_results, available_results)
 
-        iter_num = 0
-        for i, (project_name, schema) in enumerate(c.load_schema().items()):
-            iter_num = iter_num + 1
-            project = Project(
-                project_name, schema, c.systems, c.entity_service_url, c.blocked
-            )
-            project.start_project()
-            for system, timestamp in zip(c.systems, timestamps):
-                json_name = project_name + timestamp.strftime("%Y%m%dT%H%M%S")
-                if c.blocked:
-                    project.upload_clks_blocked(
-                        system,
-                        c.get_clk(system, json_name),
-                        c.get_block(system, json_name),
-                    )
-                else:
-                    project.upload_clks(system, c.get_clks_raw(system, json_name))
-            if type(c.matching_threshold) == list:
-                threshold = c.matching_threshold[i]
-            else:
-                threshold = c.matching_threshold
-            project.start_run(threshold)
-            running = True
-            print("\n--- RUNNING ---\n")
-            while running:
-                status = project.get_run_status()
-                print(status)
-                if status.get("state") == "completed":
-                    running = False
-                    break
-                time.sleep(SLEEP_TIME)
-            print("\n--- Getting results ---\n")
-            result_json = project.get_results()
-            results = Results(c.systems, project_name, result_json)
-            print(
-                "Matching groups for system "
-                + str(iter_num)
-                + " of "
-                + str(len(c.load_schema().items()))
-            )
-            results.insert_results(database.match_groups)
+
+def do_match(config, timestamps, projects=None):
+    projects = projects if projects else config.projects
+    projects_with_timestamps = ["".join(x) for x in zip(projects, timestamps)]
+    database = MongoClient(config.mongo_uri).linkage_agent
+    if config.household_match:
+        do_matching(
+            config, ["fn-phone-addr-zip" + timestamps[0]], database.household_match_groups
+        )
+    else:
+        do_matching(config, projects_with_timestamps, database.match_groups)
+
+
+def do_matching(config, projects, collection):
+    has_results_available(config, projects)
+    for project_name in projects:
+        with open(Path(config.project_results_dir) / f"{project_name}.json") as file:
+            result_json = json.load(file)
+            results = Results(config.systems, project_name, result_json)
+            print(f"Matching for project: {project_name}")
+            results.insert_results(collection)
 
 
 def validate_metadata(c):
@@ -133,7 +89,7 @@ def validate_metadata(c):
                     if "metadata" in fname:
                         found_metadata = True
                         anchor = fname.rfind("T")
-                        mname = fname[(anchor - 8) : (anchor + 7)]
+                        mname = fname[(anchor - 8): (anchor + 7)]
                         timestamp = datetime.strptime(mname, "%Y%m%dT%H%M%S")
                         timestamps.append(timestamp)
                         with archive.open(fname, "r") as metadata_fp:
@@ -154,5 +110,9 @@ if __name__ == "__main__":
     if args.verbose:
         logging.basicConfig(level=logging.DEBUG, format="%(message)s")
     config = Configuration(args.config)
+
+    client = MongoClient(config.mongo_uri)
+    database = client.linkage_agent
+
     timestamps = validate_metadata(config)
     do_match(config, timestamps)
