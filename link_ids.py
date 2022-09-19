@@ -7,6 +7,7 @@ import json
 import uuid
 from functools import reduce
 from pathlib import Path
+from zipfile import ZipFile
 
 from pymongo import MongoClient
 
@@ -34,6 +35,10 @@ def parse_args():
 
 
 def do_link_ids(c, remove=False):
+    link_id_time = datetime.datetime.now()
+    timestamp = datetime.datetime.strftime(link_id_time, "%Y%m%dT%H%M%S")
+    n_records = 0
+
     client = MongoClient(c.mongo_uri)
     database = client.linkage_agent
 
@@ -58,7 +63,9 @@ def do_link_ids(c, remove=False):
             all_ids_for_systems[system] = list(range(system_size))
 
     if c.household_match:
-        result_csv_path = Path(c.matching_results_folder) / "household_link_ids.csv"
+        result_csv_path = (
+            Path(c.matching_results_folder) / f"household_link_ids{timestamp}.csv"
+        )
         with open(result_csv_path, "w", newline="") as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=header)
             writer.writeheader()
@@ -90,12 +97,13 @@ def do_link_ids(c, remove=False):
                     final_record = {system: unmatched_id}
                     final_records.append(final_record)
 
+            n_records += len(final_records)
             for record in final_records:
                 record["LINK_ID"] = uuid.uuid1()
                 writer.writerow(record)
         print(f"{result_csv_path} created")
     else:
-        result_csv_path = Path(c.matching_results_folder) / "link_ids.csv"
+        result_csv_path = Path(c.matching_results_folder) / f"link_ids{timestamp}.csv"
         with open(result_csv_path, "w", newline="") as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=header)
             writer.writeheader()
@@ -128,6 +136,7 @@ def do_link_ids(c, remove=False):
                         final_record["LINK_ID"] = uuid.uuid1()
                         individual_linkages.append(final_record)
                         writer.writerow(final_record)
+                        n_records += 1
 
             for system, unmatched_ids in all_ids_for_systems.items():
                 for unmatched_id in unmatched_ids:
@@ -135,7 +144,25 @@ def do_link_ids(c, remove=False):
                     final_record["LINK_ID"] = uuid.uuid1()
                     individual_linkages.append(final_record)
                     writer.writerow(final_record)
+                    n_records += 1
         print(f"{result_csv_path} created")
+
+        metadata_json_path = (
+            Path(c.matching_results_folder) / f"link_id-metadata{timestamp}.json"
+        )
+        with open(metadata_json_path, "w") as metadata_file:
+            metadata = {
+                "creation_date": link_id_time.isoformat(),
+                "number_of_records": n_records,
+                "uuid1": str(uuid.uuid1()),
+                "input_system_metadata": {},
+            }
+            for system in c.systems:
+                system_metadata = c.get_metadata(system)
+                metadata["input_system_metadata"][system] = system_metadata
+            json.dump(metadata, metadata_file, indent=2)
+
+        print(f"{metadata_json_path} created")
 
     if remove:
         print("Removing records from database")

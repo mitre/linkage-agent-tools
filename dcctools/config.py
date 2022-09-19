@@ -46,10 +46,10 @@ class Configuration:
     def validate_metadata(self, system_path):
         metadata_issues = []
         with zipfile.ZipFile(system_path) as archive:
-            no_metadata = True
+            metadata_files = []
             for fname in archive.namelist():
                 if "metadata" in fname:
-                    no_metadata = False
+                    metadata_files.append(fname)
                     anchor = fname.rfind("T")
                     mname = fname[(anchor - 8) : (anchor + 7)]
                     timestamp = datetime.strptime(mname, "%Y%m%dT%H%M%S")
@@ -61,9 +61,14 @@ class Configuration:
                             f"{system_path.name} metadata timecode {timestamp} does "
                             "not match listed garble time {garble_time}"
                         )
-            if no_metadata:
+            if len(metadata_files) == 0:
                 metadata_issues.append(
                     f"could not find metadata file within {system_path.name}"
+                )
+            elif len(metadata_files) > 1:
+                metadata_issues.append(
+                    f"Too many metadata files found in {system_path.name}:"
+                    + "\n\t".join([metadata_file for metadata_file in metadata_files])
                 )
             else:
                 for fname in archive.namelist():
@@ -162,6 +167,17 @@ class Configuration:
         os.makedirs(extract_path, exist_ok=True)
         with ZipFile(block_zip_path, mode="r") as block_zip:
             block_zip.extractall(Path(self.config_json["inbox_folder"]) / system)
+
+    def get_metadata(self, system):
+        archive_name = (
+            f"{system}_households.zip" if self.household_match else f"{system}.zip"
+        )
+        archive_path = Path(self.config_json["inbox_folder"]) / archive_name
+        with ZipFile(archive_path, mode="r") as archive:
+            for file_name in archive.namelist():
+                if "metadata" in file_name:
+                    with archive.open(file_name) as metadata_file:
+                        return json.load(metadata_file)
 
     def get_clk_path(self, system, project):
         archive_name = (
