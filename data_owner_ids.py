@@ -6,7 +6,6 @@ import json
 import os
 import warnings
 import zipfile
-from datetime import datetime
 from pathlib import Path
 
 from dcctools.config import Configuration
@@ -33,11 +32,13 @@ def extract_metadata_and_zip(system, system_zip_path, system_output_dir_path, n_
                 metadata_files.append(file_name)
         if len(metadata_files) > 1:
             warnings.warn(
-                f"Could not extract metadata from {system} - too many metadata files found in system archive"
+                f"Could not extract metadata from {system}"
+                "- too many metadata files found in system archive"
             )
         elif len(metadata_files) < 1:
             warnings.warn(
-                f"Could not extract metadata from {system} - no metadata file found in system archive"
+                f"Could not extract metadata from {system}"
+                "- no metadata file found in system archive"
             )
         else:
             with system_zip.open(metadata_files[0], mode="r") as meta_fp:
