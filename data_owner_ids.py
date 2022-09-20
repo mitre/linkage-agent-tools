@@ -5,7 +5,7 @@ import csv
 import json
 import os
 import uuid
-import warnings
+import shutil
 import zipfile
 
 from datetime import datetime
@@ -25,36 +25,14 @@ def parse_args():
     return args
 
 
-def extract_metadata_and_zip(system, system_zip_path, system_output_dir_path, n_rows):
-    print(str(system_output_dir_path))
-    metadata_file_name = system_output_dir_path / (system + "_metadata.json")
-    with zipfile.ZipFile(system_zip_path) as system_zip:
-        metadata_files = []
-        for file_name in system_zip.namelist():
-            if "metadata" in file_name:
-                metadata_files.append(file_name)
-        if len(metadata_files) > 1:
-            warnings.warn(
-                f"Could not extract metadata from {system}"
-                "- too many metadata files found in system archive"
-            )
-        elif len(metadata_files) < 1:
-            warnings.warn(
-                f"Could not extract metadata from {system}"
-                "- no metadata file found in system archive"
-            )
-        else:
-            with system_zip.open(metadata_files[0], mode="r") as meta_fp:
-                metadata = json.load(meta_fp)
-            metadata["number_of_links"] = n_rows
-            with open(metadata_file_name, "w+") as fp:
-                json.dump(metadata, fp)
-    zpath = Path(str(system_output_dir_path) + ".zip", at=system + "/")
-    with zipfile.ZipFile(zpath, mode="w") as output_zip:
-        output_zip.write(metadata_file_name, f"{system}/{system}_metadata.json")
-        output_zip.write(
-            f"{system_output_dir_path}/{system}.csv", f"{system}/{system}.csv"
-        )
+def zip_and_clean(system_output_path, system, timestamp):
+    with zipfile.ZipFile(system_output_path.parent / f"{system}.zip", mode="w") as system_archive:
+        system_archive.write(system_output_path / f"{system}{timestamp}.csv", Path(system) / f"{system}{timestamp}.csv")
+        system_archive.write(system_output_path / f"{system}-metadata{timestamp}.json", Path(system) / f"{system}-metadata{timestamp}.json")
+    print(system_output_path.parent / f"{system}.zip", "created")
+    shutil.rmtree(system_output_path)
+    print("Uncompressed directory removed")
+
 
 
 def process_output(link_id_path, output_path, system, metadata):
@@ -90,35 +68,7 @@ def process_output(link_id_path, output_path, system, metadata):
         output_path / f"{output_path.name}-metadata{timestamp}.json", "w", newline=""
     ) as system_metadata_file:
         json.dump(system_metadata, system_metadata_file, indent=2)
-
-
-def process_csv_OLD(csv_path, system_output_dir_path, system, inbox_path):
-    os.makedirs(system_output_dir_path, exist_ok=True)
-    system_zip_path = Path(inbox_path) / f"{system}.zip"
-    n_rows = 0
-    with open(csv_path) as csvfile:
-        reader = csv.DictReader(csvfile)
-        system_path = Path(system_output_dir_path, system + ".csv")
-        with open(system_path, "w", newline="") as system_csvfile:
-            writer = csv.DictWriter(system_csvfile, fieldnames=["LINK_ID", system])
-            writer.writeheader()
-            for row in reader:
-                if len(row[system]) > 0:
-                    n_rows += 1
-                    writer.writerow({"LINK_ID": row["LINK_ID"], system: row[system]})
-    extract_metadata_and_zip(system, system_zip_path, system_output_dir_path, n_rows)
-
-
-def do_data_owner_ids_OLD(c):
-    if c.household_match:
-        csv_path = Path(c.matching_results_folder) / "household_link_ids.csv"
-    else:
-        csv_path = Path(c.matching_results_folder) / "link_ids.csv"
-
-    for system in c.systems:
-        system_csv_path = Path(c.output_folder) / system
-        process_csv(csv_path, system_csv_path, system, c.inbox_folder)
-        print(f"{system_csv_path} created")
+    return timestamp
 
 
 def do_data_owner_ids(c):
@@ -131,7 +81,6 @@ def do_data_owner_ids(c):
 
     if len(link_ids) > 1:
         print("More than one link_id file found")
-        print(link_ids)
         link_id_times = [
             datetime.strptime(
                 x.name.replace("link_ids", "")
@@ -160,9 +109,8 @@ def do_data_owner_ids(c):
         else:
             system_output_path = Path(c.output_folder) / system
         os.makedirs(system_output_path, exist_ok=True)
-        process_output(link_id_path, system_output_path, system, metadata)
-        zip_and_clean()
-        print(f"{system_output_path} created")
+        timestamp = process_output(link_id_path, system_output_path, system, metadata)
+        zip_and_clean(system_output_path, system, timestamp)
 
 
 if __name__ == "__main__":
