@@ -4,10 +4,9 @@ import argparse
 import csv
 import json
 import os
-import uuid
 import shutil
+import uuid
 import zipfile
-
 from datetime import datetime
 from pathlib import Path
 
@@ -26,13 +25,20 @@ def parse_args():
 
 
 def zip_and_clean(system_output_path, system, timestamp):
-    with zipfile.ZipFile(system_output_path.parent / f"{system}.zip", mode="w") as system_archive:
-        system_archive.write(system_output_path / f"{system}{timestamp}.csv", Path(system) / f"{system}{timestamp}.csv")
-        system_archive.write(system_output_path / f"{system}-metadata{timestamp}.json", Path(system) / f"{system}-metadata{timestamp}.json")
+    with zipfile.ZipFile(
+        system_output_path.parent / f"{system}.zip", mode="w"
+    ) as system_archive:
+        system_archive.write(
+            system_output_path / f"{system}{timestamp}.csv",
+            Path(system) / f"{system}{timestamp}.csv",
+        )
+        system_archive.write(
+            system_output_path / f"{system}-metadata{timestamp}.json",
+            Path(system) / f"{system}-metadata{timestamp}.json",
+        )
     print(system_output_path.parent / f"{system}.zip", "created")
     shutil.rmtree(system_output_path)
     print("Uncompressed directory removed")
-
 
 
 def process_output(link_id_path, output_path, system, metadata):
@@ -58,11 +64,11 @@ def process_output(link_id_path, output_path, system, metadata):
         "input_system_metadata": {
             key: val for key, val in metadata["input_system_metadata"][system].items()
         },
-        "output_system_metadata":{
+        "output_system_metadata": {
             "creation_date": data_owner_id_time.isoformat(),
             "number_of_records": n_rows,
-            "uuid1": str(uuid.uuid1())
-        }
+            "uuid1": str(uuid.uuid1()),
+        },
     }
     with open(
         output_path / f"{output_path.name}-metadata{timestamp}.json", "w", newline=""
@@ -97,10 +103,10 @@ def do_data_owner_ids(c):
     else:
         link_id_path = link_ids[0]
 
-    metadata_name = link_id_path.parent / link_id_path.name.replace(
+    link_id_metadata_name = link_id_path.parent / link_id_path.name.replace(
         "link_ids", "link_id-metadata"
     ).replace(".csv", ".json")
-    with open(metadata_name) as metadata_file:
+    with open(link_id_metadata_name) as metadata_file:
         metadata = json.load(metadata_file)
 
     for system in c.systems:

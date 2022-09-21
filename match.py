@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
 import argparse
+import datetime
 import json
 import logging
+import uuid
 from pathlib import Path
 
 from pymongo import MongoClient
@@ -42,12 +44,20 @@ def parse_args():
 
 
 def has_results_available(config, projects=None):
-    available_results = set(
-        map(lambda x: x.stem, Path(config.project_results_dir).glob("*.json"))
-    )
+    available_results = set()
     expected_results = set(projects) if projects else set(config.projects)
+    project_to_filenames = {}
+    for expected_result in expected_results:
+        found_result = [
+            x.name
+            for x in Path(config.project_results_dir).glob(f"{expected_result}*.json")
+        ]
+        if len(found_result) == 1:
+            found_project_name = found_result[0][: len(expected_result)]
+            project_to_filenames[expected_result] = found_result[0]
+            available_results.add(found_project_name)
     if expected_results <= available_results:
-        return True
+        return project_to_filenames
     else:
         raise MissingResults(expected_results, available_results)
 
@@ -62,13 +72,30 @@ def do_match(config, projects=None):
 
 
 def do_matching(config, projects, collection):
-    has_results_available(config, projects)
+    match_time = datetime.datetime.now()
+    metadata = {
+        "creation_date": match_time.isoformat(),
+        "projects": projects,
+        "uuid1": uuid.uuid1(),
+    }
+    projects_to_filenames = has_results_available(config, projects)
+    print(projects_to_filenames)
     for project_name in projects:
-        with open(Path(config.project_results_dir) / f"{project_name}.json") as file:
+        with open(
+            Path(config.project_results_dir) / projects_to_filenames[project_name]
+        ) as file:
             result_json = json.load(file)
+            metadata[project_name] = {
+                "number_of_records": len(result_json.get("groups", []))
+            }
             results = Results(config.systems, project_name, result_json)
             print(f"Matching for project: {project_name}")
             results.insert_results(collection)
+    timestamp = match_time.strftime("%Y%m%dT%H%M%S")
+    with open(
+        Path(config.project_results_dir) / f"match-metadata-{timestamp}.json", "w+"
+    ) as metadata_file:
+        json.dump(metadata, metadata_file, indent=2)
 
 
 if __name__ == "__main__":

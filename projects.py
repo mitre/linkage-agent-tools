@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 
 import argparse
+import datetime
 import json
 import logging
 import time
+import uuid
 from pathlib import Path
 
 from dcctools.anonlink import Project
@@ -30,10 +32,21 @@ def parse_args():
 
 
 def run_projects(c, project_name=None):
+    projects_start_time = datetime.datetime.now()
+    timestamp = projects_start_time.strftime("%y%m%d")
+    with open(
+        Path(c.project_results_dir) / f"project-metadata-{timestamp}.json", "w+"
+    ) as metadata_file:
+        metadata = {
+            "start-time": projects_start_time.isoformat(),
+            "projects": [],
+            "uuid1": str(uuid.uuid1()),
+        }
+        json.dump(metadata, metadata_file)
     if c.household_match:
         log.debug("Processing households")
         project_name = "fn-phone-addr-zip"
-        run_project(c, project_name, households=True)
+        run_project(c, timestamp, project_name, households=True)
     else:
         log.debug("Processing individuals")
         if c.blocked:
@@ -42,13 +55,20 @@ def run_projects(c, project_name=None):
                 c.extract_clks(system)
                 c.extract_blocks(system)
         if project_name:
-            run_project(c, project_name)
+            run_project(c, timestamp, project_name)
         else:
             for project_name in c.load_schema().keys():
-                run_project(c, project_name)
+                run_project(c, timestamp, project_name)
 
 
-def run_project(c, project_name=None, households=False):
+def run_project(c, metadata_timestamp, project_name=None, households=False):
+    with open(
+        Path(c.project_results_dir) / f"project-metadata-{metadata_timestamp}.json", "r"
+    ) as metadata_file:
+        metadata = json.load(metadata_file)
+    project_start_time = datetime.datetime.now()
+    metadata["projects"].append(project_name)
+    metadata[project_name] = {"start_time": project_start_time.isoformat()}
     schema = c.load_household_schema() if households else c.load_schema()[project_name]
     project = Project(project_name, schema, c.systems, c.entity_service_url, c.blocked)
     project.start_project()
@@ -78,9 +98,18 @@ def run_project(c, project_name=None, households=False):
         time.sleep(SLEEP_TIME)
     print("\n--- Getting results ---\n")
     result_json = project.get_results()
+    metadata[project_name]["completion_time"] = datetime.datetime.now().isoformat()
+    metadata[project_name]["number_of_groups"] = len(result_json.get("groups", []))
+    timestamp = project_start_time.strftime("%Y%m%d")
     Path(c.project_results_dir).mkdir(parents=True, exist_ok=True)
-    with open(Path(c.project_results_dir) / f"{project_name}.json", "w") as json_file:
+    with open(
+        Path(c.project_results_dir) / f"{project_name}{timestamp}.json", "w"
+    ) as json_file:
         json.dump(result_json, json_file)
+    with open(
+        Path(c.project_results_dir) / f"project-metadata-{metadata_timestamp}.json", "w"
+    ) as metadata_file:
+        json.dump(metadata, metadata_file, indent=2)
 
 
 if __name__ == "__main__":

@@ -7,7 +7,6 @@ import json
 import uuid
 from functools import reduce
 from pathlib import Path
-from zipfile import ZipFile
 
 from pymongo import MongoClient
 
