@@ -188,8 +188,7 @@ class Configuration:
             target = f"households/{project}" if self.household_match else project
             for file_name in clk_zip.namelist():
                 if target in file_name:
-                    loc = file_name.find(target)
-                    if file_name[loc + len(target)] != "-":
+                    if len(file_name) == len(target) + 21:
                         return file_name
 
     def get_clk(self, system, project):
