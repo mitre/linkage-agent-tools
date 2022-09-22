@@ -63,7 +63,7 @@ def do_link_ids(c, remove=False):
 
     if c.household_match:
         result_csv_path = (
-            Path(c.matching_results_folder) / f"household_link_ids{timestamp}.csv"
+            Path(c.matching_results_folder) / f"household_link_ids-{timestamp}.csv"
         )
         with open(result_csv_path, "w", newline="") as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=header)
@@ -102,7 +102,7 @@ def do_link_ids(c, remove=False):
                 writer.writerow(record)
         print(f"{result_csv_path} created")
     else:
-        result_csv_path = Path(c.matching_results_folder) / f"link_ids{timestamp}.csv"
+        result_csv_path = Path(c.matching_results_folder) / f"link_ids-{timestamp}.csv"
         with open(result_csv_path, "w", newline="") as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=header)
             writer.writeheader()
@@ -147,7 +147,7 @@ def do_link_ids(c, remove=False):
         print(f"{result_csv_path} created")
 
         metadata_json_path = (
-            Path(c.matching_results_folder) / f"link_id-metadata{timestamp}.json"
+            Path(c.matching_results_folder) / f"link_id-metadata-{timestamp}.json"
         )
         with open(metadata_json_path, "w") as metadata_file:
             metadata = {

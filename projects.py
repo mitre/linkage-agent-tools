@@ -100,10 +100,10 @@ def run_project(c, metadata_timestamp, project_name=None, households=False):
     result_json = project.get_results()
     metadata[project_name]["completion_time"] = datetime.datetime.now().isoformat()
     metadata[project_name]["number_of_groups"] = len(result_json.get("groups", []))
-    timestamp = project_start_time.strftime("%Y%m%d")
+    timestamp = project_start_time.strftime("%y%m%d")
     Path(c.project_results_dir).mkdir(parents=True, exist_ok=True)
     with open(
-        Path(c.project_results_dir) / f"{project_name}{timestamp}.json", "w"
+        Path(c.project_results_dir) / f"{project_name}-{timestamp}.json", "w"
     ) as json_file:
         json.dump(result_json, json_file)
     with open(

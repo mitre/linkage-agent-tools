@@ -55,7 +55,7 @@ class Configuration:
                     timestamp = datetime.strptime(mname, "%Y%m%dT%H%M%S")
                     with archive.open(fname, "r") as metadata_fp:
                         metadata = json.load(metadata_fp)
-                    garble_time = datetime.fromisoformat(metadata["garble_date"])
+                    garble_time = datetime.fromisoformat(metadata["creation_date"])
                     if (garble_time - timestamp) >= timedelta(seconds=1):
                         metadata_issues.append(
                             f"{system_path.name} metadata timecode {timestamp} does "
@@ -70,14 +70,6 @@ class Configuration:
                     f"Too many metadata files found in {system_path.name}:"
                     + "\n\t".join([metadata_file for metadata_file in metadata_files])
                 )
-            else:
-                for fname in archive.namelist():
-                    anchor = fname.rfind("T")
-                    if fname[(anchor - 8) : (anchor + 7)] != mname:
-                        metadata_issues.append(
-                            f"{system_path} file {fname} timestamp does not concur"
-                            "with metadata timestamp"
-                        )
         return metadata_issues
 
     def validate_all_present(self):
@@ -179,17 +171,6 @@ class Configuration:
                     with archive.open(file_name) as metadata_file:
                         return json.load(metadata_file)
 
-    def get_clk_path(self, system, project):
-        archive_name = (
-            f"{system}_households.zip" if self.household_match else f"{system}.zip"
-        )
-        clk_zip_path = Path(self.config_json["inbox_folder"]) / archive_name
-        with ZipFile(clk_zip_path, mode="r") as clk_zip:
-            target = f"households/{project}" if self.household_match else project
-            for file_name in clk_zip.namelist():
-                if target in file_name:
-                    if len(file_name) == len(target) + 21:
-                        return file_name
 
     def get_clk(self, system, project):
         clk_path = (
@@ -203,7 +184,7 @@ class Configuration:
         clks = None
         clk_zip_path = Path(self.config_json["inbox_folder"]) / "{}.zip".format(system)
         with ZipFile(clk_zip_path, mode="r") as clk_zip:
-            with clk_zip.open(self.get_clk_path(system, project)) as clk_file:
+            with clk_zip.open(str(Path("output") / f"{project}.json")) as clk_file:
                 clks = clk_file.read()
         return clks
 
