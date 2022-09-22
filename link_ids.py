@@ -103,7 +103,8 @@ def do_link_ids(c, remove=False):
         print(f"{result_csv_path} created")
 
         metadata_json_path = (
-                Path(c.matching_results_folder) / f"household_link_id-metadata-{timestamp}.json"
+            Path(c.matching_results_folder)
+            / f"household_link_id-metadata-{timestamp}.json"
         )
         with open(metadata_json_path, "w") as metadata_file:
             metadata = {

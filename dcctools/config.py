@@ -194,7 +194,7 @@ class Configuration:
         ) / "{}_households.zip".format(system)
         with ZipFile(clk_zip_path, mode="r") as clk_zip:
             with clk_zip.open(
-                    str(Path("output") / "households" / f"{schema}.json")
+                str(Path("output") / "households" / f"{schema}.json")
             ) as clk_file:
                 clks = clk_file.read()
         return clks

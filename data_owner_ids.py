@@ -33,16 +33,16 @@ def zip_and_clean(system_output_path, system, timestamp, household_match):
         if household_match:
             system_archive.write(
                 system_output_path / "households" / f"{system}_households.csv",
-                arcname=str(Path("output") / "households" / f"{system}_households.csv")
+                arcname=str(Path("output") / "households" / f"{system}_households.csv"),
             )
         else:
             system_archive.write(
                 system_output_path / f"{system}.csv",
-                arcname=str(Path("output") / f"{system}.csv")
+                arcname=str(Path("output") / f"{system}.csv"),
             )
         system_archive.write(
             system_output_path / f"{system}-metadata{timestamp}.json",
-            arcname=str(Path("output") / f"{system}-metadata{timestamp}.json")
+            arcname=str(Path("output") / f"{system}-metadata{timestamp}.json"),
         )
 
     print(zip_path.name, "created")
@@ -121,7 +121,9 @@ def do_data_owner_ids(c):
         os.makedirs(system_output_path, exist_ok=True)
         if c.household_match:
             os.makedirs(system_output_path / "households", exist_ok=True)
-        timestamp = process_output(link_id_path, system_output_path, system, metadata, c.household_match)
+        timestamp = process_output(
+            link_id_path, system_output_path, system, metadata, c.household_match
+        )
         zip_and_clean(system_output_path, system, timestamp, c.household_match)
 
 
