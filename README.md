@@ -152,7 +152,7 @@ A description of the properties in the file:
 - **entity_service_url** - The RESTful service endpoint for the
   anonlink-entity-service.
 - **matching_threshold** - The threshold for considering a potential set of
-  records a match when comparing in anonlink.
+  records a match when comparing in anonlink. This can either be a single number between 0 and 1 or a list of numbers between 0 and 1
 - **mongo_uri** - The URI to use when connecting to MongoDB to store or access
   results. For details on the URI structure, consult the
   [Connection String URI Format documentation](https://docs.mongodb.com/manual/reference/connection-string/)
@@ -248,8 +248,11 @@ This project is a set of python scripts driven by a central configuration file,
    matching information and use it to generate LINK_IDs, which are written to a
    CSV file in the configured results folder.
 1. Once all LINK_IDs have been created, run `data_owner_ids.py` which will
-   create a file per data owner that can be sent with only information on their
-   LINK_IDs.
+   create one ZIP file per data owner. That file will contain a metadata file
+   and a CSV file with only information on their LINK_IDs.
+   
+`projects.py`, `match.py` and `link_ids.py` will also generate JSON metadata
+files that contain information about the corresponding process.
 
 #### Example system folder hierarchy:
 
