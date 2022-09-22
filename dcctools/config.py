@@ -171,7 +171,6 @@ class Configuration:
                     with archive.open(file_name) as metadata_file:
                         return json.load(metadata_file)
 
-
     def get_clk(self, system, project):
         clk_path = (
             Path(self.config_json["inbox_folder"])
