@@ -24,32 +24,44 @@ def parse_args():
     return args
 
 
-def zip_and_clean(system_output_path, system, timestamp):
-    with zipfile.ZipFile(
-        system_output_path.parent / f"{system}.zip", mode="w"
-    ) as system_archive:
-        system_archive.write(
-            system_output_path / f"{system}{timestamp}.csv",
-            Path(system) / f"{system}{timestamp}.csv",
-        )
+def zip_and_clean(system_output_path, system, timestamp, household_match):
+    if household_match:
+        zip_path = system_output_path.parent / f"{system}_households.zip"
+    else:
+        zip_path = system_output_path.parent / f"{system}.zip"
+    with zipfile.ZipFile(zip_path, mode="w") as system_archive:
+        if household_match:
+            system_archive.write(
+                system_output_path / "households" / f"{system}_households.csv",
+                arcname=str(Path("output") / "households" / f"{system}_households.csv")
+            )
+        else:
+            system_archive.write(
+                system_output_path / f"{system}.csv",
+                arcname=str(Path("output") / f"{system}.csv")
+            )
         system_archive.write(
             system_output_path / f"{system}-metadata{timestamp}.json",
-            Path(system) / f"{system}-metadata{timestamp}.json",
+            arcname=str(Path("output") / f"{system}-metadata{timestamp}.json")
         )
-    print(system_output_path.parent / f"{system}.zip", "created")
+
+    print(zip_path.name, "created")
     shutil.rmtree(system_output_path)
     print("Uncompressed directory removed")
 
 
-def process_output(link_id_path, output_path, system, metadata):
+def process_output(link_id_path, output_path, system, metadata, household_match):
     data_owner_id_time = datetime.now()
     timestamp = data_owner_id_time.strftime("%Y%m%dT%H%M%S")
     n_rows = 0
     with open(link_id_path) as csvfile:
         reader = csv.DictReader(csvfile)
-        with open(
-            output_path / f"{output_path.name}{timestamp}.csv", "w", newline=""
-        ) as system_csvfile:
+        if household_match:
+            csv_path = output_path / "households" / f"{system}_households.csv"
+        else:
+            csv_path = output_path / f"{system}.csv"
+
+        with open(csv_path, "w", newline="") as system_csvfile:
             writer = csv.DictWriter(system_csvfile, fieldnames=["LINK_ID", system])
             writer.writeheader()
             for row in reader:
@@ -71,7 +83,7 @@ def process_output(link_id_path, output_path, system, metadata):
         },
     }
     with open(
-        output_path / f"{output_path.name}-metadata{timestamp}.json", "w", newline=""
+        output_path / f"{system}-metadata{timestamp}.json", "w", newline=""
     ) as system_metadata_file:
         json.dump(system_metadata, system_metadata_file, indent=2)
     return timestamp
@@ -105,13 +117,12 @@ def do_data_owner_ids(c):
         metadata = json.load(metadata_file)
 
     for system in c.systems:
-        if c.household_match:
-            system_output_path = Path(c.output_folder) / "{}_households".format(system)
-        else:
-            system_output_path = Path(c.output_folder) / system
+        system_output_path = Path(c.output_folder) / "output"
         os.makedirs(system_output_path, exist_ok=True)
-        timestamp = process_output(link_id_path, system_output_path, system, metadata)
-        zip_and_clean(system_output_path, system, timestamp)
+        if c.household_match:
+            os.makedirs(system_output_path / "households", exist_ok=True)
+        timestamp = process_output(link_id_path, system_output_path, system, metadata, c.household_match)
+        zip_and_clean(system_output_path, system, timestamp, c.household_match)
 
 
 if __name__ == "__main__":

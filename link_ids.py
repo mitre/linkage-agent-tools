@@ -101,6 +101,24 @@ def do_link_ids(c, remove=False):
                 record["LINK_ID"] = uuid.uuid1()
                 writer.writerow(record)
         print(f"{result_csv_path} created")
+
+        metadata_json_path = (
+                Path(c.matching_results_folder) / f"household_link_id-metadata-{timestamp}.json"
+        )
+        with open(metadata_json_path, "w") as metadata_file:
+            metadata = {
+                "creation_date": link_id_time.isoformat(),
+                "number_of_records": n_records,
+                "uuid1": str(uuid.uuid1()),
+                "input_system_metadata": {},
+            }
+            for system in c.systems:
+                system_metadata = c.get_metadata(system)
+                metadata["input_system_metadata"][system] = system_metadata
+            json.dump(metadata, metadata_file, indent=2)
+
+        print(f"{metadata_json_path} created")
+
     else:
         result_csv_path = Path(c.matching_results_folder) / f"link_ids-{timestamp}.csv"
         with open(result_csv_path, "w", newline="") as csvfile:
