@@ -208,9 +208,9 @@ for individuals:
 
 ```
 output/
-  site_a.csv
-  site_b.csv
-  site_c.csv
+  site_a.zip
+  site_b.zip
+  site_c.zip
   ...
 ```
 
@@ -218,9 +218,9 @@ And the second example, for households:
 
 ```
 output/
-  site_a_households.csv
-  site_b_households.csv
-  site_c_households.csv
+  site_a_households.zip
+  site_b_households.zip
+  site_c_households.zip
   ...
 ```
 
