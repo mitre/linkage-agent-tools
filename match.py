@@ -76,10 +76,9 @@ def do_matching(config, projects, collection):
     metadata = {
         "creation_date": match_time.isoformat(),
         "projects": projects,
-        "uuid1": uuid.uuid1(),
+        "uuid1": str(uuid.uuid1()),
     }
     projects_to_filenames = has_results_available(config, projects)
-    print(projects_to_filenames)
     for project_name in projects:
         with open(
             Path(config.project_results_dir) / projects_to_filenames[project_name]
@@ -89,7 +88,6 @@ def do_matching(config, projects, collection):
                 "number_of_records": len(result_json.get("groups", []))
             }
             results = Results(config.systems, project_name, result_json)
-            print(f"Matching for project: {project_name}")
             results.insert_results(collection)
     timestamp = match_time.strftime("%Y%m%dT%H%M%S")
     with open(
