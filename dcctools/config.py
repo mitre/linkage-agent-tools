@@ -183,7 +183,11 @@ class Configuration:
         clks = None
         clk_zip_path = Path(self.config_json["inbox_folder"]) / "{}.zip".format(system)
         with ZipFile(clk_zip_path, mode="r") as clk_zip:
-            with clk_zip.open(str(Path("output") / f"{project}.json")) as clk_file:
+            for file_name in clk_zip.namelist():
+                if f"{project}.json" in file_name:
+                    project_file = file_name
+                    break
+            with clk_zip.open(project_file) as clk_file:
                 clks = clk_file.read()
         return clks
 
