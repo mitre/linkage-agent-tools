@@ -197,9 +197,11 @@ class Configuration:
             self.config_json["inbox_folder"]
         ) / "{}_households.zip".format(system)
         with ZipFile(clk_zip_path, mode="r") as clk_zip:
-            with clk_zip.open(
-                str(Path("output") / "households" / f"{schema}.json")
-            ) as clk_file:
+            for file_name in clk_zip.namelist():
+                if f"{schema}.json" in file_name:
+                    project_file = file_name
+                    break
+            with clk_zip.open(project_file) as clk_file:
                 clks = clk_file.read()
         return clks
 
