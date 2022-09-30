@@ -2,6 +2,8 @@ import csv
 import json
 import os
 import sys
+import zipfile
+from datetime import datetime, timedelta
 from pathlib import Path
 from zipfile import ZipFile
 
@@ -41,10 +43,40 @@ class Configuration:
                 )
         return config_issues
 
+    def validate_metadata(self, system_path):
+        metadata_issues = []
+        with zipfile.ZipFile(system_path) as archive:
+            metadata_files = []
+            for fname in archive.namelist():
+                if "metadata" in fname:
+                    metadata_files.append(fname)
+                    anchor = fname.rfind("T")
+                    mname = fname[(anchor - 8) : (anchor + 7)]
+                    timestamp = datetime.strptime(mname, "%Y%m%dT%H%M%S")
+                    with archive.open(fname, "r") as metadata_fp:
+                        metadata = json.load(metadata_fp)
+                    garble_time = datetime.fromisoformat(metadata["creation_date"])
+                    if (garble_time - timestamp) >= timedelta(seconds=1):
+                        metadata_issues.append(
+                            f"{system_path.name} metadata timecode {timestamp} does "
+                            "not match listed garble time {garble_time}"
+                        )
+            if len(metadata_files) == 0:
+                metadata_issues.append(
+                    f"could not find metadata file within {system_path.name}"
+                )
+            elif len(metadata_files) > 1:
+                metadata_issues.append(
+                    f"Too many metadata files found in {system_path.name}:"
+                    + "\n\t".join([metadata_file for metadata_file in metadata_files])
+                )
+        return metadata_issues
+
     def validate_all_present(self):
         missing_paths = []
         expected_paths = []
         unexpected_paths = []
+        metadata_issues = []
         root_path = Path(self.filename).parent
         inbox_folder = root_path / self.config_json["inbox_folder"]
         for s in self.config_json["systems"]:
@@ -54,12 +86,16 @@ class Configuration:
                 expected_paths.append(household_zip_path)
                 if not os.path.exists(household_zip_path):
                     missing_paths.append(household_zip_path)
+                else:
+                    metadata_issues.extend(self.validate_metadata(household_zip_path))
                 if os.path.exists(system_zip_path):
                     unexpected_paths.append(system_zip_path)
             else:
                 expected_paths.append(system_zip_path)
                 if not os.path.exists(system_zip_path):
                     missing_paths.append(system_zip_path)
+                else:
+                    metadata_issues.extend(self.validate_metadata(system_zip_path))
                 if os.path.exists(household_zip_path):
                     unexpected_paths.append(household_zip_path)
             if self.config_json["blocked"]:
@@ -85,7 +121,7 @@ class Configuration:
             path_to_check = root_path / getattr(self, d)
             if not os.path.exists(path_to_check):
                 missing_paths.append(path_to_check)
-        return (set(missing_paths), set(unexpected_paths))
+        return set(missing_paths), set(unexpected_paths), metadata_issues
 
     @property
     def systems(self):
@@ -124,6 +160,17 @@ class Configuration:
         with ZipFile(block_zip_path, mode="r") as block_zip:
             block_zip.extractall(Path(self.config_json["inbox_folder"]) / system)
 
+    def get_metadata(self, system):
+        archive_name = (
+            f"{system}_households.zip" if self.household_match else f"{system}.zip"
+        )
+        archive_path = Path(self.config_json["inbox_folder"]) / archive_name
+        with ZipFile(archive_path, mode="r") as archive:
+            for file_name in archive.namelist():
+                if "metadata" in file_name:
+                    with archive.open(file_name) as metadata_file:
+                        return json.load(metadata_file)
+
     def get_clk(self, system, project):
         clk_path = (
             Path(self.config_json["inbox_folder"])
@@ -136,7 +183,11 @@ class Configuration:
         clks = None
         clk_zip_path = Path(self.config_json["inbox_folder"]) / "{}.zip".format(system)
         with ZipFile(clk_zip_path, mode="r") as clk_zip:
-            with clk_zip.open("output/{}.json".format(project)) as clk_file:
+            for file_name in clk_zip.namelist():
+                if f"{project}.json" in file_name:
+                    project_file = file_name
+                    break
+            with clk_zip.open(project_file) as clk_file:
                 clks = clk_file.read()
         return clks
 
@@ -146,7 +197,11 @@ class Configuration:
             self.config_json["inbox_folder"]
         ) / "{}_households.zip".format(system)
         with ZipFile(clk_zip_path, mode="r") as clk_zip:
-            with clk_zip.open("output/households/{}.json".format(schema)) as clk_file:
+            for file_name in clk_zip.namelist():
+                if f"{schema}.json" in file_name:
+                    project_file = file_name
+                    break
+            with clk_zip.open(project_file) as clk_file:
                 clks = clk_file.read()
         return clks
 
@@ -190,7 +245,7 @@ class Configuration:
             else self.matching_threshold
         )
         if type(config_threshold) == list:
-            project_index = config_threshold.index(project_name)
+            project_index = self.projects.index(project_name)
             threshold = config_threshold[project_index]
         else:
             threshold = config_threshold

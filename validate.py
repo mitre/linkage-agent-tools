@@ -17,7 +17,9 @@ def parse_args():
 
 
 def do_validate(c):
-    missing, unexpected = c.validate_all_present()
+    # N.B. at time of PR household files don't have metadata associated with them.
+    # Will be fixed in an upcoming patch to data-owner-tools
+    missing, unexpected, metadata_issues = c.validate_all_present()
     if len(missing) == 0:
         print("All necessary input is present")
     else:
@@ -38,6 +40,16 @@ def do_validate(c):
             print(f"\t{filename}")
     else:
         print("\nNo unexpected files are present")
+
+    if len(metadata_issues) == 0:
+        print("\nNo issues are present in the metadata files for each system")
+    else:
+        if len(metadata_issues) == 1:
+            print(f"\nWARNING: {metadata_issues[0]}")
+        else:
+            print("\nWARNING: multiple issues found with metadata files")
+            for issue in metadata_issues:
+                print(f"\t{issue}")
 
     config_issues = c.validate_config()
     if config_issues:
