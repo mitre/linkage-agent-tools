@@ -11,6 +11,7 @@ from pymongo import MongoClient
 
 from dcctools.anonlink import Results
 from dcctools.config import Configuration
+from definitions import TIMESTAMP_FMT
 
 # Delay between run status checks
 SLEEP_TIME = 10.0
@@ -89,7 +90,7 @@ def do_matching(config, projects, collection):
             }
             results = Results(config.systems, project_name, result_json)
             results.insert_results(collection)
-    timestamp = match_time.strftime("%Y%m%dT%H%M%S")
+    timestamp = match_time.strftime(TIMESTAMP_FMT)
     with open(
         Path(config.project_results_dir) / f"match-metadata-{timestamp}.json", "w+"
     ) as metadata_file:

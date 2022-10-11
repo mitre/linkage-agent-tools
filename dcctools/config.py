@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from zipfile import ZipFile
 
+from definitions import TIMESTAMP_FMT
+
 
 class Configuration:
     def __init__(self, filename):
@@ -52,7 +54,7 @@ class Configuration:
                     metadata_files.append(fname)
                     anchor = fname.rfind("T")
                     mname = fname[(anchor - 8) : (anchor + 7)]
-                    timestamp = datetime.strptime(mname, "%Y%m%dT%H%M%S")
+                    timestamp = datetime.strptime(mname, TIMESTAMP_FMT)
                     with archive.open(fname, "r") as metadata_fp:
                         metadata = json.load(metadata_fp)
                     garble_time = datetime.fromisoformat(metadata["creation_date"])
