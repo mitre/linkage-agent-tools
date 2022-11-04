@@ -8,12 +8,20 @@ parser = argparse.ArgumentParser(
     description="Tool for counting the number of exact matches (exactly identical hashes) \
                  for one project across sites."
 )
-parser.add_argument(
+group = parser.add_mutually_exclusive_group()
+group.add_argument(
     "-p",
     "--project",
     default="name-sex-dob-zip",
     help="Select a project to review exact matches across sites. \
-          Default: name-sex-dob-zip",
+          Default: name-sex-dob-zip \
+          Does not work with the household flag",
+)
+group.add_argument(
+    "--household",
+    help="Review exact household matches. \
+          Default: fn-phone-addr-zip \
+          Does not work with the project flag",
 )
 args = parser.parse_args()
 
@@ -22,13 +30,21 @@ args = parser.parse_args()
 # python3 dcctools/exact_matches.py --> use path "./config.json"
 c = Configuration("config.json")
 
-project = args.project
-
-print(f"COUNTING EXACT MATCHES FOR {project}")
+project = None
+if args.household is not None:
+    project = args.household
+    print(f"COUNTING EXACT MATCHES FOR households {project}")
+else:
+    project = args.project
+    print(f"COUNTING EXACT MATCHES FOR {project}")
 
 clks = {}
 for system in c.systems:
-    raw_clks = c.get_clks_raw(system, project)
+    raw_clks = None
+    if args.household is not None:
+        raw_clks = c.get_household_clks_raw(system, project)
+    else:
+        raw_clks = c.get_clks_raw(system, project)
     clk_json = json.loads(raw_clks)
     clks[system] = set(clk_json["clks"])
     print(f"Size of {system}: {len(clks[system])}")
