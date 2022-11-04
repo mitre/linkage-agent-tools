@@ -60,7 +60,9 @@ class Configuration:
                     with archive.open(fname, "r") as metadata_fp:
                         metadata = json.load(metadata_fp)
                     if self.household_match:
-                        garble_time = datetime.fromisoformat(metadata["household_garble_time"])
+                        garble_time = datetime.fromisoformat(
+                            metadata["household_garble_time"]
+                        )
                     else:
                         garble_time = datetime.fromisoformat(metadata["garble_time"])
                     extract_time = datetime.fromisoformat(metadata["creation_date"])
