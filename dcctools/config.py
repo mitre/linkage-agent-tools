@@ -73,16 +73,22 @@ class Configuration:
                         )
                     if garble_time <= self.CLK_expiration:
                         metadata_issues.append(
-                            f"{fname} reports a garble date of {garble_time.strftime('%Y-%m-%d')},"
-                            f" which is earlier than the configured CLK expiration date of"
-                            f" {self.CLK_expiration.strftime('%Y-%m-%d')}.\n\t Is this the most recent "
+                            f"{fname} reports a garble date of "
+                            f"{garble_time.strftime('%Y-%m-%d')},"
+                            f" which is earlier than the configured CLK "
+                            f"expiration date of"
+                            f" {self.CLK_expiration.strftime('%Y-%m-%d')}."
+                            f"\n\t Is this the most recent "
                             f"version of these hashes?"
                         )
                     if extract_time <= self.CLK_expiration:
                         metadata_issues.append(
-                            f"{fname} reports a garble date of {extract_time.strftime('%Y-%m-%d')},"
-                            f" which is earlier than the configured CLK expiration date of"
-                            f" {self.CLK_expiration.strftime('%Y-%m-%d')}.\n\t Is this the most recent "
+                            f"{fname} reports a garble date of "
+                            f"{extract_time.strftime('%Y-%m-%d')},"
+                            f" which is earlier than the configured "
+                            f"CLK expiration date of"
+                            f" {self.CLK_expiration.strftime('%Y-%m-%d')}."
+                            f"\n\t Is this the most recent "
                             f"version of these hashes?"
                         )
             if len(metadata_files) == 0:
