@@ -20,7 +20,6 @@ group.add_argument(
 group.add_argument(
     "--household",
     help="Review exact household matches. \
-          Default: fn-phone-addr-zip \
           Does not work with the project flag",
 )
 args = parser.parse_args()
