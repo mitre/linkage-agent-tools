@@ -182,15 +182,20 @@ class Configuration:
         return clk_path
 
     def get_clks_raw(self, system, project):
-        clks = None
         clk_zip_path = Path(self.config_json["inbox_folder"]) / "{}.zip".format(system)
         with ZipFile(clk_zip_path, mode="r") as clk_zip:
+            project_file = None
             for file_name in clk_zip.namelist():
                 if f"{project}.json" in file_name:
                     project_file = file_name
                     break
-            with clk_zip.open(project_file) as clk_file:
-                clks = clk_file.read()
+            if project_file is not None:
+                with clk_zip.open(project_file) as clk_file:
+                    clks = clk_file.read()
+            else:
+                raise KeyError(
+                    f"There is no item named '{project}.json' in the archive {system}.zip"
+                )
         return clks
 
     def get_household_clks_raw(self, system, schema):
