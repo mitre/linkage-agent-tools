@@ -194,7 +194,8 @@ class Configuration:
                     clks = clk_file.read()
             else:
                 raise KeyError(
-                    f"There is no item named '{project}.json' in the archive {system}.zip"
+                    f"There is no item named '{project}.json' "
+                    f"in the archive {system}.zip"
                 )
         return clks
 
