@@ -97,12 +97,13 @@ def do_data_owner_ids(c):
         )
     else:
         link_ids = sorted(Path(c.matching_results_folder).glob("link_ids*.csv"))
-
+    print("link_ids", link_ids)
     if len(link_ids) > 1:
-        print("More than one link_id file found")
-        print(link_ids)
+        ts_len = len(datetime.now().strftime(TIMESTAMP_FMT))
+        # -4 since ".csv" is 4 chars
+        ts_loc = (-(4+ts_len), -4)
         link_id_times = [
-            datetime.strptime(x.name[-19:-4], TIMESTAMP_FMT) for x in link_ids
+            datetime.strptime(x.name[ts_loc[0]:ts_loc[1]], TIMESTAMP_FMT) for x in link_ids
         ]
         most_recent = link_ids[link_id_times.index(max(link_id_times))]
         print(f"Using most recent link_id file: {most_recent}")
