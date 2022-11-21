@@ -11,6 +11,7 @@ from datetime import datetime
 from pathlib import Path
 
 from dcctools.config import Configuration
+from definitions import TIMESTAMP_FMT
 
 
 def parse_args():
@@ -52,7 +53,7 @@ def zip_and_clean(system_output_path, system, timestamp, household_match):
 
 def process_output(link_id_path, output_path, system, metadata, household_match):
     data_owner_id_time = datetime.now()
-    timestamp = data_owner_id_time.strftime("%Y%m%dT%H%M%S")
+    timestamp = data_owner_id_time.strftime(TIMESTAMP_FMT)
     n_rows = 0
     with open(link_id_path) as csvfile:
         reader = csv.DictReader(csvfile)
@@ -96,12 +97,14 @@ def do_data_owner_ids(c):
         )
     else:
         link_ids = sorted(Path(c.matching_results_folder).glob("link_ids*.csv"))
-
+    print("link_ids", link_ids)
     if len(link_ids) > 1:
-        print("More than one link_id file found")
-        print(link_ids)
+        ts_len = len(datetime.now().strftime(TIMESTAMP_FMT))
+        # -4 since ".csv" is 4 chars
+        ts_loc = (-(4 + ts_len), -4)
         link_id_times = [
-            datetime.strptime(x.name[-19:-4], "%Y%m%dT%H%M%S") for x in link_ids
+            datetime.strptime(x.name[ts_loc[0] : ts_loc[1]], TIMESTAMP_FMT)
+            for x in link_ids
         ]
         most_recent = link_ids[link_id_times.index(max(link_id_times))]
         print(f"Using most recent link_id file: {most_recent}")

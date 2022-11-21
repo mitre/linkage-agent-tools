@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from zipfile import ZipFile
 
+from definitions import TIMESTAMP_FMT
+
 
 class Configuration:
     def __init__(self, filename):
@@ -52,7 +54,7 @@ class Configuration:
                     metadata_files.append(fname)
                     anchor = fname.rfind("T")
                     mname = fname[(anchor - 8) : (anchor + 7)]
-                    timestamp = datetime.strptime(mname, "%Y%m%dT%H%M%S")
+                    timestamp = datetime.strptime(mname, TIMESTAMP_FMT)
                     with archive.open(fname, "r") as metadata_fp:
                         metadata = json.load(metadata_fp)
                     garble_time = datetime.fromisoformat(metadata["creation_date"])
@@ -180,15 +182,21 @@ class Configuration:
         return clk_path
 
     def get_clks_raw(self, system, project):
-        clks = None
         clk_zip_path = Path(self.config_json["inbox_folder"]) / "{}.zip".format(system)
         with ZipFile(clk_zip_path, mode="r") as clk_zip:
+            project_file = None
             for file_name in clk_zip.namelist():
                 if f"{project}.json" in file_name:
                     project_file = file_name
                     break
-            with clk_zip.open(project_file) as clk_file:
-                clks = clk_file.read()
+            if project_file is not None:
+                with clk_zip.open(project_file) as clk_file:
+                    clks = clk_file.read()
+            else:
+                raise KeyError(
+                    f"There is no item named '{project}.json' "
+                    f"in the archive {system}.zip"
+                )
         return clks
 
     def get_household_clks_raw(self, system, schema):
