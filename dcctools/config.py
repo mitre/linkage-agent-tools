@@ -43,6 +43,15 @@ class Configuration:
                             is unequal \n\tThreshold must either be float or list of \
                             floats equal in length to the number of projects"
                 )
+        if "project_deconfliction_weights" in self.config_json:
+            for proj in self.config_json["projects"]:
+                conflict_weights = self.config_json["project_deconfliction_weights"]
+                if proj not in conflict_weights:
+                    config_issues.append(f"Project {proj} is missing a deconfliction weighting")
+                elif conflict_weights[proj] > 1.0:
+                    config_issues.append(f"Project {proj} has a deconfliction "
+                                         f"weight of {conflict_weights[proj]} "
+                                         f"which is greater than 1.0")
         return config_issues
 
     def validate_metadata(self, system_path):
@@ -274,6 +283,10 @@ class Configuration:
     @property
     def matching_results_folder(self):
         return self.config_json["matching_results_folder"]
+    
+    @property
+    def project_deconfliction_weights(self):
+        return self.config_json.get("project_deconfliction_weights", None)
 
     @property
     def inbox_folder(self):

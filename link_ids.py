@@ -145,7 +145,7 @@ def do_link_ids(c, remove=False):
                         )
                         final_record = {}
                         if conflict:
-                            final_record = deconflict(row, systems)
+                            final_record = deconflict(row, systems, c.project_deconfliction_weights)
                         else:
                             for s in systems:
                                 record_id = row.get(s, None)
