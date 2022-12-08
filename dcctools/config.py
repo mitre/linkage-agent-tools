@@ -198,8 +198,9 @@ class Configuration:
         clk_zip_path = Path(self.config_json["inbox_folder"]) / "{}.zip".format(system)
         with ZipFile(clk_zip_path, mode="r") as clk_zip:
             project_file = None
+            ts_len = datetime.now().strftime(TIMESTAMP_FMT)
             for file_name in clk_zip.namelist():
-                if f"{project}.json" in file_name:
+                if (project in file_name) and (len(file_name) == len("output/" + project+ts_len+".json")):
                     project_file = file_name
                     break
             if project_file is not None:
