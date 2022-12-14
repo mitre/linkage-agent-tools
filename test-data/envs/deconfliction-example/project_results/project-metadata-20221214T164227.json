@@ -1,0 +1,24 @@
+{
+  "start-time": "2022-12-14T16:42:27.772449",
+  "projects": [
+    "name-sex-dob-phone",
+    "name-sex-dob-zip",
+    "name-sex-dob-addr"
+  ],
+  "uuid1": "344a11e4-7bf8-11ed-9140-3e22fbe5e382",
+  "name-sex-dob-phone": {
+    "start_time": "2022-12-14T16:42:27.775219",
+    "completion_time": "2022-12-14T16:42:48.570183",
+    "number_of_groups": 603
+  },
+  "name-sex-dob-zip": {
+    "start_time": "2022-12-14T16:42:48.575842",
+    "completion_time": "2022-12-14T16:43:09.139329",
+    "number_of_groups": 624
+  },
+  "name-sex-dob-addr": {
+    "start_time": "2022-12-14T16:43:09.145349",
+    "completion_time": "2022-12-14T16:43:29.566553",
+    "number_of_groups": 580
+  }
+}
