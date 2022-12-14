@@ -1,4 +1,4 @@
-from dcctools.deconflict import deconflict, link_count
+from dcctools.deconflict import deconflict, link_scores
 
 example_result = {
     "a": [142],
@@ -39,8 +39,8 @@ example_result_no_c = {
 }
 
 
-def test_link_count():
-    count = link_count(example_result, "b", 142)
+def test_link_scores():
+    count = link_scores(example_result, "b", 142, None)
     assert count == 8
 
 
