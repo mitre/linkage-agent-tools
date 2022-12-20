@@ -10,6 +10,7 @@ from pathlib import Path
 
 from dcctools.anonlink import Project
 from dcctools.config import Configuration
+from definitions import TIMESTAMP_FMT
 
 # Delay between run status checks
 SLEEP_TIME = 10.0
@@ -33,7 +34,7 @@ def parse_args():
 
 def run_projects(c, project_name=None):
     projects_start_time = datetime.datetime.now()
-    timestamp = projects_start_time.strftime("%y%m%d")
+    timestamp = projects_start_time.strftime(TIMESTAMP_FMT)
     with open(
         Path(c.project_results_dir) / f"project-metadata-{timestamp}.json", "w+"
     ) as metadata_file:
@@ -100,7 +101,7 @@ def run_project(c, metadata_timestamp, project_name=None, households=False):
     result_json = project.get_results()
     metadata[project_name]["completion_time"] = datetime.datetime.now().isoformat()
     metadata[project_name]["number_of_groups"] = len(result_json.get("groups", []))
-    timestamp = project_start_time.strftime("%y%m%d")
+    timestamp = project_start_time.strftime(TIMESTAMP_FMT)
     Path(c.project_results_dir).mkdir(parents=True, exist_ok=True)
     with open(
         Path(c.project_results_dir) / f"{project_name}-{timestamp}.json", "w"

@@ -12,6 +12,7 @@ from pymongo import MongoClient
 
 from dcctools.config import Configuration
 from dcctools.deconflict import deconflict
+from definitions import TIMESTAMP_FMT
 
 
 def parse_args():
@@ -35,7 +36,7 @@ def parse_args():
 
 def do_link_ids(c, remove=False):
     link_id_time = datetime.datetime.now()
-    timestamp = datetime.datetime.strftime(link_id_time, "%Y%m%dT%H%M%S")
+    timestamp = datetime.datetime.strftime(link_id_time, TIMESTAMP_FMT)
     n_records = 0
 
     client = MongoClient(c.mongo_uri)
@@ -144,7 +145,9 @@ def do_link_ids(c, remove=False):
                         )
                         final_record = {}
                         if conflict:
-                            final_record = deconflict(row, systems)
+                            final_record = deconflict(
+                                row, systems, c.project_deconfliction_weights
+                            )
                         else:
                             for s in systems:
                                 record_id = row.get(s, None)

@@ -80,11 +80,14 @@ python -m venv venv/
 source venv/bin/activate
 ```
 
-#### Installing dependencies
+#### Installing package and dependencies
 
 ```shell
 pip install -r requirements.txt
+pip install -e .
 ```
+
+The second invocation of `pip` is required in order for `setup.py` to be able to communicate with your local installation of python so that the included modules can be found easily.
 
 ### Installing with Anaconda
 
@@ -103,6 +106,7 @@ pip install -r requirements.txt
    1. `conda activate codi`
    1. `conda install pip`
    1. `pip install -r requirements.txt`
+   1. `pip install -e .`
 
 ## Configuration
 

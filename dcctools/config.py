@@ -7,6 +7,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from zipfile import ZipFile
 
+from definitions import TIMESTAMP_FMT
+
 
 class Configuration:
     def __init__(self, filename):
@@ -45,6 +47,19 @@ class Configuration:
                             is unequal \n\tThreshold must either be float or list of \
                             floats equal in length to the number of projects"
                 )
+        if "project_deconfliction_weights" in self.config_json:
+            for proj in self.config_json["projects"]:
+                conflict_weights = self.config_json["project_deconfliction_weights"]
+                if proj not in conflict_weights:
+                    config_issues.append(
+                        f"Project {proj} is missing a deconfliction weighting"
+                    )
+                elif conflict_weights[proj] > 1.0:
+                    config_issues.append(
+                        f"Project {proj} has a deconfliction "
+                        f"weight of {conflict_weights[proj]} "
+                        f"which is greater than 1.0"
+                    )
         return config_issues
 
     def validate_metadata(self, system_path):
@@ -56,7 +71,7 @@ class Configuration:
                     metadata_files.append(fname)
                     anchor = fname.rfind("T")
                     mname = fname[(anchor - 8) : (anchor + 7)]
-                    timestamp = datetime.strptime(mname, "%Y%m%dT%H%M%S")
+                    timestamp = datetime.strptime(mname, TIMESTAMP_FMT)
                     with archive.open(fname, "r") as metadata_fp:
                         metadata = json.load(metadata_fp)
                     if self.household_match:
@@ -211,15 +226,21 @@ class Configuration:
         return clk_path
 
     def get_clks_raw(self, system, project):
-        clks = None
         clk_zip_path = Path(self.config_json["inbox_folder"]) / "{}.zip".format(system)
         with ZipFile(clk_zip_path, mode="r") as clk_zip:
+            project_file = None
             for file_name in clk_zip.namelist():
                 if f"{project}.json" in file_name:
                     project_file = file_name
                     break
-            with clk_zip.open(project_file) as clk_file:
-                clks = clk_file.read()
+            if project_file is not None:
+                with clk_zip.open(project_file) as clk_file:
+                    clks = clk_file.read()
+            else:
+                raise KeyError(
+                    f"There is no item named '{project}.json' "
+                    f"in the archive {system}.zip"
+                )
         return clks
 
     def get_household_clks_raw(self, system, schema):
@@ -297,6 +318,10 @@ class Configuration:
     @property
     def matching_results_folder(self):
         return self.config_json["matching_results_folder"]
+
+    @property
+    def project_deconfliction_weights(self):
+        return self.config_json.get("project_deconfliction_weights", None)
 
     @property
     def inbox_folder(self):

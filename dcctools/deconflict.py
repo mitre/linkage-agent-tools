@@ -1,4 +1,4 @@
-def deconflict(result_document, systems):
+def deconflict(result_document, systems, project_weights=None):
     final_record = {}
     system_conflicts = []
     for s in systems:
@@ -9,17 +9,24 @@ def deconflict(result_document, systems):
                 final_record[s] = result_document[s][0]
     for sc in system_conflicts:
         conflicting_ids = result_document[sc]
-        id_to_link_count = {}
+        id_to_link_scores = {}
         for cid in conflicting_ids:
-            id_to_link_count[cid] = link_count(result_document, sc, cid)
-        final_record[sc] = max(id_to_link_count, key=lambda key: id_to_link_count[key])
+            id_to_link_scores[cid] = link_scores(
+                result_document, sc, cid, project_weights
+            )
+        final_record[sc] = max(
+            id_to_link_scores, key=lambda key: id_to_link_scores[key]
+        )
 
     return final_record
 
 
-def link_count(result_document, system, link_id):
+def link_scores(result_document, system, link_id, project_weights):
     count = 0
     for rr in result_document["run_results"]:
         if rr.get(system, None) == link_id:
-            count += 1
+            if project_weights is not None:
+                count += project_weights[rr.get("project", 0)]
+            else:
+                count += 1
     return count
