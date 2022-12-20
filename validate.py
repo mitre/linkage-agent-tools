@@ -19,6 +19,7 @@ def parse_args():
 def do_validate(c):
     # N.B. at time of PR household files don't have metadata associated with them.
     # Will be fixed in an upcoming patch to data-owner-tools
+    # ^Is this still true?
     missing, unexpected, metadata_issues = c.validate_all_present()
     if len(missing) == 0:
         print("All necessary input is present")
