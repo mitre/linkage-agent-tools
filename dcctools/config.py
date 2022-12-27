@@ -146,7 +146,9 @@ class Configuration:
         all_schema = {}
         for p in self.config_json["projects"]:
             if not p.startswith("exact:"):
-                schema_path = Path(self.config_json["schema_folder"]) / "{}.json".format(p)
+                schema_path = Path(
+                    self.config_json["schema_folder"]
+                ) / "{}.json".format(p)
                 with open(schema_path) as schema_file:
                     all_schema[p] = schema_file.read()
             else:

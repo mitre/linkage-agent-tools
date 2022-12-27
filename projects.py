@@ -80,7 +80,7 @@ def run_exact_match(c, metadata_timestamp, project_name=None, households=False):
     clks_set = {}
     clks = {}
     result_json = {"groups": []}
-    project = project_name[len("exact:"):]
+    project = project_name[len("exact:") :]
     for system in c.systems:
         raw_clks = None
         if households:
@@ -96,7 +96,7 @@ def run_exact_match(c, metadata_timestamp, project_name=None, households=False):
         result_json["groups"] = [
             [
                 [c.systems.index(pair[0]), clks[pair[0]].index(clk)],
-                [c.systems.index(pair[1]), clks[pair[1]].index(clk)]
+                [c.systems.index(pair[1]), clks[pair[1]].index(clk)],
             ]
             for clk in list(pairwise_matches)
         ]
@@ -106,11 +106,11 @@ def run_exact_match(c, metadata_timestamp, project_name=None, households=False):
     timestamp = project_start_time.strftime(TIMESTAMP_FMT)
     Path(c.project_results_dir).mkdir(parents=True, exist_ok=True)
     with open(
-            Path(c.project_results_dir) / f"{project_name}-{timestamp}.json", "w"
+        Path(c.project_results_dir) / f"{project_name}-{timestamp}.json", "w"
     ) as json_file:
         json.dump(result_json, json_file)
     with open(
-            Path(c.project_results_dir) / f"project-metadata-{metadata_timestamp}.json", "w"
+        Path(c.project_results_dir) / f"project-metadata-{metadata_timestamp}.json", "w"
     ) as metadata_file:
         json.dump(metadata, metadata_file, indent=2)
 
