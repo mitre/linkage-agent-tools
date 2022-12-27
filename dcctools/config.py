@@ -320,6 +320,10 @@ class Configuration:
         return self.config_json["household_match"]
 
     @property
+    def household_include_exact(self):
+        return self.config_json["household_include_exact"]
+
+    @property
     def household_schema(self):
         return self.config_json["household_schema"]
 

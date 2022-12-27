@@ -48,6 +48,9 @@ def run_projects(c, project_name=None):
     if c.household_match:
         log.debug("Processing households")
         project_name = "fn-phone-addr-zip"
+
+        if c.household_include_exact:
+            run_exact_match(c, timestamp, project_name, households=True)
         run_project(c, timestamp, project_name, households=True)
     else:
         log.debug("Processing individuals")

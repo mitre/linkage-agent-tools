@@ -19,6 +19,7 @@
   "blocked": false,
   "blocking_schema": "test-data/envs/small/schema/blocking-schema/lambda.json",
   "household_match": false,
+  "household_include_exact": false,
   "household_threshold": 0.65,
   "household_schema": "test-data/envs/small/schema/household-schema/fn-phone-addr-zip.json"
 }
