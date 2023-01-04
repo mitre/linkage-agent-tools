@@ -49,6 +49,9 @@ def do_link_ids(c, remove=False):
     all_ids_for_systems = {}
     all_ids_for_households = {}
     first_project = c.projects[0]
+    # note this first_project is only used to get the count of # of CLKs
+    if first_project.startswith("exact:"):
+        first_project = first_project[6:]
     individual_linkages = []
     for system in systems:
         if c.household_match:
