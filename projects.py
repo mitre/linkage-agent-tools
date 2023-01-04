@@ -91,15 +91,16 @@ def run_exact_match(c, metadata_timestamp, project_name=None, households=False):
         clks_set[system] = set(clk_json["clks"])
         clks[system] = clk_json["clks"]
 
+    result_json["groups"] = []
     for pair in itertools.combinations(c.systems, 2):
         pairwise_matches = clks_set[pair[0]].intersection(clks_set[pair[1]])
-        result_json["groups"] = [
+        result_json["groups"].extend([
             [
                 [c.systems.index(pair[0]), clks[pair[0]].index(clk)],
                 [c.systems.index(pair[1]), clks[pair[1]].index(clk)],
             ]
             for clk in list(pairwise_matches)
-        ]
+        ])
 
     metadata[project_name]["completion_time"] = datetime.datetime.now().isoformat()
     metadata[project_name]["number_of_groups"] = len(result_json.get("groups", []))
