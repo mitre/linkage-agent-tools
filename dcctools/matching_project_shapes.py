@@ -16,13 +16,13 @@ if version_array[0] > 4 or (version_array[0] == 4 and version_array[1] >= 4):
                     "key": {
                         "$function": {
                             "body": "function(run_results) {\
-                                     const key = { \
-                                       'name-sex-dob-addr': 0, \
-                                       'name-sex-dob-parents': 0, \
-                                       'name-sex-dob-phone': 0, \
-                                       'name-sex-dob-zip': 0\
-                                     };\
-                                     run_results.forEach(r => key[r.project]++);\
+                                     const key = {};\
+                                     run_results.forEach(r => {\
+                                        if (!(r.project in key)) {\
+                                          key[r.project] = 0;\
+                                        }\
+                                        key[r.project]++;\
+                                     });\
                                      return key;\
                                     }",
                             "args": ["$run_results"],
