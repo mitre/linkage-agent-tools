@@ -7,7 +7,6 @@ from config import Configuration
 
 from definitions import TIMESTAMP_FMT
 
-
 c = Configuration("config.json")
 
 if c.household_match:
