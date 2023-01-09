@@ -145,9 +145,14 @@ class Configuration:
     def load_schema(self):
         all_schema = {}
         for p in self.config_json["projects"]:
-            schema_path = Path(self.config_json["schema_folder"]) / "{}.json".format(p)
-            with open(schema_path) as schema_file:
-                all_schema[p] = schema_file.read()
+            if not p.startswith("exact:"):
+                schema_path = Path(
+                    self.config_json["schema_folder"]
+                ) / "{}.json".format(p)
+                with open(schema_path) as schema_file:
+                    all_schema[p] = schema_file.read()
+            else:
+                all_schema[p] = None
         return all_schema
 
     def load_household_schema(self):
@@ -315,6 +320,10 @@ class Configuration:
     @property
     def household_match(self):
         return self.config_json["household_match"]
+
+    @property
+    def household_include_exact(self):
+        return self.config_json["household_include_exact"]
 
     @property
     def household_schema(self):

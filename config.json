@@ -1,12 +1,13 @@
 {
   "systems": ["hospital_001", "hospital_002", "hospital_003"],
-  "projects": ["name-sex-dob-phone", "name-sex-dob-zip", "name-sex-dob-parents", "name-sex-dob-addr"],
+  "projects": ["name-sex-dob-phone", "name-sex-dob-zip", "name-sex-dob-parents", "name-sex-dob-addr", "exact:name-sex-dob-zip"],
   "matching_threshold": [0.75,               0.75,                0.75,                   0.75],
   "project_deconfliction_weights": {
     "name-sex-dob-phone": 0.8,
     "name-sex-dob-zip": 0.65,
     "name-sex-dob-parents": 1.0,
-    "name-sex-dob-addr": 0.9
+    "name-sex-dob-addr": 0.9,
+    "exact:name-sex-dob-zip": 0.9
   },
   "schema_folder": "test-data/envs/small/schema",
   "inbox_folder": "test-data/envs/small/inbox",
@@ -18,6 +19,7 @@
   "blocked": false,
   "blocking_schema": "test-data/envs/small/schema/blocking-schema/lambda.json",
   "household_match": false,
+  "household_include_exact": false,
   "household_threshold": 0.65,
   "household_schema": "test-data/envs/small/schema/household-schema/fn-phone-addr-zip.json"
 }

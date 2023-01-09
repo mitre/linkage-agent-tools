@@ -2,6 +2,7 @@
 
 import argparse
 import datetime
+import itertools
 import json
 import logging
 import time
@@ -47,6 +48,9 @@ def run_projects(c, project_name=None):
     if c.household_match:
         log.debug("Processing households")
         project_name = "fn-phone-addr-zip"
+
+        if c.household_include_exact:
+            run_exact_match(c, timestamp, project_name, households=True)
         run_project(c, timestamp, project_name, households=True)
     else:
         log.debug("Processing individuals")
@@ -59,7 +63,59 @@ def run_projects(c, project_name=None):
             run_project(c, timestamp, project_name)
         else:
             for project_name in c.load_schema().keys():
-                run_project(c, timestamp, project_name)
+                if project_name.startswith("exact:"):
+                    run_exact_match(c, timestamp, project_name)
+                else:
+                    run_project(c, timestamp, project_name)
+
+
+def run_exact_match(c, metadata_timestamp, project_name=None, households=False):
+    with open(
+        Path(c.project_results_dir) / f"project-metadata-{metadata_timestamp}.json", "r"
+    ) as metadata_file:
+        metadata = json.load(metadata_file)
+    project_start_time = datetime.datetime.now()
+    metadata["projects"].append(project_name)
+    metadata[project_name] = {"start_time": project_start_time.isoformat()}
+    clks_set = {}
+    clks = {}
+    result_json = {"groups": []}
+    project = project_name[len("exact:") :]
+    for system in c.systems:
+        raw_clks = None
+        if households:
+            raw_clks = c.get_household_clks_raw(system, project)
+        else:
+            raw_clks = c.get_clks_raw(system, project)
+        clk_json = json.loads(raw_clks)
+        clks_set[system] = set(clk_json["clks"])
+        clks[system] = clk_json["clks"]
+
+    result_json["groups"] = []
+    for pair in itertools.combinations(c.systems, 2):
+        pairwise_matches = clks_set[pair[0]].intersection(clks_set[pair[1]])
+        result_json["groups"].extend(
+            [
+                [
+                    [c.systems.index(pair[0]), clks[pair[0]].index(clk)],
+                    [c.systems.index(pair[1]), clks[pair[1]].index(clk)],
+                ]
+                for clk in list(pairwise_matches)
+            ]
+        )
+
+    metadata[project_name]["completion_time"] = datetime.datetime.now().isoformat()
+    metadata[project_name]["number_of_groups"] = len(result_json.get("groups", []))
+    timestamp = project_start_time.strftime(TIMESTAMP_FMT)
+    Path(c.project_results_dir).mkdir(parents=True, exist_ok=True)
+    with open(
+        Path(c.project_results_dir) / f"{project_name}-{timestamp}.json", "w"
+    ) as json_file:
+        json.dump(result_json, json_file)
+    with open(
+        Path(c.project_results_dir) / f"project-metadata-{metadata_timestamp}.json", "w"
+    ) as metadata_file:
+        json.dump(metadata, metadata_file, indent=2)
 
 
 def run_project(c, metadata_timestamp, project_name=None, households=False):
