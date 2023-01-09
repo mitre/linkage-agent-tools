@@ -11,9 +11,7 @@ from definitions import TIMESTAMP_FMT
 c = Configuration("config.json")
 
 if c.household_match:
-    link_ids = sorted(
-        Path(c.matching_results_folder).glob("household_link_ids*.csv")
-    )
+    link_ids = sorted(Path(c.matching_results_folder).glob("household_link_ids*.csv"))
 else:
     link_ids = sorted(Path(c.matching_results_folder).glob("link_ids*.csv"))
 
