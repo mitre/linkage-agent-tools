@@ -151,6 +151,10 @@ def do_link_ids(c, remove=False):
                             final_record = deconflict(
                                 row, systems, c.project_deconfliction_weights
                             )
+                            # remove the ids that were actually used, leave the rest
+                            # so that they count as "unmatched_ids" below
+                            for system, record_id in final_record.items():
+                                all_ids_for_systems[system].remove(record_id)
                         else:
                             for s in systems:
                                 record_id = row.get(s, None)
