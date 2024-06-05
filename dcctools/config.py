@@ -24,6 +24,10 @@ class Configuration:
     def system_count(self):
         return len(self.config_json["systems"])
 
+    @property
+    def CLK_expiration(self):
+        return datetime.strptime(self.config_json["CLK_expiration_date"], "%Y-%m-%d")
+
     def validate_config(self):
         config_issues = []
         if (
@@ -70,11 +74,37 @@ class Configuration:
                     timestamp = datetime.strptime(mname, TIMESTAMP_FMT)
                     with archive.open(fname, "r") as metadata_fp:
                         metadata = json.load(metadata_fp)
-                    garble_time = datetime.fromisoformat(metadata["creation_date"])
-                    if (garble_time - timestamp) >= timedelta(seconds=1):
+                    if self.household_match:
+                        garble_time = datetime.fromisoformat(
+                            metadata["household_garble_time"]
+                        )
+                    else:
+                        garble_time = datetime.fromisoformat(metadata["garble_time"])
+                    extract_time = datetime.fromisoformat(metadata["creation_date"])
+                    if (extract_time - timestamp) >= timedelta(seconds=1):
                         metadata_issues.append(
                             f"{system_path.name} metadata timecode {timestamp} does "
-                            "not match listed garble time {garble_time}"
+                            f"not match listed garble time {garble_time}"
+                        )
+                    if garble_time <= self.CLK_expiration:
+                        metadata_issues.append(
+                            f"{fname} reports a garble date of "
+                            f"{garble_time.strftime('%Y-%m-%d')},"
+                            f" which is earlier than the configured CLK "
+                            f"expiration date of"
+                            f" {self.CLK_expiration.strftime('%Y-%m-%d')}."
+                            f"\n\t Is this the most recent "
+                            f"version of these hashes?"
+                        )
+                    if extract_time <= self.CLK_expiration:
+                        metadata_issues.append(
+                            f"{fname} reports a garble date of "
+                            f"{extract_time.strftime('%Y-%m-%d')},"
+                            f" which is earlier than the configured "
+                            f"CLK expiration date of"
+                            f" {self.CLK_expiration.strftime('%Y-%m-%d')}."
+                            f"\n\t Is this the most recent "
+                            f"version of these hashes?"
                         )
             if len(metadata_files) == 0:
                 metadata_issues.append(
@@ -110,6 +140,7 @@ class Configuration:
                 if not os.path.exists(system_zip_path):
                     missing_paths.append(system_zip_path)
                 else:
+                    print(system_zip_path.name)
                     metadata_issues.extend(self.validate_metadata(system_zip_path))
                 if os.path.exists(household_zip_path):
                     unexpected_paths.append(household_zip_path)
